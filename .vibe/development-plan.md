@@ -91,19 +91,21 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Die Lösung adressiert das eigentliche Problem
 
 ### Tasks
-- [x] **Orchestrator (Zyklus 2):** Code Review durchführen
+- [x] **Orchestrator (Zyklus 3):** Code Review durchführen
 - [x] Docstrings vollständig ✓
-- [x] Type hints geprüft: LLMClient integration korrekt ✓
-- [x] Prompt-Konstruktion validiert: Simple MVP-Format okay ✓
-- [x] Pattern-Konsistenz: Analog zu KrokiClient ✓
+- [x] Type hints geprüft: KrokiClient + KrokiRenderError imports korrekt ✓
+- [x] Error-Handling validiert: try/except sauber, validation_error tracking ✓
+- [x] Refinement-Prompt Format: Klar und vollständig (error + description + previous source) ✓
+- [x] Potentielle Refactorings geprüft: Prompt extraction → YAGNI (nur 4 Zeilen) ✓
+- [x] Pattern-Konsistenz: Analog zu LLMClient-Integration ✓
 - [x] Keine Refactorings nötig - Code ist clean
 
 ### Completed
 - [x] Code Review durchgeführt: Keine Änderungen nötig ✅
-- [x] Pattern konsistent (Dependency Injection, Settings-based config)
+- [x] Pattern konsistent (Dependency Injection, Error-Handling mit try/except)
 - [x] Docstrings vollständig, Type hints angemessen
-- [x] Tests passed ✅ (89% Coverage für Orchestrator)
-- [x] Orchestrator Zyklus 2 abgeschlossen ✅ (LLMClient-Integration)
+- [x] Tests passed ✅ (92% Coverage für Orchestrator)
+- [x] Orchestrator Zyklus 3 abgeschlossen ✅ (KrokiClient Validation-Loop)
 
 ## Key Decisions
 
@@ -205,10 +207,11 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - Settings für Provider/Model statt hardcoded values
 
 ### Orchestrator - ABGESCHLOSSEN ✅ (2025-12-15)
-**Status**: 2 TDD-Zyklen komplett (RED→GREEN→REFACTOR)
+**Status**: 3 TDD-Zyklen komplett (RED→GREEN→REFACTOR)
 - ✅ Zyklus 1: Iteration-Loop mit max_iterations + max_time_seconds
 - ✅ Zyklus 2: LLMClient-Integration für echte Generierung
-- ✅ 3 Tests, 89% Coverage
+- ✅ Zyklus 3: KrokiClient Validation-Loop mit Error-Retry
+- ✅ 5 Tests, 92% Coverage
 - ✅ stopped_reason Logic (max_iterations | max_time | success)
 
 **Implementiert:**
@@ -217,8 +220,10 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - Limits aus Settings (max_iterations=5, max_time_seconds=60)
 - Metadata: iterations_used, elapsed_seconds, stopped_reason
 - LLMClient-Integration: self.llm_client = LLMClient(settings)
-- Simple Prompt-Konstruktion: f"Generate a {diagram_type} diagram: {description}"
-- LLM-Aufruf: diagram_source = self.llm_client.generate(prompt)
+- KrokiClient-Integration: self.kroki_client = KrokiClient(settings.kroki_local_url)
+- Validation-Loop: try { render_diagram() } catch { refinement prompt }
+- Refinement-Prompt: "Fix the following {type} diagram. Previous attempt had this error: {error}..."
+- Autonome Iteration bis Syntax valid oder Limits erreicht
 
 ### KrokiClient - ABGESCHLOSSEN ✅ (2025-12-15)
 **Status**: 2 TDD-Zyklen komplett (RED→GREEN→REFACTOR)
