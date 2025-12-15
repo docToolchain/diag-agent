@@ -107,6 +107,32 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Tests passed ✅ (92% Coverage für Orchestrator)
 - [x] Orchestrator Zyklus 3 abgeschlossen ✅ (KrokiClient Validation-Loop)
 
+## Explore (Cycle 4: File Output)
+
+### Phase Entrance Criteria:
+- [x] Orchestrator Cycle 3 abgeschlossen (Validation-Loop funktioniert)
+- [x] Diagram Source wird generiert und validiert
+- [x] CLI ruft orchestrator.execute() auf und erwartet output_path
+- [x] Aktuell: Kein File-Writing implementiert
+
+### Tasks
+- [x] **Orchestrator (Zyklus 4):** File Output Strategie analysieren
+- [x] Aktueller Zustand verstehen: output_path hardcoded, keine Files geschrieben
+- [x] Output-Format-Parsing: `"png,svg,source"` → multiple files
+- [x] Kroki OutputFormat analysieren: png, svg, pdf, jpeg
+- [x] Source-Extension-Mapping: plantuml → .puml, mermaid → .mmd, etc.
+- [x] Directory-Creation-Strategie: os.makedirs(output_dir, exist_ok=True)
+- [x] MVP-Scope definieren: Alle Formate + Multi-File-Support
+
+### Completed
+- [x] CLI erwartet: result['output_path'] (single path) ✓
+- [x] Orchestrator nimmt: output_dir + output_formats, nutzt sie aber nicht ✓
+- [x] Output-Formate: png/svg/pdf/jpeg via Kroki, source via Text-Write ✓
+- [x] File Naming: `diagram.{ext}` (YAGNI - kein Name-Generation) ✓
+- [x] Implementation Location: In Orchestrator.execute() nach Success ✓
+- [x] Return Strategy: Primary path (erstes Format in Liste) ✓
+- [x] Source Extension Map: .puml (plantuml), .mmd (mermaid), default .{type} ✓
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
