@@ -58,28 +58,29 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 ## Green
 
 ### Phase Entrance Criteria:
-- [x] Ein spezifischer, fokussierter Test wurde geschrieben
-- [x] Der Test schlägt fehl (RED) aus dem richtigen Grund
-- [x] Test validiert tatsächlich die erwartete Funktionalität
-- [x] Test-Typ (Unit/Integration) wurde mit User abgestimmt
+- [x] 2 Tests geschrieben und schlagen fehl (RED)
+- [x] Tests schlagen aus dem richtigen Grund fehl (KrokiClient nicht importiert)
+- [x] Tests validieren erwartete Funktionalität (Validation + Retry)
+- [x] Test-Typ: Unit-Tests mit Mocks (wie Cycle 1+2)
 
 ### Tasks
-- [x] **Orchestrator (Zyklus 2):** LLMClient-Integration implementieren
-- [x] LLMClient import auf Modul-Ebene hinzufügen
-- [x] LLMClient im __init__ instantiieren
-- [x] Prompt bauen: f"Generate a {diagram_type} diagram: {description}"
-- [x] llm_client.generate(prompt) aufrufen
-- [x] diagram_source vom LLM verwenden (nicht hardcoded)
-- [x] Alte Tests anpassen: LLMClient mocken
+- [x] **Orchestrator (Zyklus 3):** KrokiClient-Integration implementieren
+- [x] KrokiClient + KrokiRenderError import hinzufügen
+- [x] KrokiClient im __init__ instantiieren (mit settings.kroki_local_url)
+- [x] render_diagram() im Iteration-Loop aufrufen
+- [x] try/except für KrokiRenderError implementieren
+- [x] Refinement-Prompt bei Error bauen (enthält error + previous source)
+- [x] Bei Success: break aus Loop
+- [x] Alte Tests anpassen: KrokiClient mocken + kroki_local_url hinzufügen
 - [x] Alle Tests ausführen und grün machen
 
 ### Completed
-- [x] LLMClient importiert in orchestrator.py ✅
-- [x] self.llm_client = LLMClient(settings) in __init__ ✅
-- [x] Simple Prompt: f"Generate a {diagram_type} diagram: {description}" ✅
-- [x] diagram_source = self.llm_client.generate(prompt) ✅
-- [x] Alte Tests gefixt: LLMClient-Mock hinzugefügt ✅
-- [x] 3 Tests passed! ✅ (89% Coverage für Orchestrator)
+- [x] KrokiClient + KrokiRenderError importiert ✅
+- [x] self.kroki_client = KrokiClient(settings.kroki_local_url) in __init__ ✅
+- [x] Validation-Loop implementiert: try { render_diagram() } catch { refinement } ✅
+- [x] Refinement-Prompt: "Fix the following {type} diagram. Previous attempt had this error: {error}" ✅
+- [x] Alte Tests gefixt: KrokiClient-Mock + kroki_local_url hinzugefügt ✅
+- [x] 5 Tests passed! ✅ (92% Coverage für Orchestrator)
 
 ## Refactor
 

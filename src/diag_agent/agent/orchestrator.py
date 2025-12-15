@@ -7,6 +7,7 @@ from typing import Dict, Any
 import time
 
 from diag_agent.llm.client import LLMClient
+from diag_agent.kroki.client import KrokiClient, KrokiRenderError
 
 
 class Orchestrator:
@@ -28,6 +29,8 @@ class Orchestrator:
         self.settings = settings
         # Initialize LLM client for diagram generation
         self.llm_client = LLMClient(settings)
+        # Initialize Kroki client for syntax validation
+        self.kroki_client = KrokiClient(settings.kroki_local_url)
     
     def execute(
         self,
@@ -55,6 +58,7 @@ class Orchestrator:
         start_time = time.time()
         stopped_reason = "success"
         diagram_source = ""  # Will be set by LLM
+        validation_error = None  # Track validation errors for refinement
         
         # Get limits from settings
         max_iterations = self.settings.max_iterations
@@ -71,17 +75,30 @@ class Orchestrator:
                 break
             
             # Build prompt for diagram generation
-            prompt = f"Generate a {diagram_type} diagram: {description}"
+            if validation_error:
+                # Refinement prompt with error details
+                prompt = f"Fix the following {diagram_type} diagram. Previous attempt had this error: {validation_error}\n\nOriginal request: {description}\n\nPrevious source:\n{diagram_source}"
+            else:
+                # Initial prompt
+                prompt = f"Generate a {diagram_type} diagram: {description}"
             
             # Call LLM to generate diagram source
             diagram_source = self.llm_client.generate(prompt)
             
-            # TODO: In later TDD cycles:
-            # - Validate with KrokiClient
-            # - Analyze design with Analyzer
-            # - Build refinement prompt if needed
-            # For now, just break after 1 iteration (MVP)
-            break  # Success after first iteration (MVP)
+            # Validate syntax with Kroki
+            try:
+                self.kroki_client.render_diagram(
+                    diagram_source=diagram_source,
+                    diagram_type=diagram_type,
+                    output_format="png"
+                )
+                # Validation successful - diagram is syntactically valid
+                validation_error = None
+                break  # Success!
+            except KrokiRenderError as e:
+                # Validation failed - save error for refinement prompt
+                validation_error = str(e)
+                # Continue to next iteration for retry
         
         # Check if we hit iteration limit
         if iterations_used >= max_iterations and stopped_reason == "success":

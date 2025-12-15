@@ -24,12 +24,18 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 2
         mock_settings.max_time_seconds = 60
+        mock_settings.kroki_local_url = "http://localhost:8000"
 
         # Mock LLMClient
         mock_llm_client = Mock()
         mock_llm_client.generate.return_value = "@startuml\nTest\n@enduml"
 
-        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client):
+        # Mock KrokiClient - validation succeeds
+        mock_kroki_client = Mock()
+        mock_kroki_client.render_diagram.return_value = b"\x89PNG\r\n\x1a\n"
+
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client):
             orchestrator = Orchestrator(mock_settings)
 
             # Act
@@ -62,12 +68,18 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 100  # High number
         mock_settings.max_time_seconds = 1  # Very short timeout
+        mock_settings.kroki_local_url = "http://localhost:8000"
 
         # Mock LLMClient
         mock_llm_client = Mock()
         mock_llm_client.generate.return_value = "@startuml\nTest\n@enduml"
 
-        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client):
+        # Mock KrokiClient - validation succeeds
+        mock_kroki_client = Mock()
+        mock_kroki_client.render_diagram.return_value = b"\x89PNG\r\n\x1a\n"
+
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client):
             orchestrator = Orchestrator(mock_settings)
 
             # Act
@@ -102,16 +114,22 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
+        mock_settings.kroki_local_url = "http://localhost:8000"
 
         # Mock LLMClient
         mock_llm_client = Mock()
         mock_llm_client.generate.return_value = "@startuml\nAlice -> Bob: Auth Request\n@enduml"
 
+        # Mock KrokiClient - validation succeeds
+        mock_kroki_client = Mock()
+        mock_kroki_client.render_diagram.return_value = b"\x89PNG\r\n\x1a\n"
+
         description = "User authentication flow"
         diagram_type = "plantuml"
 
         # Patch BEFORE creating Orchestrator (LLMClient is instantiated in __init__)
-        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client):
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client):
             orchestrator = Orchestrator(mock_settings)
             
             # Act
