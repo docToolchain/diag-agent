@@ -69,13 +69,18 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] @click.command() für create mit Description
 - [x] Options: --type, --output, --format
 - [x] Tests ausführen und grün machen
+- [x] **CLI Basis (Zyklus 2):** create command mit Orchestrator-Integration
+- [x] Minimal Orchestrator-Klasse mit execute() erstellen
+- [x] Settings + Orchestrator in CLI importieren
+- [x] create() ruft orchestrator.execute() auf
+- [x] Tests ausführen und grün machen
 
 ### Completed
-- [x] CLI in src/diag_agent/cli/commands.py erstellt
-- [x] Click framework integriert (@click.group + @click.command)
-- [x] create command mit 3 Options (type, output, format)
-- [x] Version info: 0.1.0
-- [x] Test passed! ✅ (71% Coverage - 4 missed lines in create body, kommt in Zyklus 2)
+- [x] Zyklus 1: CLI mit --help (100% Coverage) ✅
+- [x] Zyklus 2: Orchestrator-Stub in src/diag_agent/agent/orchestrator.py
+- [x] Zyklus 2: CLI integriert Settings + Orchestrator
+- [x] Zyklus 2: create() ruft orchestrator.execute() mit allen Parametern auf
+- [x] Beide Tests passed! ✅ (CLI: 100% Coverage, Orchestrator: 67%)
 - [x] **Zyklus 2:** KrokiRenderError Exception mit klarer Docstring
 - [x] **Zyklus 2:** try-except Block für httpx.HTTPStatusError
 - [x] **Zyklus 2:** Error-Message mit status code + diagram type

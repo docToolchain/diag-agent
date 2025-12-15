@@ -5,6 +5,9 @@ Entry point for the command-line interface using Click framework.
 
 import click
 
+from diag_agent.config.settings import Settings
+from diag_agent.agent.orchestrator import Orchestrator
+
 
 @click.group()
 @click.version_option(version="0.1.0", prog_name="diag-agent")
@@ -46,7 +49,20 @@ def create(description: str, type: str, output: str, output_format: str):
         
         diag-agent create "C4 context diagram for API gateway" --type c4plantuml
     """
-    # TODO: Implementation in next TDD cycle (with Orchestrator integration)
-    click.echo(f"Creating {type} diagram: {description}")
-    click.echo(f"Output: {output}")
-    click.echo(f"Formats: {output_format}")
+    # Load settings
+    settings = Settings()
+    
+    # Create orchestrator
+    orchestrator = Orchestrator(settings)
+    
+    # Execute diagram generation
+    result = orchestrator.execute(
+        description=description,
+        diagram_type=type,
+        output_dir=output,
+        output_formats=output_format
+    )
+    
+    # Display result
+    click.echo(f"✓ Diagram generated: {result['output_path']}")
+    click.echo(f"  Source: {len(result['diagram_source'])} characters")
