@@ -9,26 +9,25 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 ## Explore
 
 ### Phase Entrance Criteria:
-- [x] Vorherige Komponenten sind abgeschlossen (KrokiClient, Config Management)
-- [x] CLI-Framework-Entscheidung verstanden (ADR-008: Click)
-- [x] Quality Requirements für Context Efficiency gelesen
-- [x] Runtime View für CLI → Orchestrator-Interaktion verstanden
+- [x] Vorherige Komponenten sind abgeschlossen (KrokiClient, Config, CLI)
+- [x] ADR-002 (Agent Self-Iteration) verstanden
+- [x] Runtime View Scenario 1 analysiert (kompletter Feedback-Loop)
+- [x] Building Block View Level 2 studiert (Orchestrator-Komponenten)
 
 ### Tasks
-- [x] ADR-008 (Click CLI Framework) lesen und verstehen
-- [x] Runtime View analysieren: `diag-agent create` → Orchestrator
-- [x] Quality Requirements: Context Efficiency < 3k tokens
-- [x] CLI-Kommandos identifizieren: create, create-batch, --help
-- [x] MVP-Scope definieren: Nur `create` command für ersten Zyklus
-- [x] TDD-Strategie festlegen: Unit-Test mit Orchestrator-Mock
+- [x] ADR-002 lesen: Agent iteriert autonom mit eigenem LLM-Client
+- [x] Runtime View analysieren: Initial → Validate → Analyze → Refine → Approve
+- [x] Quality Scenarios: 95% Syntax-Fehler in 2 Iterations, < 60s total
+- [x] Limits verstehen: MAX_ITERATIONS=5, MAX_TIME_SECONDS=60
+- [x] Dependencies identifizieren: LLMClient, PromptBuilder, Validator, Analyzer, Limiter, Writer
+- [x] MVP-Scope definieren: Iteration-Loop mit KrokiClient (bereits fertig ✓)
 
 ### Completed
-- [x] ADR-008 gelesen: Click als CLI Framework (accepted)
-- [x] Runtime View verstanden: User → CLI → Orchestrator
-- [x] Quality Goals: Context Efficiency < 3k tokens, Installation < 2 min
-- [x] CLI-Kommandos recherchiert: `create`, `create-batch`
-- [x] MVP-Scope: `diag-agent create "description"` mit --help
-- [x] Nächster TDD-Zyklus: CLI create command mit Click
+- [x] ADR-002: Autonome Iteration, eigener LLM-Client, < 3k parent tokens
+- [x] Runtime View: 2-Iterations-Beispiel mit Validator + Analyzer
+- [x] Limits: max_iterations=5, max_time_seconds=60 aus Settings
+- [x] Dependencies: KrokiClient vorhanden ✓, LLMClient/Analyzer/Writer fehlen
+- [x] MVP-Strategie: Start mit Validation-Loop (KrokiClient), später Analyzer + Writer
 
 ## Red
 
@@ -39,21 +38,18 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Es ist klar, welche Funktionalität als nächstes implementiert werden soll
 
 ### Tasks
-- [x] **CLI Basis (Zyklus 1):** Test für `--help` output schreiben
-- [x] Test 1: `test_cli_help_output` - Validiert Click CLI, exit code 0, "create" command sichtbar
-- [x] Test validiert Context-Efficiency: Help < 2000 chars (< 500 tokens)
-- [x] Tests ausführen und Fehlschlag verifizieren (RED)
-- [x] **CLI Basis (Zyklus 2):** Test für `create` command mit Orchestrator
-- [x] Test 2: `test_create_command_calls_orchestrator` - Mock Orchestrator + Settings
-- [x] Test validiert: Orchestrator.execute() aufgerufen mit description
+- [x] **Orchestrator (Zyklus 1):** Tests für Iteration-Limits schreiben
+- [x] Test 1: `test_orchestrator_respects_max_iterations` - Iteration counting + limit
+- [x] Test 2: `test_orchestrator_respects_time_limit` - Time tracking + timeout
+- [x] Tests validieren Metadata: iterations_used, elapsed_seconds, stopped_reason
 - [x] Tests ausführen und Fehlschlag verifizieren (RED)
 
 ### Completed
-- [x] Zyklus 1: Test test_cli_help_output (--help) ✅
-- [x] Zyklus 2: Test test_create_command_calls_orchestrator geschrieben
-- [x] Test mockt Orchestrator + Settings (noch nicht implementiert)
-- [x] Test validiert: CLI ruft Orchestrator.execute() mit description auf
-- [x] Test schlägt fehl: `AttributeError: no attribute 'Orchestrator'` (erwartet) ✅
+- [x] 2 Tests in tests/unit/test_orchestrator.py geschrieben
+- [x] Test 1 validiert: iterations_used <= max_iterations (aus Settings)
+- [x] Test 2 validiert: elapsed_seconds <= max_time_seconds + 1s grace
+- [x] Beide Tests validieren stopped_reason (max_iterations | max_time | success)
+- [x] Tests schlagen fehl: Missing iterations_used/elapsed_seconds metadata (erwartet) ✅
 
 ## Green
 
@@ -168,27 +164,40 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - ENV var precedence: ENV > .env > defaults
 - Helper-Methode `_get_int_env()` für robuste Type Conversion
 
-### CLI Basis - IN ARBEIT 🚧 (2025-12-15)
+### CLI Basis - ABGESCHLOSSEN ✅ (2025-12-15)
+**Status**: 2 TDD-Zyklen komplett (RED→GREEN→REFACTOR)
+- ✅ Zyklus 1: `--help` output mit Click framework
+- ✅ Zyklus 2: `create` command mit Orchestrator + Settings integration
+- ✅ 100% CLI Coverage, 2 Tests passing
+- ✅ Refactoring: `type` → `diagram_type` (built-in override fix)
+
+**Implementiert:**
+- Click @click.group() mit version 0.1.0
+- create command mit --type, --output, --format options
+- Settings + Orchestrator integration
+- Minimal Orchestrator-Stub für Tests
+
+### Orchestrator - IN ARBEIT 🚧 (2025-12-15)
 **Status**: EXPLORE phase abgeschlossen, RED phase startet
 
 **TDD-Strategie:**
-- **Test-Typ**: Unit-Test mit Click.testing.CliRunner + Mock für Orchestrator
+- **Test-Typ**: Unit-Test mit Mocks für LLMClient, PromptBuilder, Analyzer
 - **TDD-Zyklen geplant**:
-  - Zyklus 1: `diag-agent --help` zeigt Version + Commands
-  - Zyklus 2: `diag-agent create "description"` ruft Orchestrator auf
-  - Zyklus 3 (optional): Error-Handling für fehlende API-Keys
+  - Zyklus 1: Iteration-Loop mit KrokiClient (Validation nur)
+  - Zyklus 2: Iteration Limits (max_iterations, max_time_seconds)
+  - Zyklus 3 (später): LLMClient + PromptBuilder integration
+  - Zyklus 4 (später): Design Analyzer (Vision) integration
 
-**CLI-Anforderungen (aus arc42):**
-- Click Framework (ADR-008) für rich help output
-- Context-effizient: `--help` < 500 tokens
-- Integration mit Settings (Config Management)
-- Kommandos: `create` (MVP), `create-batch` (später)
-- Flags: `--type`, `--output`, `--format`
+**Orchestrator-Anforderungen (aus arc42):**
+- Autonome Iteration ohne Parent-LLM (ADR-002)
+- Feedback-Loop: Prompt → LLM → Validate → Analyze → Refine
+- Limits: max_iterations=5, max_time_seconds=60 (aus Settings)
+- Dependencies: KrokiClient ✓, LLMClient ⏳, Analyzer ⏳, Writer ⏳
 
 **Design-Entscheidungen:**
-- Entry Point: `src/diag_agent/cli/commands.py` mit @click.group()
-- Orchestrator wird gemockt (nicht Teil dieses TDD-Zyklus)
-- Settings werden per Dependency Injection übergeben
+- MVP-Scope: Start mit Validation-Loop (KrokiClient bereits fertig)
+- Later: Integration mit LLMClient, PromptBuilder, Analyzer
+- Iteration state management: count + time tracking
 
 ### KrokiClient - ABGESCHLOSSEN ✅ (2025-12-15)
 **Status**: 2 TDD-Zyklen komplett (RED→GREEN→REFACTOR)
