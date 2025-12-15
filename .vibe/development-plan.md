@@ -53,7 +53,7 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Test 2 validiert: ENV override + Type conversion (str→int)
 - [x] Tests schlagen fehl: `ImportError: Settings` (erwartet) ✅
 
-## Red
+## Green
 
 ### Phase Entrance Criteria:
 - [x] Ein spezifischer, fokussierter Test wurde geschrieben
@@ -62,13 +62,18 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Test-Typ (Unit/Integration) wurde mit User abgestimmt
 
 ### Tasks
-- [x] **Zyklus 1:** KrokiClient Basis-Implementation (Happy-Path)
-- [x] **Zyklus 2:** KrokiRenderError Exception definieren
-- [x] **Zyklus 2:** HTTP Error-Handling in render_diagram() implementieren
+- [x] **Config Management:** Settings-Klasse implementieren
+- [x] dataclass mit __init__ für ENV var loading
+- [x] python-dotenv Integration (load_dotenv())
+- [x] Type conversion für Integer-Werte (max_iterations, max_time_seconds)
 - [x] Tests ausführen und grün machen
 
 ### Completed
-- [x] **Zyklus 1:** KrokiClient mit HTTP POST Implementation
+- [x] Settings-Klasse in src/diag_agent/config/settings.py erstellt
+- [x] 7 Config-Optionen implementiert mit Defaults aus .env.example
+- [x] ENV var loading mit DIAG_AGENT_ prefix
+- [x] Type-safe Integer Conversion (str→int)
+- [x] Beide Tests passed! ✅ (100% Coverage)
 - [x] **Zyklus 2:** KrokiRenderError Exception mit klarer Docstring
 - [x] **Zyklus 2:** try-except Block für httpx.HTTPStatusError
 - [x] **Zyklus 2:** Error-Message mit status code + diagram type
