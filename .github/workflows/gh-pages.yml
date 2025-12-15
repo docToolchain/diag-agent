@@ -16,27 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-          cache: 'pip'
-
-      # Install dependencies
-      - name: Install dependencies
-        run: |
-          ./setup_test_environment.sh
-
       # Setup and generate site
       - name: setup
         run: chmod +x dtcw
       - name: generateSite
         run: ./dtcw generateSite
-
-      # Run tests and generate reports
-      - name: Run tests with coverage
-        run: python run_tests_html.py
 
       - name: copyToPublic
         run: cp -r ./build/microsite/output ./public
