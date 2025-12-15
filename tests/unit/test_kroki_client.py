@@ -52,4 +52,5 @@ class TestKrokiClient:
 
             # Verify source was sent in request
             request_data = call_args[1].get("json") or call_args[1].get("data")
-            assert diagram_source in str(request_data)
+            assert request_data is not None
+            assert request_data.get("diagram_source") == diagram_source

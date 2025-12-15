@@ -47,16 +47,23 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 ## Green
 
 ### Phase Entrance Criteria:
-- [ ] Ein spezifischer, fokussierter Test wurde geschrieben
-- [ ] Der Test schlägt fehl (RED) aus dem richtigen Grund
-- [ ] Test validiert tatsächlich die erwartete Funktionalität
-- [ ] Test-Typ (Unit/Integration) wurde mit User abgestimmt
+- [x] Ein spezifischer, fokussierter Test wurde geschrieben
+- [x] Der Test schlägt fehl (RED) aus dem richtigen Grund
+- [x] Test validiert tatsächlich die erwartete Funktionalität
+- [x] Test-Typ (Unit/Integration) wurde mit User abgestimmt
 
 ### Tasks
-- [ ] *To be added when this phase becomes active*
+- [x] KrokiClient Klasse implementieren mit __init__(kroki_url)
+- [x] render_diagram() Methode implementieren (HTTP POST zu Kroki)
+- [x] Test ausführen und grün machen
+- [x] Keine Shortcuts oder Hacks verwenden
 
 ### Completed
-*None yet*
+- [x] KrokiClient mit sauberer Implementation (httpx, keine Hacks)
+- [x] HTTP POST zu `/{diagram_type}/{output_format}` Endpoint
+- [x] JSON payload mit diagram_source
+- [x] Test-Fix: Bessere Assertion für request_data
+- [x] Test passed! ✅
 
 ## Refactor
 
@@ -90,6 +97,7 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - **Rendering**: Kroki (20+ Diagramm-Typen)
 - **Config**: python-dotenv, PyYAML
 - **HTTP**: requests/httpx
+- **Testing**: pytest (Unit- und Integrationstests)
 
 ### Qualitätsziele (Priorität)
 1. **Context Efficiency**: < 3k tokens pro Diagramm-Request
