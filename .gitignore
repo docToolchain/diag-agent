@@ -1,3 +1,22 @@
+# Python virtual environment
+.venv/
+venv/
+ENV/
+env/
+
+# Python test / coverage
+.coverage
+.pytest_cache/
+htmlcov/
+*.cover
+.hypothesis/
+
+# Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
 # docToolchain build outputs
 build/
 .gradle/

@@ -29,16 +29,20 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 ## Red
 
 ### Phase Entrance Criteria:
-- [ ] Exploration ist abgeschlossen und Anforderungen sind dokumentiert
-- [ ] Architektur-Entscheidungen aus arc42-Dokumentation sind verstanden
-- [ ] Bestehende Patterns und Konventionen sind erfasst
-- [ ] Es ist klar, welche Funktionalität als nächstes implementiert werden soll
+- [x] Exploration ist abgeschlossen und Anforderungen sind dokumentiert
+- [x] Architektur-Entscheidungen aus arc42-Dokumentation sind verstanden
+- [x] Bestehende Patterns und Konventionen sind erfasst
+- [x] Es ist klar, welche Funktionalität als nächstes implementiert werden soll
 
 ### Tasks
-- [ ] *To be added when this phase becomes active*
+- [x] Test für Kroki Client schreiben: `test_render_diagram_success()` (Happy-Path)
+- [x] Test ausführen und Fehlschlag verifizieren (RED)
+- [x] Test-Entscheidungen dokumentieren
 
 ### Completed
-*None yet*
+- [x] Unit-Test geschrieben (mit HTTP-Mock, httpx)
+- [x] Test validiert: Diagram-Source → Kroki HTTP POST → PNG-Response
+- [x] Test schlägt fehl: `ImportError: KrokiClient` nicht gefunden (erwartet)
 
 ## Green
 
@@ -93,6 +97,12 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 3. **Privacy & Security**: Local-First, kein Remote ohne Consent
 4. **Autonomy**: Agent iteriert ohne Parent-LLM Intervention
 5. **Extensibility**: Alle Kroki-Typen, einfacher Provider-Wechsel
+
+### Test-Strategie (RED-Phase)
+- **Test-Typ**: Unit-Test mit HTTP-Mock (pytest + unittest.mock)
+- **Fokus**: Happy-Path zuerst, Error-Cases in separaten Tests
+- **Design**: Generisches Interface für alle Kroki-Diagram-Typen
+- **Erster Test**: `test_render_diagram_success()` - PlantUML → PNG
 
 ## Notes
 
