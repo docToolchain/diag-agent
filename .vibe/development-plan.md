@@ -72,13 +72,16 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Tests ausführen und grün machen
 
 ### Completed
-- [x] Zyklus 1: CLI mit --help (100% Coverage) ✅
-- [x] Zyklus 2: Orchestrator-Stub in src/diag_agent/agent/orchestrator.py
-- [x] Zyklus 2: CLI integriert Settings + Orchestrator
-- [x] Zyklus 2: create() ruft orchestrator.execute() mit allen Parametern auf
-- [x] Beide Tests passed! ✅ (CLI: 100% Coverage, Orchestrator: 67%)
-- [x] **Zyklus 2:** KrokiRenderError Exception mit klarer Docstring
-- [x] **Zyklus 2:** try-except Block für httpx.HTTPStatusError
+- [x] CLI Basis Zyklus 1: --help (100% Coverage) ✅
+- [x] CLI Basis Zyklus 2: Orchestrator-Stub in src/diag_agent/agent/orchestrator.py
+- [x] CLI Basis Zyklus 2: CLI integriert Settings + Orchestrator
+- [x] CLI Basis Zyklus 2: create() ruft orchestrator.execute() auf
+- [x] CLI Tests passed! ✅ (CLI: 100% Coverage)
+- [x] **Orchestrator Zyklus 1:** Iteration-Loop mit while-Schleife
+- [x] **Orchestrator Zyklus 1:** Zeit-Tracking (start_time, elapsed)
+- [x] **Orchestrator Zyklus 1:** Limits aus Settings (max_iterations, max_time_seconds)
+- [x] **Orchestrator Zyklus 1:** stopped_reason Logic (3 Zustände)
+- [x] Orchestrator Tests passed! ✅ (87% Coverage)
 - [x] **Zyklus 2:** Error-Message mit status code + diagram type
 - [x] Beide Tests passed! ✅ (100% Coverage)
 
