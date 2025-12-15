@@ -1,0 +1,42 @@
+=== ADR-001: Bash Tool with Help System vs. Always-On MCP
+
+**Status**: Accepted
+
+**Context**: LLMs with computer use need diagram generation, but MCP descriptions consume context even when unused.
+
+**Decision**: Primary interface is bash tool with `--help`. MCP mode is optional and explicitly started.
+
+**Consequences**:
+* ✅ Context efficient: help text only loaded when needed
+* ✅ Works with any LLM that has bash access
+* ✅ MCP still available for LLMs without bash
+* ⚠️ Two deployment modes to maintain
+
+**Related Quality Goals**: xref:../chapters/10_quality_requirements.adoc#quality-goals[1 Context Efficiency], xref:../chapters/10_quality_requirements.adoc#quality-goals[4 Autonomy]
+
+==== Pugh Matrix
+
+[cols="1,3*^",options="header"]
+|===
+|Criterion |Bash tool (baseline) |Always-on MCP |Bash + MCP opt-in (chosen)
+
+|Context Efficiency
+|0
+|-  (constant context footprint)
+|+  (only when needed)
+
+|User Control
+|0
+|0
+|+  (user decides mode)
+
+|Implementation Effort
+|0
+|-  (server upkeep)
+|0
+
+|LLM Compatibility
+|0
+|+  (LLM-native integration)
+|+  (works for bash + MCP)
+|===

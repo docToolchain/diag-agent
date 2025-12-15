@@ -1,0 +1,45 @@
+=== ADR-003: Local-First with Opt-In Remote
+
+**Status**: Accepted
+
+**Context**: Privacy concerns with sending diagram data to remote services.
+
+**Decision**:
+* Default: Local Kroki (Fat-JAR or user-hosted)
+* kroki.io requires interactive confirmation
+* Confirmation stored in config
+
+**Consequences**:
+* ✅ GDPR compliant by default
+* ✅ Works offline
+* ✅ Users make informed decisions
+* ⚠️ Initial setup more complex (Kroki download)
+
+**Related Quality Goals**: xref:../chapters/10_quality_requirements.adoc#quality-goals[3 Privacy & Security]
+
+==== Pugh Matrix
+
+[cols="1,3*^",options="header"]
+|===
+|Criterion |Remote by default (baseline) |Local-first, remote opt-in (chosen) |Local-only
+
+|Privacy
+|-  (data leaves host)
+|+  (default local)
+|+  (no remote)
+
+|Offline Capability
+|-  (requires internet)
+|+  (works offline)
+|+  (offline)
+
+|Setup Effort
+|+  (no local install)
+|0  (needs jar download)
+|-  (must install locally)
+
+|Performance/Latency
+|0
+|+  (local latency)
+|-  (no remote fallback)
+|===

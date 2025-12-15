@@ -76,68 +76,29 @@ SHOW_LEGEND()
 Person(user, "User/LLM", "Requests diagrams")
 
 System_Boundary(agent, "diag-agent") {
-    Container(cli, "CLI Interface", "Python/Click", "Command parsing and execution")
-    Container(mcp, "MCP Server", "Python/SSE", "Tool exposure for LLMs")
-    Container(core, "Agent Core", "Python", "Iteration logic and orchestration")
-    Container(llm_client, "LLM Client", "LiteLLM", "Multi-provider abstraction")
-    Container(kroki_client, "Kroki Client", "Python/Requests", "Diagram rendering")
-    ContainerDb(config, "Configuration", "YAML/Env", "User preferences and API keys")
+    System(core, "diag-agent", "Autonomous diagram generation system")
 }
 
-System_Ext(llm_api, "LLM API", "Claude, GPT-4, Ollama")
+System_Ext(llm_api, "LLM API", "Language model service")
 System_Ext(kroki, "Kroki Service", "Diagram renderer")
 System_Ext(storage, "File System", "Diagram outputs")
 
-Rel(user, cli, "Executes", "bash")
-Rel(user, mcp, "Calls", "HTTP/MCP")
-Rel(cli, core, "Delegates")
-Rel(mcp, core, "Delegates")
-Rel(core, llm_client, "Generates/Analyzes")
-Rel(core, kroki_client, "Renders")
-Rel(llm_client, llm_api, "API calls")
-Rel(kroki_client, kroki, "HTTP POST")
-Rel(core, storage, "Writes outputs")
-Rel(core, config, "Reads settings")
+Rel(user, core, "CLI commands / MCP calls", "bash / HTTP")
+Rel(core, llm_api, "Generation requests", "HTTPS/API")
+Rel(core, kroki, "Render requests", "HTTP POST")
+Rel(core, storage, "Write diagrams", "file I/O")
 
 SHOW_LEGEND()
 @enduml
 ----
 
-==== Technology Stack
+==== Technical Interfaces
 
-[cols="1,2,1",options="header"]
-|===
-|Component |Technology |Rationale
+**Incoming:**
+* **CLI**: Command-line interface accepting bash commands and arguments
+* **MCP Server**: HTTP/SSE endpoint for LLM tool integration
 
-|Runtime
-|Python 3.10+
-|Existing codebase, rich ecosystem
-
-|LLM Abstraction
-|LiteLLM
-|Unified interface for 100+ models
-
-|CLI Framework
-|Click
-|Intuitive command structure, good help generation
-
-|MCP Implementation
-|FastMCP / MCP SDK
-|Standard protocol for LLM tool integration
-
-|Diagram Rendering
-|Kroki
-|Supports 20+ diagram types
-
-|Configuration
-|python-dotenv, PyYAML
-|Standard config management
-
-|HTTP Client
-|Requests / httpx
-|Kroki API communication
-
-|Containerization
-|Docker
-|Bundled Kroki Fat-JAR option
-|===
+**Outgoing:**
+* **LLM API**: HTTPS requests to various LLM providers (OpenAI, Anthropic, Ollama, etc.)
+* **Kroki API**: HTTP POST to rendering service (local or remote)
+* **File System**: Write diagram source files and rendered images

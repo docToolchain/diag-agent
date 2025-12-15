@@ -19,20 +19,12 @@ ifndef::imagesdir[:imagesdir: ../../images]
 |===
 |Constraint |Background
 
-|Python-based
-|Reuse existing Kroki integration code
+|Multi-platform support
+|Must run on macOS, Linux, and Windows (WSL)
 
-|LiteLLM dependency
-|Unified interface for multiple LLM providers
+|Python 3.10+
+|Existing codebase and team expertise
 
-|Kroki for rendering
-|Industry-standard diagram rendering service supporting 20+ formats
-
-|Vision-capable LLM recommended
-|Design feedback requires image analysis (fallback: syntax-only validation)
-
-|Docker optional
-|Bundled Kroki Fat-JAR for fully offline operation
 |===
 
 === Organizational Constraints
@@ -44,16 +36,16 @@ ifndef::imagesdir[:imagesdir: ../../images]
 |Open Source
 |Target developer community with transparent tooling
 
-|Privacy compliance
-|GDPR considerations: no automatic remote data transmission
+|Privacy compliance (GDPR)
+|No automatic transmission of user data to remote servers without explicit consent
 
-|Self-contained
-|Must work without internet connection (local Kroki mode)
+|Self-contained deployment
+|Must be deployable without complex infrastructure dependencies
 |===
 
 === Conventions
 
 * **Configuration**: Environment variables > .env file > ~/.diag-agent/config.yaml
 * **Output formats**: Source (.puml, .mmd) + rendered (PNG, SVG)
-* **Error handling**: Interactive prompts for missing config, graceful degradation
+* **Error handling**: Interactive prompts for missing config, graceful degradation, explanations on what is wrong and what to do instead of plain errors
 * **Documentation**: English, AsciiDoc format

@@ -1,0 +1,48 @@
+=== ADR-008: Click as CLI Framework
+
+**Status**: Accepted
+
+**Context**: Command-line UX is the primary entry point; needs structured arguments, good help texts, and compatibility with bash-driven LLM tooling.
+
+**Decision**: Use Click as the CLI framework.
+
+**Alternatives Considered**:
+* argparse (stdlib) — stable but verbose, less friendly help output
+* Typer — modern and type-hint friendly, but another dependency and smaller ecosystem
+* docopt / fire — fast to start, but less control over UX and validation
+
+**Consequences**:
+* ✅ Rich help/usage output with minimal boilerplate
+* ✅ Mature ecosystem and patterns for nested commands/options
+* ✅ Works well with bash and LLM-driven command execution
+* ⚠️ Additional dependency vs. argparse
+* ⚠️ Some learning curve for contributors unfamiliar with Click
+
+**Related Quality Goals**: xref:../chapters/10_quality_requirements.adoc#quality-goals[1 Context Efficiency]
+
+==== Pugh Matrix
+
+[cols="1,3*^",options="header"]
+|===
+|Criterion |argparse (baseline) |Click (chosen) |Typer
+
+|UX Quality
+|0
+|+  (rich help, colors, nesting)
+|+  (fast to code with type hints)
+
+|Dev Velocity
+|0
+|+  (concise decorators)
+|+  (Click-based)
+
+|Ecosystem
+|+  (stdlib, stable)
+|+  (mature extensions)
+|0  (smaller ecosystem)
+
+|Learning Curve
+|-  (manual help/UX)
+|0  (moderate)
+|0  (similar to Click)
+|===

@@ -1,0 +1,42 @@
+=== ADR-004: URL References for Rendered Diagrams
+
+**Status**: Accepted (V2 Feature)
+
+**Context**: Base64-encoded images or file paths consume significant context.
+
+**Decision**: MCP server mode can serve rendered diagrams via HTTP, returning short URLs.
+
+**Consequences**:
+* ✅ Minimal context consumption
+* ✅ Diagrams displayable in web interfaces
+* ⚠️ Requires HTTP server (already present in MCP streaming mode)
+* ⚠️ Lifecycle management needed (when to delete?)
+
+**Related Quality Goals**: xref:../chapters/10_quality_requirements.adoc#quality-goals[1 Context Efficiency]
+
+==== Pugh Matrix
+
+[cols="1,3*^",options="header"]
+|===
+|Criterion |Base64 in responses (baseline) |File paths only |Short URLs (chosen)
+
+|Context Size
+|-  (large payloads)
+|0
+|+  (tiny payload)
+
+|User Convenience
+|+  (inline)
+|0
+|+  (easy to preview/embed)
+
+|Complexity
+|0
+|+  (simple)
+|0  (reuse MCP HTTP server)
+
+|Lifecycle/Storage
+|-  (bloats responses)
+|-  (needs shared FS)
+|-  (need cleanup policy)
+|===

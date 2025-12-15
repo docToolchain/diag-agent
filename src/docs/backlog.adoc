@@ -1,0 +1,85 @@
+= Product Backlog: diag-agent
+:toc: left
+:toclevels: 3
+:sectnums:
+:icons: font
+
+== Future Enhancements (V2+)
+
+=== Planned Features
+
+==== Direct Source File Writing
+Allow agent to update .adoc or .md files directly:
+[source,bash]
+----
+diag-agent create "API flow" \
+  --write-to docs/architecture.adoc \
+  --section "Runtime View" \
+  --format plantuml
+----
+
+**Benefits**: Reduces manual copy-paste, enables automated doc updates
+
+==== Diagram Diffing
+Compare generated diagram with existing version:
+[source,bash]
+----
+diag-agent diff \
+  --old docs/diagrams/context.puml \
+  --new "Updated context with new services"
+----
+
+**Benefits**: Review changes before committing, merge workflow support
+
+==== Batch Generation
+Generate multiple related diagrams:
+[source,bash]
+----
+diag-agent create-batch --input diagram-requirements.yaml
+----
+
+Where `diagram-requirements.yaml`:
+[source,yaml]
+----
+diagrams:
+  - name: context
+    type: c4-context
+    description: "System landscape with external integrations"
+  - name: containers
+    type: c4-container
+    description: "Internal container breakdown"
+----
+
+**Benefits**: Consistent style across diagram set, faster documentation
+
+==== Custom Style Templates
+User-defined style preferences:
+[source,yaml]
+----
+style:
+  c4:
+    skin: dark
+    layout: vertical
+    include: custom-c4-theme.puml
+----
+
+**Benefits**: Corporate branding, personal preferences
+
+==== Collaboration Features
+* **Shared example library**: Community-contributed examples
+* **Diagram reviews**: Feedback loop includes human reviewer
+* **Team templates**: Shared styles and conventions
+
+=== Research Items
+
+* **Incremental updates**: Instead of regenerating, modify existing diagrams
+* **Multi-model consensus**: Use multiple LLMs, compare outputs
+* **Adaptive limits**: Learn optimal iteration counts per diagram type
+* **Natural language queries**: "Show me authentication flow" finds/generates diagram
+* **Integration with architecture tools**: Export to Structurizr, Archimate, etc.
+
+---
+
+**Document Status**: Backlog v1.0 +
+**Last Updated**: 2024-12-15 +
+**Authors**: Product Team

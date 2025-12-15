@@ -13,9 +13,50 @@ ifndef::imagesdir[:imagesdir: ../../images]
 [[section-quality-scenarios]]
 == Quality Requirements
 
+[[quality-goals]]
+=== Quality Goals
+
+[cols="1,2,1,1,2",options="header"]
+|===
+|Priority |Quality Goal |Motivation |Relevante Szenarien |Unterstützende ADRs
+
+|1
+|**Context Efficiency**
+|Minimize token consumption in parent LLM conversations through help system, URL references, and self-contained agent logic
+|xref:#scenario-context-efficiency[S1]
+|xref:../adr/ADR-001-bash-tool-vs-mcp.adoc[ADR-001], xref:../adr/ADR-002-agent-self-iteration.adoc[ADR-002], xref:../adr/ADR-004-url-references.adoc[ADR-004], xref:../adr/ADR-008-click-cli.adoc[ADR-008]
+
+|2
+|**Ease of Installation**
+|Developers should install via pip or docker run without complex setup
+|xref:#scenario-installation[S2]
+|xref:../adr/ADR-006-docker-bundled-kroki.adoc[ADR-006]
+
+|3
+|**Privacy & Security**
+|No diagram data sent to remote servers without explicit user consent
+|xref:#scenario-privacy[S4]
+|xref:../adr/ADR-003-local-first-remote.adoc[ADR-003], xref:../adr/ADR-006-docker-bundled-kroki.adoc[ADR-006]
+
+|4
+|**Autonomy**
+|Agent iterates independently without requiring parent LLM intervention
+|xref:#scenario-context-efficiency[S1]
+|xref:../adr/ADR-002-agent-self-iteration.adoc[ADR-002], xref:../adr/ADR-007-source-file-write.adoc[ADR-007]
+
+|5
+|**Extensibility**
+|Support for all Kroki diagram types and easy LLM provider switching
+|Future scenario (TBD)
+|xref:../adr/ADR-005-litetllm-abstraction.adoc[ADR-005]
+|===
+
 === Quality Scenarios
 
+[#scenario-context-efficiency]
 ==== Scenario 1: Context Efficiency
+
+Related Quality Goals: xref:#quality-goals[1 (Context Efficiency), 4 (Autonomy)]
 
 [cols="1,3",options="header"]
 |===
@@ -40,7 +81,10 @@ ifndef::imagesdir[:imagesdir: ../../images]
 |95% of diagram requests use < 3k tokens in parent conversation
 |===
 
+[#scenario-installation]
 ==== Scenario 2: Installation Time
+
+Related Quality Goals: xref:#quality-goals[2 (Ease of Installation)]
 
 [cols="1,3",options="header"]
 |===
@@ -65,7 +109,10 @@ ifndef::imagesdir[:imagesdir: ../../images]
 |90% of users generate first diagram within 5 minutes
 |===
 
+[#scenario-syntax]
 ==== Scenario 3: Syntax Error Recovery
+
+Related Quality Goals: xref:#quality-goals[1 (Context Efficiency)]
 
 [cols="1,3",options="header"]
 |===
@@ -90,7 +137,10 @@ ifndef::imagesdir[:imagesdir: ../../images]
 |< 10 seconds per iteration
 |===
 
+[#scenario-privacy]
 ==== Scenario 4: Privacy Compliance
+
+Related Quality Goals: xref:#quality-goals[3 (Privacy & Security)]
 
 [cols="1,3",options="header"]
 |===

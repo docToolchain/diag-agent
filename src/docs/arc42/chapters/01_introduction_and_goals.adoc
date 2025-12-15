@@ -24,34 +24,17 @@ diag-agent is an intelligent diagram generation tool that assists LLMs and devel
 * **Flexible deployment**: CLI tool, MCP server (local/remote), or Docker container
 * **Privacy-first**: Local-first approach with optional remote rendering
 * **LLM-agnostic**: Works with any LLM via LiteLLM abstraction
-* **Context-efficient**: Minimal context consumption through help system and reference URLs
+* **Context-efficient**: Safes main context by working in agent context. Additional minimal context consumption through help system and reference URLs
 
-=== Quality Goals
+=== Quality Goals (Overview)
 
-[cols="1,2,1",options="header"]
-|===
-|Priority |Quality Goal |Motivation
+Die vollständigen Qualitätsziele stehen in Kapitel 10 (xref:10_quality_requirements.adoc#quality-goals[Quality Goals]). Kurzüberblick:
 
-|1
-|**Context Efficiency**
-|Minimize token consumption in parent LLM conversations through help system, URL references, and self-contained agent logic
-
-|2
-|**Ease of Installation**
-|Developers should install via pip or docker run without complex setup
-
-|3
-|**Privacy & Security**
-|No diagram data sent to remote servers without explicit user consent
-
-|4
-|**Autonomy**
-|Agent iterates independently without requiring parent LLM intervention
-
-|5
-|**Extensibility**
-|Support for all Kroki diagram types and easy LLM provider switching
-|===
+* Kontext-Effizienz
+* Einfache Installation
+* Privacy & Security
+* Autonomie
+* Erweiterbarkeit
 
 === Stakeholders
 
@@ -71,7 +54,4 @@ diag-agent is an intelligent diagram generation tool that assists LLMs and devel
 |Delegate diagram generation without context overhead
 |Clear interface, reliable results
 
-|Privacy-conscious Users
-|Control over where diagram data is processed
-|Local-first options, explicit consent for remote services
 |===

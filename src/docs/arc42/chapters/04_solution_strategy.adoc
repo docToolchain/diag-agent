@@ -13,6 +13,13 @@ ifndef::imagesdir[:imagesdir: ../../images]
 [[section-solution-strategy]]
 == Solution Strategy
 
+The goal is to generate accurate, readable architecture diagrams with minimal friction for users and minimal context load for LLMs. The solution is an autonomous agent that:
+
+* works locally-first (privacy, offline capability), with explicit opt-in for remote services;
+* iterates on diagram source until syntax and visual quality meet an agreed bar;
+* exposes both CLI and MCP modes to fit shell-first and tool-driven LLM workflows;
+* returns concise outputs (source + rendered image or URL) and surfaces any remaining issues transparently.
+
 === Core Strategy: Autonomous Feedback Loop
 
 The agent operates independently from the calling LLM to minimize context consumption:
@@ -51,79 +58,50 @@ Rel(limiter, orchestrator, "Continue/Stop")
 @enduml
 ----
 
+=== Handling Syntax Errors and Visual Quality
+
+* Syntax resilience: Start from diagram-type templates, avoid known-not-working directives, and always run a Kroki lint/render pass to surface exact line errors. The agent retries with the error payload (line numbers, message) and keeps a short history to avoid repeating failed constructs. If two retries fail, it returns the best-attempt source plus the captured error for transparency.
+* Visual quality: When vision is available, the agent asks the LLM to critique legibility (spacing, overlaps, label truncation) and requests a corrected version. Without vision, it applies heuristics: cap node/edge counts per diagram type, prefer left-to-right layouts, apply consistent skinparams/themes, and simplify (collapse groups) when exceeding thresholds. A small library of “good defaults” per renderer (e.g., PlantUML skinparams) is injected into prompts to steer toward readable output.
+
 === Design Decisions
 
-==== ADR-001: Bash Tool with Help System vs. Always-On MCP
+Architecture decisions are maintained centrally in section 9 (Architecture Decisions) with dedicated ADR files (ADR-001 ... ADR-008).
 
-**Status**: Accepted
+=== Technology Stack
 
-**Context**: LLMs with computer use need diagram generation, but MCP descriptions consume context even when unused.
+[cols="1,2,1",options="header"]
+|===
+|Component |Technology |Rationale
 
-**Decision**: Primary interface is bash tool with `--help`. MCP mode is optional and explicitly started.
+|Runtime
+|Python 3.10+
+|Existing codebase, rich ecosystem
 
-**Consequences**:
-* ✅ Context efficient: help text only loaded when needed
-* ✅ Works with any LLM that has bash access
-* ✅ MCP still available for LLMs without bash
-* ⚠️ Two deployment modes to maintain
+|LLM Abstraction
+|LiteLLM
+|Unified interface for 100+ models
 
-==== ADR-002: Agent Self-Iteration vs. Parent LLM Control
+|CLI Framework
+|Click
+|Intuitive command structure, good help generation
 
-**Status**: Accepted
+|MCP Implementation
+|FastMCP / MCP SDK
+|Standard protocol for LLM tool integration
 
-**Context**: Feedback loop requires multiple LLM calls. Who controls the iteration?
+|Diagram Rendering
+|Kroki
+|Supports 20+ diagram types
 
-**Decision**: Agent iterates autonomously with its own LLM client.
+|Configuration
+|python-dotenv, PyYAML
+|Standard config management
 
-**Consequences**:
-* ✅ Minimal context in parent conversation
-* ✅ Agent can optimize prompts for diagram generation
-* ✅ Parallel processing possible
-* ⚠️ Requires separate LLM API access
-* ⚠️ User sees less of the process (mitigated by progress output)
+|HTTP Client
+|Requests / httpx
+|Kroki API communication
 
-==== ADR-003: Local-First with Opt-In Remote
-
-**Status**: Accepted
-
-**Context**: Privacy concerns with sending diagram data to remote services.
-
-**Decision**: 
-* Default: Local Kroki (Fat-JAR or user-hosted)
-* kroki.io requires interactive confirmation
-* Confirmation stored in config
-
-**Consequences**:
-* ✅ GDPR compliant by default
-* ✅ Works offline
-* ✅ Users make informed decisions
-* ⚠️ Initial setup more complex (Kroki download)
-
-==== ADR-004: URL References for Rendered Diagrams
-
-**Status**: Accepted (V2 Feature)
-
-**Context**: Base64-encoded images or file paths consume significant context.
-
-**Decision**: MCP server mode can serve rendered diagrams via HTTP, returning short URLs.
-
-**Consequences**:
-* ✅ Minimal context consumption
-* ✅ Diagrams displayable in web interfaces
-* ⚠️ Requires HTTP server (already present in MCP streaming mode)
-* ⚠️ Lifecycle management needed (when to delete?)
-
-==== ADR-005: LiteLLM for Provider Abstraction
-
-**Status**: Accepted
-
-**Context**: Need to support multiple LLM providers (Anthropic, OpenAI, local models).
-
-**Decision**: Use LiteLLM as unified interface.
-
-**Consequences**:
-* ✅ 100+ models supported
-* ✅ Consistent API across providers
-* ✅ Easy to add new providers
-* ⚠️ Additional dependency
-* ⚠️ Abstraction may hide provider-specific features
+|Containerization
+|Docker
+|Bundled Kroki Fat-JAR option
+|===

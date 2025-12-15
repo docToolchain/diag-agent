@@ -70,21 +70,10 @@ ifndef::imagesdir[:imagesdir: ../../images]
 |===
 |Item |Reason |Payback Plan
 
-|**Two deployment modes**
-|MVP needs both CLI and MCP
-|Refactor to shared core in v1.1
-
-|**In-memory state only**
-|Simpler for MVP
-|Add persistent state for long-running MCP servers in V2
-
 |**Limited diagram type testing**
 |Focus on C4 and PlantUML initially
 |Expand test coverage iteratively
 
-|**No diagram versioning**
-|Not in initial requirements
-|Add in V2 if users request
 |===
 
 ==== Debt to Avoid

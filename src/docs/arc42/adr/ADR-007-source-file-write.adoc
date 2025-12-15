@@ -1,0 +1,58 @@
+=== ADR-007: Source File Direct Write (V2 Feature)
+
+**Status**: Planned for V2
+
+**Context**: Users want agent to directly update .adoc files with generated diagrams.
+
+**Decision**: Add `--write-to` flag that allows specifying target file and location within file.
+
+**Implementation Ideas**:
+[source,bash]
+----
+diag-agent create "Component diagram" \
+  --type c4 \
+  --write-to architecture.adoc \
+  --section "Level 2: Components" \
+  --replace-marker "<!-- DIAGRAM: components -->"
+----
+
+**Open Questions**:
+* How to handle concurrent edits?
+* Should agent create section if missing?
+* Support for multiple diagram formats in one file?
+
+**Consequences**:
+* ✅ Simple change tracking per run
+* ✅ Reduces accidental overwrites when omitted
+* ⚠️ Requires source files to be writable
+* ⚠️ No multi-user locking
+* ⚠️ Needs docs to set read/write flags
+
+**Related Quality Goals**: xref:../chapters/10_quality_requirements.adoc#quality-goals[4 Autonomy]
+
+==== Pugh Matrix
+
+[cols="1,3*^",options="header"]
+|===
+|Criterion |Always allow writes (baseline) |Explicit write-to flag (chosen) |Central locking service
+
+|Safety
+|-  (risk of accidental edits)
+|+  (opt-in edits)
+|+  (prevents conflicts)
+
+|User Effort
+|+  (zero friction)
+|0  (requires a flag per run)
+|-  (setup overhead)
+
+|Reliability
+|0
+|+  (predictable behavior)
+|+  (coordinated access)
+
+|Collaboration
+|-  (no coordination)
+|0  (no extra locks)
+|+  (supports multi-user)
+|===

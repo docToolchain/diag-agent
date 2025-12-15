@@ -27,6 +27,10 @@ ifndef::imagesdir[:imagesdir: ../../images]
    - Located in current directory
    - Same variable names as environment
 
+3. **Config File Structure vs. .env**
+  - `.env`: flat `KEY=VALUE`, mirrors environment variable names, easy to override in shells/CI; avoid nesting.
+  - `config.yaml`: structured, supports nested sections (llm/kroki/agent/output), lives at `~/.diag-agent/config.yaml`; better for default profiles and non-secret tuning. Secrets still prefer env/.env.
+
 3. **Config File** (lowest priority)
    - `~/.diag-agent/config.yaml`
    - Structured format for complex settings

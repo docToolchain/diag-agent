@@ -1,0 +1,43 @@
+=== ADR-002: Agent Self-Iteration vs. Parent LLM Control
+
+**Status**: Accepted
+
+**Context**: Feedback loop requires multiple LLM calls. Who controls the iteration?
+
+**Decision**: Agent iterates autonomously with its own LLM client.
+
+**Consequences**:
+* ✅ Minimal context in parent conversation
+* ✅ Agent can optimize prompts for diagram generation
+* ✅ Parallel processing possible
+* ⚠️ Requires separate LLM API access
+* ⚠️ User sees less of the process (mitigated by progress output)
+
+**Related Quality Goals**: xref:../chapters/10_quality_requirements.adoc#quality-goals[1 Context Efficiency], xref:../chapters/10_quality_requirements.adoc#quality-goals[4 Autonomy]
+
+==== Pugh Matrix
+
+[cols="1,3*^",options="header"]
+|===
+|Criterion |Parent LLM controls loop (baseline) |Agent self-iteration (chosen) |Hybrid (user-stepped)
+
+|Context Usage
+|0
+|+  (minimal parent context)
+|-  (more back-and-forth)
+
+|Reliability
+|0
+|+  (agent-optimized retries)
+|0
+
+|User Transparency
+|+  (user sees all)
+|0  (progress messages)
+|+  (full visibility)
+
+|Implementation Effort
+|-  (complex orchestration outside agent)
+|0
+|-  (more prompts, slower)
+|===

@@ -13,7 +13,7 @@ ifndef::imagesdir[:imagesdir: ../../images]
 [[section-design-decisions]]
 == Architecture Decisions
 
-This section consolidates all Architecture Decision Records. See section 4 (Solution Strategy) for detailed ADRs 001-005.
+This section consolidates all Architecture Decision Records.
 
 === Summary Table
 
@@ -48,46 +48,26 @@ This section consolidates all Architecture Decision Records. See section 4 (Solu
 |ADR-007
 |Source File Direct Write
 |📋 Planned (V2)
+
+|ADR-008
+|Click as CLI Framework
+|✅ Accepted
 |===
 
-=== ADR-006: Docker-Bundled Kroki vs. Separate Service
+Details:
 
-**Status**: Accepted
+include::../adr/ADR-001-bash-tool-vs-mcp.adoc[]
 
-**Context**: Users want simple installation. Kroki Fat-JAR is ~80MB. Should it be included in Docker image?
+include::../adr/ADR-002-agent-self-iteration.adoc[]
 
-**Decision**: Include Kroki Fat-JAR in Docker image by default. Provide slim variant without it.
+include::../adr/ADR-003-local-first-remote.adoc[]
 
-**Consequences**:
-* ✅ One-command deployment: `docker run diag-agent`
-* ✅ Works offline immediately
-* ⚠️ Larger image size (~300MB vs ~50MB slim)
-* ⚠️ Longer build times
+include::../adr/ADR-004-url-references.adoc[]
 
-**Alternatives Considered**:
-* Multi-stage build with optional Fat-JAR (chosen approach)
-* Always download on first run (slower, requires internet)
-* Separate kroki container via docker-compose (more complex)
+include::../adr/ADR-005-litetllm-abstraction.adoc[]
 
-=== ADR-007: Source File Direct Write (V2 Feature)
+include::../adr/ADR-006-docker-bundled-kroki.adoc[]
 
-**Status**: Planned for V2
+include::../adr/ADR-007-source-file-write.adoc[]
 
-**Context**: Users want agent to directly update .adoc files with generated diagrams.
-
-**Decision**: Add `--write-to` flag that allows specifying target file and location within file.
-
-**Implementation Ideas**:
-[source,bash]
-----
-diag-agent create "Component diagram" \
-  --type c4 \
-  --write-to architecture.adoc \
-  --section "Level 2: Components" \
-  --replace-marker "<!-- DIAGRAM: components -->"
-----
-
-**Open Questions**:
-* How to handle concurrent edits?
-* Should agent create section if missing?
-* Support for multiple diagram formats in one file?
+include::../adr/ADR-008-click-cli.adoc[]

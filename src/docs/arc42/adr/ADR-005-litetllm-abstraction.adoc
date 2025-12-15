@@ -1,0 +1,43 @@
+=== ADR-005: LiteLLM for Provider Abstraction
+
+**Status**: Accepted
+
+**Context**: Need to support multiple LLM providers (Anthropic, OpenAI, local models).
+
+**Decision**: Use LiteLLM as unified interface.
+
+**Consequences**:
+* ✅ 100+ models supported
+* ✅ Consistent API across providers
+* ✅ Easy to add new providers
+* ⚠️ Additional dependency
+* ⚠️ Abstraction may hide provider-specific features
+
+**Related Quality Goals**: xref:../chapters/10_quality_requirements.adoc#quality-goals[5 Extensibility]
+
+==== Pugh Matrix
+
+[cols="1,3*^",options="header"]
+|===
+|Criterion |Direct provider SDKs (baseline) |LiteLLM abstraction (chosen) |Single-provider lock-in
+
+|Provider Flexibility
+|0  (per-provider)
+|+  (swap providers easily)
+|-  (no flexibility)
+
+|Dev Velocity
+|-  (multiple SDKs)
+|+  (one API surface)
+|+  (simplest code)
+
+|Runtime Stability
+|0
+|0
+|+  (fewer moving parts)
+
+|Feature Access
+|+  (full features)
+|-  (some provider-specific features hidden)
+|-  (no access to others)
+|===
