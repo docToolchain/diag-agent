@@ -423,132 +423,24 @@
 </div>
 <div class="sect2">
 <h3 id="_technical_context">Technical Context</h3>
-<div class="listingblock">
+<div class="imageblock">
 <div class="content">
-<pre>Failed to generate image: PlantUML preprocessing failed: [From &lt;input&gt; (line 7) ]
-
-@startuml
-
-
-
-
-...
-... ( skipping 768 lines )
-...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-rectangle "&lt;$person&gt;\n== User/LLM\n\n Requests diagrams" &lt;&lt;person&gt;&gt; as user
-
-  rectangle "== diag-agent\n&lt;size:12&gt;[System]&lt;/size&gt;" &lt;&lt;system_boundary&gt;&gt;&lt;&lt;boundary&gt;&gt; as agent  {
-    Container(cli, "CLI Interface", "Python/Click", "Command parsing and execution")
-^^^^^
- Syntax Error?
-
-@startuml
-!include &lt;C4/C4_Context&gt;
-
-Person(user, "User/LLM", "Requests diagrams")
-
-System_Boundary(agent, "diag-agent") {
-    Container(cli, "CLI Interface", "Python/Click", "Command parsing and execution")
-    Container(mcp, "MCP Server", "Python/SSE", "Tool exposure for LLMs")
-    Container(core, "Agent Core", "Python", "Iteration logic and orchestration")
-    Container(llm_client, "LLM Client", "LiteLLM", "Multi-provider abstraction")
-    Container(kroki_client, "Kroki Client", "Python/Requests", "Diagram rendering")
-    ContainerDb(config, "Configuration", "YAML/Env", "User preferences and API keys")
-}
-
-System_Ext(llm_api, "LLM API", "Claude, GPT-4, Ollama")
-System_Ext(kroki, "Kroki Service", "Diagram renderer")
-System_Ext(storage, "File System", "Diagram outputs")
-
-Rel(user, cli, "Executes", "bash")
-Rel(user, mcp, "Calls", "HTTP/MCP")
-Rel(cli, core, "Delegates")
-Rel(mcp, core, "Delegates")
-Rel(core, llm_client, "Generates/Analyzes")
-Rel(core, kroki_client, "Renders")
-Rel(llm_client, llm_api, "API calls")
-Rel(kroki_client, kroki, "HTTP POST")
-Rel(core, storage, "Writes outputs")
-Rel(core, config, "Reads settings")
-
-SHOW_LEGEND()
-@enduml</pre>
+<img src="../../images/technical-context.svg" alt="technical context" width="575" height="648">
 </div>
 </div>
 <div class="sect3">
-<h4 id="_technology_stack">Technology Stack</h4>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 50%;">
-<col style="width: 25%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Component</th>
-<th class="tableblock halign-left valign-top">Technology</th>
-<th class="tableblock halign-left valign-top">Rationale</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Runtime</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Python 3.10+</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Existing codebase, rich ecosystem</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">LLM Abstraction</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">LiteLLM</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Unified interface for 100+ models</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">CLI Framework</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Click</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Intuitive command structure, good help generation</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">MCP Implementation</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">FastMCP / MCP SDK</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Standard protocol for LLM tool integration</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Diagram Rendering</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Supports 20+ diagram types</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Configuration</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">python-dotenv, PyYAML</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Standard config management</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP Client</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Requests / httpx</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki API communication</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Containerization</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Docker</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bundled Kroki Fat-JAR option</p></td>
-</tr>
-</tbody>
-</table>
+<h4 id="_technical_interfaces">Technical Interfaces</h4>
+<div class="paragraph">
+<p><strong>Incoming:</strong>
+* <strong>CLI</strong>: Command-line interface accepting bash commands and arguments
+* <strong>MCP Server</strong>: HTTP/SSE endpoint for LLM tool integration</p>
+</div>
+<div class="paragraph">
+<p><strong>Outgoing:</strong>
+* <strong>LLM API</strong>: HTTPS requests to various LLM providers (OpenAI, Anthropic, Ollama, etc.)
+* <strong>Kroki API</strong>: HTTP POST to rendering service (local or remote)
+* <strong>File System</strong>: Write diagram source files and rendered images</p>
+</div>
 </div>
 </div>
 </div>

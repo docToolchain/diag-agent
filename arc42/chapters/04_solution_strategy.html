@@ -346,7 +346,9 @@
 <li><a href="#section-solution-strategy">Solution Strategy</a>
 <ul class="sectlevel2">
 <li><a href="#_core_strategy_autonomous_feedback_loop">Core Strategy: Autonomous Feedback Loop</a></li>
+<li><a href="#_handling_syntax_errors_and_visual_quality">Handling Syntax Errors and Visual Quality</a></li>
 <li><a href="#_design_decisions">Design Decisions</a></li>
+<li><a href="#_technology_stack">Technology Stack</a></li>
 </ul>
 </li>
 </ul>
@@ -374,6 +376,25 @@
 <div class="sect1">
 <h2 id="section-solution-strategy">Solution Strategy</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>The goal is to generate accurate, readable architecture diagrams with minimal friction for users and minimal context load for LLMs. The solution is an autonomous agent that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>works locally-first (privacy, offline capability), with explicit opt-in for remote services;</p>
+</li>
+<li>
+<p>iterates on diagram source until syntax and visual quality meet an agreed bar;</p>
+</li>
+<li>
+<p>exposes both CLI and MCP modes to fit shell-first and tool-driven LLM workflows;</p>
+</li>
+<li>
+<p>returns concise outputs (source + rendered image or URL) and surfaces any remaining issues transparently.</p>
+</li>
+</ul>
+</div>
 <div class="sect2">
 <h3 id="_core_strategy_autonomous_feedback_loop">Core Strategy: Autonomous Feedback Loop</h3>
 <div class="paragraph">
@@ -408,107 +429,82 @@
 </div>
 </div>
 <div class="sect2">
+<h3 id="_handling_syntax_errors_and_visual_quality">Handling Syntax Errors and Visual Quality</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Syntax resilience: Start from diagram-type templates, avoid known-not-working directives, and always run a Kroki lint/render pass to surface exact line errors. The agent retries with the error payload (line numbers, message) and keeps a short history to avoid repeating failed constructs. If two retries fail, it returns the best-attempt source plus the captured error for transparency.</p>
+</li>
+<li>
+<p>Visual quality: When vision is available, the agent asks the LLM to critique legibility (spacing, overlaps, label truncation) and requests a corrected version. Without vision, it applies heuristics: cap node/edge counts per diagram type, prefer left-to-right layouts, apply consistent skinparams/themes, and simplify (collapse groups) when exceeding thresholds. A small library of “good defaults” per renderer (e.g., PlantUML skinparams) is injected into prompts to steer toward readable output.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_design_decisions">Design Decisions</h3>
-<div class="sect3">
-<h4 id="_adr_001_bash_tool_with_help_system_vs_always_on_mcp">ADR-001: Bash Tool with Help System vs. Always-On MCP</h4>
 <div class="paragraph">
-<p><strong>Status</strong>: Accepted</p>
-</div>
-<div class="paragraph">
-<p><strong>Context</strong>: LLMs with computer use need diagram generation, but MCP descriptions consume context even when unused.</p>
-</div>
-<div class="paragraph">
-<p><strong>Decision</strong>: Primary interface is bash tool with <code>--help</code>. MCP mode is optional and explicitly started.</p>
-</div>
-<div class="paragraph">
-<p><strong>Consequences</strong>:
-* ✅ Context efficient: help text only loaded when needed
-* ✅ Works with any LLM that has bash access
-* ✅ MCP still available for LLMs without bash
-* ⚠️ Two deployment modes to maintain</p>
+<p>Architecture decisions are maintained centrally in section 9 (Architecture Decisions) with dedicated ADR files (ADR-001 &#8230;&#8203; ADR-008).</p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_adr_002_agent_self_iteration_vs_parent_llm_control">ADR-002: Agent Self-Iteration vs. Parent LLM Control</h4>
-<div class="paragraph">
-<p><strong>Status</strong>: Accepted</p>
-</div>
-<div class="paragraph">
-<p><strong>Context</strong>: Feedback loop requires multiple LLM calls. Who controls the iteration?</p>
-</div>
-<div class="paragraph">
-<p><strong>Decision</strong>: Agent iterates autonomously with its own LLM client.</p>
-</div>
-<div class="paragraph">
-<p><strong>Consequences</strong>:
-* ✅ Minimal context in parent conversation
-* ✅ Agent can optimize prompts for diagram generation
-* ✅ Parallel processing possible
-* ⚠️ Requires separate LLM API access
-* ⚠️ User sees less of the process (mitigated by progress output)</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_adr_003_local_first_with_opt_in_remote">ADR-003: Local-First with Opt-In Remote</h4>
-<div class="paragraph">
-<p><strong>Status</strong>: Accepted</p>
-</div>
-<div class="paragraph">
-<p><strong>Context</strong>: Privacy concerns with sending diagram data to remote services.</p>
-</div>
-<div class="paragraph">
-<p><strong>Decision</strong>:
-* Default: Local Kroki (Fat-JAR or user-hosted)
-* kroki.io requires interactive confirmation
-* Confirmation stored in config</p>
-</div>
-<div class="paragraph">
-<p><strong>Consequences</strong>:
-* ✅ GDPR compliant by default
-* ✅ Works offline
-* ✅ Users make informed decisions
-* ⚠️ Initial setup more complex (Kroki download)</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_adr_004_url_references_for_rendered_diagrams">ADR-004: URL References for Rendered Diagrams</h4>
-<div class="paragraph">
-<p><strong>Status</strong>: Accepted (V2 Feature)</p>
-</div>
-<div class="paragraph">
-<p><strong>Context</strong>: Base64-encoded images or file paths consume significant context.</p>
-</div>
-<div class="paragraph">
-<p><strong>Decision</strong>: MCP server mode can serve rendered diagrams via HTTP, returning short URLs.</p>
-</div>
-<div class="paragraph">
-<p><strong>Consequences</strong>:
-* ✅ Minimal context consumption
-* ✅ Diagrams displayable in web interfaces
-* ⚠️ Requires HTTP server (already present in MCP streaming mode)
-* ⚠️ Lifecycle management needed (when to delete?)</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_adr_005_litellm_for_provider_abstraction">ADR-005: LiteLLM for Provider Abstraction</h4>
-<div class="paragraph">
-<p><strong>Status</strong>: Accepted</p>
-</div>
-<div class="paragraph">
-<p><strong>Context</strong>: Need to support multiple LLM providers (Anthropic, OpenAI, local models).</p>
-</div>
-<div class="paragraph">
-<p><strong>Decision</strong>: Use LiteLLM as unified interface.</p>
-</div>
-<div class="paragraph">
-<p><strong>Consequences</strong>:
-* ✅ 100+ models supported
-* ✅ Consistent API across providers
-* ✅ Easy to add new providers
-* ⚠️ Additional dependency
-* ⚠️ Abstraction may hide provider-specific features</p>
-</div>
-</div>
+<div class="sect2">
+<h3 id="_technology_stack">Technology Stack</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 50%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Component</th>
+<th class="tableblock halign-left valign-top">Technology</th>
+<th class="tableblock halign-left valign-top">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Runtime</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python 3.10+</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Existing codebase, rich ecosystem</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LLM Abstraction</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LiteLLM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unified interface for 100+ models</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CLI Framework</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Click</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Intuitive command structure, good help generation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP Implementation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FastMCP / MCP SDK</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Standard protocol for LLM tool integration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Diagram Rendering</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supports 20+ diagram types</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Configuration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">python-dotenv, PyYAML</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Standard config management</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP Client</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests / httpx</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki API communication</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Containerization</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docker</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundled Kroki Fat-JAR option</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>

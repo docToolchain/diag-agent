@@ -345,6 +345,7 @@
 <ul class="sectlevel1">
 <li><a href="#section-quality-scenarios">Quality Requirements</a>
 <ul class="sectlevel2">
+<li><a href="#quality-goals">Quality Goals</a></li>
 <li><a href="#_quality_scenarios">Quality Scenarios</a></li>
 <li><a href="#_quality_tree">Quality Tree</a></li>
 </ul>
@@ -375,9 +376,70 @@
 <h2 id="section-quality-scenarios">Quality Requirements</h2>
 <div class="sectionbody">
 <div class="sect2">
+<h3 id="quality-goals">Quality Goals</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Priority</th>
+<th class="tableblock halign-left valign-top">Quality Goal</th>
+<th class="tableblock halign-left valign-top">Motivation</th>
+<th class="tableblock halign-left valign-top">Relevante Szenarien</th>
+<th class="tableblock halign-left valign-top">Unterstützende ADRs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Context Efficiency</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Minimize token consumption in parent LLM conversations through help system, URL references, and self-contained agent logic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-context-efficiency">S1</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-001-bash-tool-vs-mcp.html">ADR-001</a>, <a href="../adr/ADR-002-agent-self-iteration.html">ADR-002</a>, <a href="../adr/ADR-004-url-references.html">ADR-004</a>, <a href="../adr/ADR-008-click-cli.html">ADR-008</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Ease of Installation</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Developers should install via pip or docker run without complex setup</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-installation">S2</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-006-docker-bundled-kroki.html">ADR-006</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Privacy &amp; Security</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No diagram data sent to remote servers without explicit user consent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-privacy">S4</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-003-local-first-remote.html">ADR-003</a>, <a href="../adr/ADR-006-docker-bundled-kroki.html">ADR-006</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Autonomy</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Agent iterates independently without requiring parent LLM intervention</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-context-efficiency">S1</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-002-agent-self-iteration.html">ADR-002</a>, <a href="../adr/ADR-007-source-file-write.html">ADR-007</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Extensibility</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Support for all Kroki diagram types and easy LLM provider switching</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Future scenario (TBD)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-005-litetllm-abstraction.html">ADR-005</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
 <h3 id="_quality_scenarios">Quality Scenarios</h3>
 <div class="sect3">
-<h4 id="_scenario_1_context_efficiency">Scenario 1: Context Efficiency</h4>
+<h4 id="scenario-context-efficiency">Scenario 1: Context Efficiency</h4>
+<div class="paragraph">
+<p>Related Quality Goals: <a href="#quality-goals">1 (Context Efficiency), 4 (Autonomy)</a></p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -418,7 +480,10 @@
 </table>
 </div>
 <div class="sect3">
-<h4 id="_scenario_2_installation_time">Scenario 2: Installation Time</h4>
+<h4 id="scenario-installation">Scenario 2: Installation Time</h4>
+<div class="paragraph">
+<p>Related Quality Goals: <a href="#quality-goals">2 (Ease of Installation)</a></p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -459,7 +524,10 @@
 </table>
 </div>
 <div class="sect3">
-<h4 id="_scenario_3_syntax_error_recovery">Scenario 3: Syntax Error Recovery</h4>
+<h4 id="scenario-syntax">Scenario 3: Syntax Error Recovery</h4>
+<div class="paragraph">
+<p>Related Quality Goals: <a href="#quality-goals">1 (Context Efficiency)</a></p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -500,7 +568,10 @@
 </table>
 </div>
 <div class="sect3">
-<h4 id="_scenario_4_privacy_compliance">Scenario 4: Privacy Compliance</h4>
+<h4 id="scenario-privacy">Scenario 4: Privacy Compliance</h4>
+<div class="paragraph">
+<p>Related Quality Goals: <a href="#quality-goals">3 (Privacy &amp; Security)</a></p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">

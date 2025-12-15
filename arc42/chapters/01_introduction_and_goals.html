@@ -346,7 +346,7 @@
 <li><a href="#section-introduction-and-goals">Introduction and Goals</a>
 <ul class="sectlevel2">
 <li><a href="#_requirements_overview">Requirements Overview</a></li>
-<li><a href="#_quality_goals">Quality Goals</a></li>
+<li><a href="#_quality_goals_overview">Quality Goals (Overview)</a></li>
 <li><a href="#_stakeholders">Stakeholders</a></li>
 </ul>
 </li>
@@ -400,55 +400,36 @@
 <p><strong>LLM-agnostic</strong>: Works with any LLM via LiteLLM abstraction</p>
 </li>
 <li>
-<p><strong>Context-efficient</strong>: Minimal context consumption through help system and reference URLs</p>
+<p><strong>Context-efficient</strong>: Safes main context by working in agent context. Additional minimal context consumption through help system and reference URLs</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_quality_goals">Quality Goals</h3>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 50%;">
-<col style="width: 25%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Priority</th>
-<th class="tableblock halign-left valign-top">Quality Goal</th>
-<th class="tableblock halign-left valign-top">Motivation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Context Efficiency</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Minimize token consumption in parent LLM conversations through help system, URL references, and self-contained agent logic</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Ease of Installation</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Developers should install via pip or docker run without complex setup</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Privacy &amp; Security</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">No diagram data sent to remote servers without explicit user consent</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Autonomy</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Agent iterates independently without requiring parent LLM intervention</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Extensibility</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Support for all Kroki diagram types and easy LLM provider switching</p></td>
-</tr>
-</tbody>
-</table>
+<h3 id="_quality_goals_overview">Quality Goals (Overview)</h3>
+<div class="paragraph">
+<p>Die vollständigen Qualitätsziele stehen in Kapitel 10 (<a href="10_quality_requirements.html#quality-goals">Quality Goals</a>). Kurzüberblick:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Kontext-Effizienz</p>
+</li>
+<li>
+<p>Einfache Installation</p>
+</li>
+<li>
+<p>Privacy &amp; Security</p>
+</li>
+<li>
+<p>Autonomie</p>
+</li>
+<li>
+<p>Erweiterbarkeit</p>
+</li>
+</ul>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_stakeholders">Stakeholders</h3>
@@ -480,11 +461,6 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock">LLM Applications</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Delegate diagram generation without context overhead</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Clear interface, reliable results</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Privacy-conscious Users</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Control over where diagram data is processed</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Local-first options, explicit consent for remote services</p></td>
 </tr>
 </tbody>
 </table>

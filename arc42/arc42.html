@@ -300,7 +300,7 @@
 <li><a href="#section-introduction-and-goals">1. Introduction and Goals</a>
 <ul class="sectlevel2">
 <li><a href="#_requirements_overview">1.1. Requirements Overview</a></li>
-<li><a href="#_quality_goals">1.2. Quality Goals</a></li>
+<li><a href="#_quality_goals_overview">1.2. Quality Goals (Overview)</a></li>
 <li><a href="#_stakeholders">1.3. Stakeholders</a></li>
 </ul>
 </li>
@@ -320,7 +320,9 @@
 <li><a href="#section-solution-strategy">4. Solution Strategy</a>
 <ul class="sectlevel2">
 <li><a href="#_core_strategy_autonomous_feedback_loop">4.1. Core Strategy: Autonomous Feedback Loop</a></li>
-<li><a href="#_design_decisions">4.2. Design Decisions</a></li>
+<li><a href="#_handling_syntax_errors_and_visual_quality">4.2. Handling Syntax Errors and Visual Quality</a></li>
+<li><a href="#_design_decisions">4.3. Design Decisions</a></li>
+<li><a href="#_technology_stack">4.4. Technology Stack</a></li>
 </ul>
 </li>
 <li><a href="#section-building-block-view">5. Building Block View</a>
@@ -356,14 +358,21 @@
 <li><a href="#section-design-decisions">9. Architecture Decisions</a>
 <ul class="sectlevel2">
 <li><a href="#_summary_table">9.1. Summary Table</a></li>
-<li><a href="#_adr_006_docker_bundled_kroki_vs_separate_service">9.2. ADR-006: Docker-Bundled Kroki vs. Separate Service</a></li>
-<li><a href="#_adr_007_source_file_direct_write_v2_feature">9.3. ADR-007: Source File Direct Write (V2 Feature)</a></li>
+<li><a href="#_adr_001_bash_tool_with_help_system_vs_always_on_mcp">9.2. ADR-001: Bash Tool with Help System vs. Always-On MCP</a></li>
+<li><a href="#_adr_002_agent_self_iteration_vs_parent_llm_control">9.3. ADR-002: Agent Self-Iteration vs. Parent LLM Control</a></li>
+<li><a href="#_adr_003_local_first_with_opt_in_remote">9.4. ADR-003: Local-First with Opt-In Remote</a></li>
+<li><a href="#_adr_004_url_references_for_rendered_diagrams">9.5. ADR-004: URL References for Rendered Diagrams</a></li>
+<li><a href="#_adr_005_litellm_for_provider_abstraction">9.6. ADR-005: LiteLLM for Provider Abstraction</a></li>
+<li><a href="#_adr_006_docker_bundled_kroki_vs_separate_service">9.7. ADR-006: Docker-Bundled Kroki vs. Separate Service</a></li>
+<li><a href="#_adr_007_source_file_direct_write_v2_feature">9.8. ADR-007: Source File Direct Write (V2 Feature)</a></li>
+<li><a href="#_adr_008_click_as_cli_framework">9.9. ADR-008: Click as CLI Framework</a></li>
 </ul>
 </li>
 <li><a href="#section-quality-scenarios">10. Quality Requirements</a>
 <ul class="sectlevel2">
-<li><a href="#_quality_scenarios">10.1. Quality Scenarios</a></li>
-<li><a href="#_quality_tree">10.2. Quality Tree</a></li>
+<li><a href="#quality-goals">10.1. Quality Goals</a></li>
+<li><a href="#_quality_scenarios">10.2. Quality Scenarios</a></li>
+<li><a href="#_quality_tree">10.3. Quality Tree</a></li>
 </ul>
 </li>
 <li><a href="#section-technical-risks">11. Risks and Technical Debts</a>
@@ -466,55 +475,36 @@ For documentation of your own system you use better the <em>plain</em> version.<
 <p><strong>LLM-agnostic</strong>: Works with any LLM via LiteLLM abstraction</p>
 </li>
 <li>
-<p><strong>Context-efficient</strong>: Minimal context consumption through help system and reference URLs</p>
+<p><strong>Context-efficient</strong>: Safes main context by working in agent context. Additional minimal context consumption through help system and reference URLs</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_quality_goals">1.2. Quality Goals</h3>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 50%;">
-<col style="width: 25%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Priority</th>
-<th class="tableblock halign-left valign-top">Quality Goal</th>
-<th class="tableblock halign-left valign-top">Motivation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Context Efficiency</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Minimize token consumption in parent LLM conversations through help system, URL references, and self-contained agent logic</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Ease of Installation</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Developers should install via pip or docker run without complex setup</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Privacy &amp; Security</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">No diagram data sent to remote servers without explicit user consent</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Autonomy</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Agent iterates independently without requiring parent LLM intervention</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Extensibility</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Support for all Kroki diagram types and easy LLM provider switching</p></td>
-</tr>
-</tbody>
-</table>
+<h3 id="_quality_goals_overview">1.2. Quality Goals (Overview)</h3>
+<div class="paragraph">
+<p>Die vollständigen Qualitätsziele stehen in Kapitel 10 (<a href="10_quality_requirements.html#quality-goals">Quality Goals</a>). Kurzüberblick:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Kontext-Effizienz</p>
+</li>
+<li>
+<p>Einfache Installation</p>
+</li>
+<li>
+<p>Privacy &amp; Security</p>
+</li>
+<li>
+<p>Autonomie</p>
+</li>
+<li>
+<p>Erweiterbarkeit</p>
+</li>
+</ul>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_stakeholders">1.3. Stakeholders</h3>
@@ -547,11 +537,6 @@ For documentation of your own system you use better the <em>plain</em> version.<
 <td class="tableblock halign-left valign-top"><p class="tableblock">Delegate diagram generation without context overhead</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Clear interface, reliable results</p></td>
 </tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Privacy-conscious Users</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Control over where diagram data is processed</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Local-first options, explicit consent for remote services</p></td>
-</tr>
 </tbody>
 </table>
 <div style="page-break-after: always;"></div>
@@ -576,24 +561,12 @@ For documentation of your own system you use better the <em>plain</em> version.<
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Python-based</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Reuse existing Kroki integration code</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Multi-platform support</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Must run on macOS, Linux, and Windows (WSL)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">LiteLLM dependency</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Unified interface for multiple LLM providers</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki for rendering</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Industry-standard diagram rendering service supporting 20+ formats</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Vision-capable LLM recommended</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Design feedback requires image analysis (fallback: syntax-only validation)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Docker optional</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bundled Kroki Fat-JAR for fully offline operation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python 3.10+</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Existing codebase and team expertise</p></td>
 </tr>
 </tbody>
 </table>
@@ -617,12 +590,12 @@ For documentation of your own system you use better the <em>plain</em> version.<
 <td class="tableblock halign-left valign-top"><p class="tableblock">Target developer community with transparent tooling</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Privacy compliance</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">GDPR considerations: no automatic remote data transmission</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Privacy compliance (GDPR)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No automatic transmission of user data to remote servers without explicit consent</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Self-contained</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Must work without internet connection (local Kroki mode)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Self-contained deployment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Must be deployable without complex infrastructure dependencies</p></td>
 </tr>
 </tbody>
 </table>
@@ -638,7 +611,7 @@ For documentation of your own system you use better the <em>plain</em> version.<
 <p><strong>Output formats</strong>: Source (.puml, .mmd) + rendered (PNG, SVG)</p>
 </li>
 <li>
-<p><strong>Error handling</strong>: Interactive prompts for missing config, graceful degradation</p>
+<p><strong>Error handling</strong>: Interactive prompts for missing config, graceful degradation, explanations on what is wrong and what to do instead of plain errors</p>
 </li>
 <li>
 <p><strong>Documentation</strong>: English, AsciiDoc format</p>
@@ -701,76 +674,105 @@ For documentation of your own system you use better the <em>plain</em> version.<
 </div>
 <div class="sect2">
 <h3 id="_technical_context">3.2. Technical Context</h3>
-<div class="listingblock">
+<div class="imageblock">
 <div class="content">
-<pre>Failed to generate image: PlantUML preprocessing failed: [From &lt;input&gt; (line 7) ]
-
-@startuml
-
-
-
-
-...
-... ( skipping 768 lines )
-...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-rectangle "&lt;$person&gt;\n== User/LLM\n\n Requests diagrams" &lt;&lt;person&gt;&gt; as user
-
-  rectangle "== diag-agent\n&lt;size:12&gt;[System]&lt;/size&gt;" &lt;&lt;system_boundary&gt;&gt;&lt;&lt;boundary&gt;&gt; as agent  {
-    Container(cli, "CLI Interface", "Python/Click", "Command parsing and execution")
-^^^^^
- Syntax Error?
-
-@startuml
-!include &lt;C4/C4_Context&gt;
-
-Person(user, "User/LLM", "Requests diagrams")
-
-System_Boundary(agent, "diag-agent") {
-    Container(cli, "CLI Interface", "Python/Click", "Command parsing and execution")
-    Container(mcp, "MCP Server", "Python/SSE", "Tool exposure for LLMs")
-    Container(core, "Agent Core", "Python", "Iteration logic and orchestration")
-    Container(llm_client, "LLM Client", "LiteLLM", "Multi-provider abstraction")
-    Container(kroki_client, "Kroki Client", "Python/Requests", "Diagram rendering")
-    ContainerDb(config, "Configuration", "YAML/Env", "User preferences and API keys")
-}
-
-System_Ext(llm_api, "LLM API", "Claude, GPT-4, Ollama")
-System_Ext(kroki, "Kroki Service", "Diagram renderer")
-System_Ext(storage, "File System", "Diagram outputs")
-
-Rel(user, cli, "Executes", "bash")
-Rel(user, mcp, "Calls", "HTTP/MCP")
-Rel(cli, core, "Delegates")
-Rel(mcp, core, "Delegates")
-Rel(core, llm_client, "Generates/Analyzes")
-Rel(core, kroki_client, "Renders")
-Rel(llm_client, llm_api, "API calls")
-Rel(kroki_client, kroki, "HTTP POST")
-Rel(core, storage, "Writes outputs")
-Rel(core, config, "Reads settings")
-
-SHOW_LEGEND()
-@enduml</pre>
+<img src="../images/technical-context.svg" alt="technical context" width="575" height="648">
 </div>
 </div>
 <div class="sect3">
-<h4 id="_technology_stack">3.2.1. Technology Stack</h4>
+<h4 id="_technical_interfaces">3.2.1. Technical Interfaces</h4>
+<div class="paragraph">
+<p><strong>Incoming:</strong>
+* <strong>CLI</strong>: Command-line interface accepting bash commands and arguments
+* <strong>MCP Server</strong>: HTTP/SSE endpoint for LLM tool integration</p>
+</div>
+<div class="paragraph">
+<p><strong>Outgoing:</strong>
+* <strong>LLM API</strong>: HTTPS requests to various LLM providers (OpenAI, Anthropic, Ollama, etc.)
+* <strong>Kroki API</strong>: HTTP POST to rendering service (local or remote)
+* <strong>File System</strong>: Write diagram source files and rendered images</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-solution-strategy">4. Solution Strategy</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The goal is to generate accurate, readable architecture diagrams with minimal friction for users and minimal context load for LLMs. The solution is an autonomous agent that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>works locally-first (privacy, offline capability), with explicit opt-in for remote services;</p>
+</li>
+<li>
+<p>iterates on diagram source until syntax and visual quality meet an agreed bar;</p>
+</li>
+<li>
+<p>exposes both CLI and MCP modes to fit shell-first and tool-driven LLM workflows;</p>
+</li>
+<li>
+<p>returns concise outputs (source + rendered image or URL) and surfaces any remaining issues transparently.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_core_strategy_autonomous_feedback_loop">4.1. Core Strategy: Autonomous Feedback Loop</h3>
+<div class="paragraph">
+<p>The agent operates independently from the calling LLM to minimize context consumption:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Generate</strong>: Agent calls LLM to create diagram source code with examples</p>
+</li>
+<li>
+<p><strong>Validate</strong>: Submit to Kroki, capture syntax errors</p>
+</li>
+<li>
+<p><strong>Fix</strong>: If errors, agent provides feedback to LLM for correction</p>
+</li>
+<li>
+<p><strong>Analyze</strong> (if vision available): Render image, LLM evaluates layout/design</p>
+</li>
+<li>
+<p><strong>Iterate</strong>: Repeat steps 2-4 until quality threshold or limits reached</p>
+</li>
+<li>
+<p><strong>Return</strong>: Provide source + rendered outputs (or URL references)</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/feedback-loop.svg" alt="feedback loop" width="1490" height="387">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_handling_syntax_errors_and_visual_quality">4.2. Handling Syntax Errors and Visual Quality</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Syntax resilience: Start from diagram-type templates, avoid known-not-working directives, and always run a Kroki lint/render pass to surface exact line errors. The agent retries with the error payload (line numbers, message) and keeps a short history to avoid repeating failed constructs. If two retries fail, it returns the best-attempt source plus the captured error for transparency.</p>
+</li>
+<li>
+<p>Visual quality: When vision is available, the agent asks the LLM to critique legibility (spacing, overlaps, label truncation) and requests a corrected version. Without vision, it applies heuristics: cap node/edge counts per diagram type, prefer left-to-right layouts, apply consistent skinparams/themes, and simplify (collapse groups) when exceeding thresholds. A small library of “good defaults” per renderer (e.g., PlantUML skinparams) is injected into prompts to steer toward readable output.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_design_decisions">4.3. Design Decisions</h3>
+<div class="paragraph">
+<p>Architecture decisions are maintained centrally in section 9 (Architecture Decisions) with dedicated ADR files (ADR-001 &#8230;&#8203; ADR-008).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_technology_stack">4.4. Technology Stack</h3>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -828,149 +830,6 @@ SHOW_LEGEND()
 </tbody>
 </table>
 <div style="page-break-after: always;"></div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="section-solution-strategy">4. Solution Strategy</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_core_strategy_autonomous_feedback_loop">4.1. Core Strategy: Autonomous Feedback Loop</h3>
-<div class="paragraph">
-<p>The agent operates independently from the calling LLM to minimize context consumption:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><strong>Generate</strong>: Agent calls LLM to create diagram source code with examples</p>
-</li>
-<li>
-<p><strong>Validate</strong>: Submit to Kroki, capture syntax errors</p>
-</li>
-<li>
-<p><strong>Fix</strong>: If errors, agent provides feedback to LLM for correction</p>
-</li>
-<li>
-<p><strong>Analyze</strong> (if vision available): Render image, LLM evaluates layout/design</p>
-</li>
-<li>
-<p><strong>Iterate</strong>: Repeat steps 2-4 until quality threshold or limits reached</p>
-</li>
-<li>
-<p><strong>Return</strong>: Provide source + rendered outputs (or URL references)</p>
-</li>
-</ol>
-</div>
-<div class="imageblock">
-<div class="content">
-<img src="../images/feedback-loop.svg" alt="feedback loop" width="1490" height="387">
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_design_decisions">4.2. Design Decisions</h3>
-<div class="sect3">
-<h4 id="_adr_001_bash_tool_with_help_system_vs_always_on_mcp">4.2.1. ADR-001: Bash Tool with Help System vs. Always-On MCP</h4>
-<div class="paragraph">
-<p><strong>Status</strong>: Accepted</p>
-</div>
-<div class="paragraph">
-<p><strong>Context</strong>: LLMs with computer use need diagram generation, but MCP descriptions consume context even when unused.</p>
-</div>
-<div class="paragraph">
-<p><strong>Decision</strong>: Primary interface is bash tool with <code>--help</code>. MCP mode is optional and explicitly started.</p>
-</div>
-<div class="paragraph">
-<p><strong>Consequences</strong>:
-* ✅ Context efficient: help text only loaded when needed
-* ✅ Works with any LLM that has bash access
-* ✅ MCP still available for LLMs without bash
-* ⚠️ Two deployment modes to maintain</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_adr_002_agent_self_iteration_vs_parent_llm_control">4.2.2. ADR-002: Agent Self-Iteration vs. Parent LLM Control</h4>
-<div class="paragraph">
-<p><strong>Status</strong>: Accepted</p>
-</div>
-<div class="paragraph">
-<p><strong>Context</strong>: Feedback loop requires multiple LLM calls. Who controls the iteration?</p>
-</div>
-<div class="paragraph">
-<p><strong>Decision</strong>: Agent iterates autonomously with its own LLM client.</p>
-</div>
-<div class="paragraph">
-<p><strong>Consequences</strong>:
-* ✅ Minimal context in parent conversation
-* ✅ Agent can optimize prompts for diagram generation
-* ✅ Parallel processing possible
-* ⚠️ Requires separate LLM API access
-* ⚠️ User sees less of the process (mitigated by progress output)</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_adr_003_local_first_with_opt_in_remote">4.2.3. ADR-003: Local-First with Opt-In Remote</h4>
-<div class="paragraph">
-<p><strong>Status</strong>: Accepted</p>
-</div>
-<div class="paragraph">
-<p><strong>Context</strong>: Privacy concerns with sending diagram data to remote services.</p>
-</div>
-<div class="paragraph">
-<p><strong>Decision</strong>:
-* Default: Local Kroki (Fat-JAR or user-hosted)
-* kroki.io requires interactive confirmation
-* Confirmation stored in config</p>
-</div>
-<div class="paragraph">
-<p><strong>Consequences</strong>:
-* ✅ GDPR compliant by default
-* ✅ Works offline
-* ✅ Users make informed decisions
-* ⚠️ Initial setup more complex (Kroki download)</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_adr_004_url_references_for_rendered_diagrams">4.2.4. ADR-004: URL References for Rendered Diagrams</h4>
-<div class="paragraph">
-<p><strong>Status</strong>: Accepted (V2 Feature)</p>
-</div>
-<div class="paragraph">
-<p><strong>Context</strong>: Base64-encoded images or file paths consume significant context.</p>
-</div>
-<div class="paragraph">
-<p><strong>Decision</strong>: MCP server mode can serve rendered diagrams via HTTP, returning short URLs.</p>
-</div>
-<div class="paragraph">
-<p><strong>Consequences</strong>:
-* ✅ Minimal context consumption
-* ✅ Diagrams displayable in web interfaces
-* ⚠️ Requires HTTP server (already present in MCP streaming mode)
-* ⚠️ Lifecycle management needed (when to delete?)</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_adr_005_litellm_for_provider_abstraction">4.2.5. ADR-005: LiteLLM for Provider Abstraction</h4>
-<div class="paragraph">
-<p><strong>Status</strong>: Accepted</p>
-</div>
-<div class="paragraph">
-<p><strong>Context</strong>: Need to support multiple LLM providers (Anthropic, OpenAI, local models).</p>
-</div>
-<div class="paragraph">
-<p><strong>Decision</strong>: Use LiteLLM as unified interface.</p>
-</div>
-<div class="paragraph">
-<p><strong>Consequences</strong>:
-* ✅ 100+ models supported
-* ✅ Consistent API across providers
-* ✅ Easy to add new providers
-* ⚠️ Additional dependency
-* ⚠️ Abstraction may hide provider-specific features</p>
-</div>
-<div style="page-break-after: always;"></div>
-</div>
 </div>
 </div>
 </div>
@@ -1312,6 +1171,19 @@ Prevents infinite loops and excessive API costs.</p>
 </div>
 </li>
 <li>
+<p><strong>Config File Structure vs. .env</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>.env</code>: flat <code>KEY=VALUE</code>, mirrors environment variable names, easy to override in shells/CI; avoid nesting.</p>
+</li>
+<li>
+<p><code>config.yaml</code>: structured, supports nested sections (llm/kroki/agent/output), lives at <code>~/.diag-agent/config.yaml</code>; better for default profiles and non-secret tuning. Secrets still prefer env/.env.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
 <p><strong>Config File</strong> (lowest priority)</p>
 <div class="ulist">
 <ul>
@@ -1589,7 +1461,7 @@ Continue? [y/N]
 <h2 id="section-design-decisions">9. Architecture Decisions</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section consolidates all Architecture Decision Records. See section 4 (Solution Strategy) for detailed ADRs 001-005.</p>
+<p>This section consolidates all Architecture Decision Records.</p>
 </div>
 <div class="sect2">
 <h3 id="_summary_table">9.1. Summary Table</h3>
@@ -1642,11 +1514,359 @@ Continue? [y/N]
 <td class="tableblock halign-left valign-top"><p class="tableblock">Source File Direct Write</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">📋 Planned (V2)</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ADR-008</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Click as CLI Framework</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✅ Accepted</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Details:</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_001_bash_tool_with_help_system_vs_always_on_mcp">9.2. ADR-001: Bash Tool with Help System vs. Always-On MCP</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: LLMs with computer use need diagram generation, but MCP descriptions consume context even when unused.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Primary interface is bash tool with <code>--help</code>. MCP mode is optional and explicitly started.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Context efficient: help text only loaded when needed
+* ✅ Works with any LLM that has bash access
+* ✅ MCP still available for LLMs without bash
+* ⚠️ Two deployment modes to maintain</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">1 Context Efficiency</a>, <a href="../chapters/10_quality_requirements.html#quality-goals">4 Autonomy</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix">9.2.1. Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Bash tool (baseline)</th>
+<th class="tableblock halign-center valign-top">Always-on MCP</th>
+<th class="tableblock halign-center valign-top">Bash + MCP opt-in (chosen)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context Efficiency</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (constant context footprint)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (only when needed)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Control</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (user decides mode)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Implementation Effort</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (server upkeep)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LLM Compatibility</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (LLM-native integration)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (works for bash + MCP)</p></td>
+</tr>
 </tbody>
 </table>
 </div>
+</div>
 <div class="sect2">
-<h3 id="_adr_006_docker_bundled_kroki_vs_separate_service">9.2. ADR-006: Docker-Bundled Kroki vs. Separate Service</h3>
+<h3 id="_adr_002_agent_self_iteration_vs_parent_llm_control">9.3. ADR-002: Agent Self-Iteration vs. Parent LLM Control</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Feedback loop requires multiple LLM calls. Who controls the iteration?</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Agent iterates autonomously with its own LLM client.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Minimal context in parent conversation
+* ✅ Agent can optimize prompts for diagram generation
+* ✅ Parallel processing possible
+* ⚠️ Requires separate LLM API access
+* ⚠️ User sees less of the process (mitigated by progress output)</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">1 Context Efficiency</a>, <a href="../chapters/10_quality_requirements.html#quality-goals">4 Autonomy</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_2">9.3.1. Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Parent LLM controls loop (baseline)</th>
+<th class="tableblock halign-center valign-top">Agent self-iteration (chosen)</th>
+<th class="tableblock halign-center valign-top">Hybrid (user-stepped)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context Usage</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (minimal parent context)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (more back-and-forth)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reliability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (agent-optimized retries)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Transparency</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (user sees all)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (progress messages)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (full visibility)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Implementation Effort</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (complex orchestration outside agent)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (more prompts, slower)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_003_local_first_with_opt_in_remote">9.4. ADR-003: Local-First with Opt-In Remote</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Privacy concerns with sending diagram data to remote services.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>:
+* Default: Local Kroki (Fat-JAR or user-hosted)
+* kroki.io requires interactive confirmation
+* Confirmation stored in config</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ GDPR compliant by default
+* ✅ Works offline
+* ✅ Users make informed decisions
+* ⚠️ Initial setup more complex (Kroki download)</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">3 Privacy &amp; Security</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_3">9.4.1. Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Remote by default (baseline)</th>
+<th class="tableblock halign-center valign-top">Local-first, remote opt-in (chosen)</th>
+<th class="tableblock halign-center valign-top">Local-only</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Privacy</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (data leaves host)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (default local)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (no remote)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Offline Capability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (requires internet)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (works offline)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (offline)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Setup Effort</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (no local install)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (needs jar download)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (must install locally)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Performance/Latency</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (local latency)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (no remote fallback)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_004_url_references_for_rendered_diagrams">9.5. ADR-004: URL References for Rendered Diagrams</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted (V2 Feature)</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Base64-encoded images or file paths consume significant context.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: MCP server mode can serve rendered diagrams via HTTP, returning short URLs.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Minimal context consumption
+* ✅ Diagrams displayable in web interfaces
+* ⚠️ Requires HTTP server (already present in MCP streaming mode)
+* ⚠️ Lifecycle management needed (when to delete?)</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">1 Context Efficiency</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_4">9.5.1. Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Base64 in responses (baseline)</th>
+<th class="tableblock halign-center valign-top">File paths only</th>
+<th class="tableblock halign-center valign-top">Short URLs (chosen)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context Size</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (large payloads)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (tiny payload)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Convenience</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (inline)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (easy to preview/embed)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Complexity</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (simple)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (reuse MCP HTTP server)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lifecycle/Storage</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (bloats responses)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (needs shared FS)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (need cleanup policy)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_005_litellm_for_provider_abstraction">9.6. ADR-005: LiteLLM for Provider Abstraction</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Need to support multiple LLM providers (Anthropic, OpenAI, local models).</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Use LiteLLM as unified interface.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ 100+ models supported
+* ✅ Consistent API across providers
+* ✅ Easy to add new providers
+* ⚠️ Additional dependency
+* ⚠️ Abstraction may hide provider-specific features</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">5 Extensibility</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_5">9.6.1. Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Direct provider SDKs (baseline)</th>
+<th class="tableblock halign-center valign-top">LiteLLM abstraction (chosen)</th>
+<th class="tableblock halign-center valign-top">Single-provider lock-in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provider Flexibility</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (per-provider)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (swap providers easily)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (no flexibility)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dev Velocity</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (multiple SDKs)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (one API surface)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (simplest code)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Runtime Stability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (fewer moving parts)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Feature Access</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (full features)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (some provider-specific features hidden)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (no access to others)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_006_docker_bundled_kroki_vs_separate_service">9.7. ADR-006: Docker-Bundled Kroki vs. Separate Service</h3>
 <div class="paragraph">
 <p><strong>Status</strong>: Accepted</p>
 </div>
@@ -1664,14 +1884,62 @@ Continue? [y/N]
 * ⚠️ Longer build times</p>
 </div>
 <div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">2 Ease of Installation</a>, <a href="../chapters/10_quality_requirements.html#quality-goals">3 Privacy &amp; Security</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_6">9.7.1. Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Hosted Kroki service (baseline)</th>
+<th class="tableblock halign-center valign-top">Local Docker Kroki (chosen)</th>
+<th class="tableblock halign-center valign-top">Local native Kroki install</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Portability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (works offline)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (offline)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Setup Complexity</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (no local setup)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (need Docker + image pull)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (package install/maintenance)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Runtime Reliability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (managed uptime)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (self-controlled uptime)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (depends on host services)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Security Surface</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (network and external trust)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (limited to image and Docker)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (host-level dependencies)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
 <p><strong>Alternatives Considered</strong>:
 * Multi-stage build with optional Fat-JAR (chosen approach)
 * Always download on first run (slower, requires internet)
 * Separate kroki container via docker-compose (more complex)</p>
 </div>
 </div>
+</div>
 <div class="sect2">
-<h3 id="_adr_007_source_file_direct_write_v2_feature">9.3. ADR-007: Source File Direct Write (V2 Feature)</h3>
+<h3 id="_adr_007_source_file_direct_write_v2_feature">9.8. ADR-007: Source File Direct Write (V2 Feature)</h3>
 <div class="paragraph">
 <p><strong>Status</strong>: Planned for V2</p>
 </div>
@@ -1699,7 +1967,137 @@ Continue? [y/N]
 * Should agent create section if missing?
 * Support for multiple diagram formats in one file?</p>
 </div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Simple change tracking per run
+* ✅ Reduces accidental overwrites when omitted
+* ⚠️ Requires source files to be writable
+* ⚠️ No multi-user locking
+* ⚠️ Needs docs to set read/write flags</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">4 Autonomy</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_7">9.8.1. Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Always allow writes (baseline)</th>
+<th class="tableblock halign-center valign-top">Explicit write-to flag (chosen)</th>
+<th class="tableblock halign-center valign-top">Central locking service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Safety</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (risk of accidental edits)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (opt-in edits)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (prevents conflicts)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Effort</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (zero friction)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (requires a flag per run)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (setup overhead)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reliability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (predictable behavior)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (coordinated access)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Collaboration</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (no coordination)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (no extra locks)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (supports multi-user)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_008_click_as_cli_framework">9.9. ADR-008: Click as CLI Framework</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Command-line UX is the primary entry point; needs structured arguments, good help texts, and compatibility with bash-driven LLM tooling.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Use Click as the CLI framework.</p>
+</div>
+<div class="paragraph">
+<p><strong>Alternatives Considered</strong>:
+* argparse (stdlib) — stable but verbose, less friendly help output
+* Typer — modern and type-hint friendly, but another dependency and smaller ecosystem
+* docopt / fire — fast to start, but less control over UX and validation</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Rich help/usage output with minimal boilerplate
+* ✅ Mature ecosystem and patterns for nested commands/options
+* ✅ Works well with bash and LLM-driven command execution
+* ⚠️ Additional dependency vs. argparse
+* ⚠️ Some learning curve for contributors unfamiliar with Click</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">1 Context Efficiency</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_8">9.9.1. Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">argparse (baseline)</th>
+<th class="tableblock halign-center valign-top">Click (chosen)</th>
+<th class="tableblock halign-center valign-top">Typer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UX Quality</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (rich help, colors, nesting)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (fast to code with type hints)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dev Velocity</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (concise decorators)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (Click-based)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ecosystem</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (stdlib, stable)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (mature extensions)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (smaller ecosystem)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Learning Curve</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (manual help/UX)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (moderate)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (similar to Click)</p></td>
+</tr>
+</tbody>
+</table>
 <div style="page-break-after: always;"></div>
+</div>
 </div>
 </div>
 </div>
@@ -1707,9 +2105,70 @@ Continue? [y/N]
 <h2 id="section-quality-scenarios">10. Quality Requirements</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_quality_scenarios">10.1. Quality Scenarios</h3>
+<h3 id="quality-goals">10.1. Quality Goals</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Priority</th>
+<th class="tableblock halign-left valign-top">Quality Goal</th>
+<th class="tableblock halign-left valign-top">Motivation</th>
+<th class="tableblock halign-left valign-top">Relevante Szenarien</th>
+<th class="tableblock halign-left valign-top">Unterstützende ADRs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Context Efficiency</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Minimize token consumption in parent LLM conversations through help system, URL references, and self-contained agent logic</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-context-efficiency">S1</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-001-bash-tool-vs-mcp.html">ADR-001</a>, <a href="../adr/ADR-002-agent-self-iteration.html">ADR-002</a>, <a href="../adr/ADR-004-url-references.html">ADR-004</a>, <a href="../adr/ADR-008-click-cli.html">ADR-008</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Ease of Installation</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Developers should install via pip or docker run without complex setup</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-installation">S2</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-006-docker-bundled-kroki.html">ADR-006</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Privacy &amp; Security</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No diagram data sent to remote servers without explicit user consent</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-privacy">S4</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-003-local-first-remote.html">ADR-003</a>, <a href="../adr/ADR-006-docker-bundled-kroki.html">ADR-006</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Autonomy</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Agent iterates independently without requiring parent LLM intervention</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-context-efficiency">S1</a></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-002-agent-self-iteration.html">ADR-002</a>, <a href="../adr/ADR-007-source-file-write.html">ADR-007</a></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Extensibility</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Support for all Kroki diagram types and easy LLM provider switching</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Future scenario (TBD)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-005-litetllm-abstraction.html">ADR-005</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_quality_scenarios">10.2. Quality Scenarios</h3>
 <div class="sect3">
-<h4 id="_scenario_1_context_efficiency">10.1.1. Scenario 1: Context Efficiency</h4>
+<h4 id="scenario-context-efficiency">10.2.1. Scenario 1: Context Efficiency</h4>
+<div class="paragraph">
+<p>Related Quality Goals: <a href="#quality-goals">1 (Context Efficiency), 4 (Autonomy)</a></p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -1750,7 +2209,10 @@ Continue? [y/N]
 </table>
 </div>
 <div class="sect3">
-<h4 id="_scenario_2_installation_time">10.1.2. Scenario 2: Installation Time</h4>
+<h4 id="scenario-installation">10.2.2. Scenario 2: Installation Time</h4>
+<div class="paragraph">
+<p>Related Quality Goals: <a href="#quality-goals">2 (Ease of Installation)</a></p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -1791,7 +2253,10 @@ Continue? [y/N]
 </table>
 </div>
 <div class="sect3">
-<h4 id="_scenario_3_syntax_error_recovery">10.1.3. Scenario 3: Syntax Error Recovery</h4>
+<h4 id="scenario-syntax">10.2.3. Scenario 3: Syntax Error Recovery</h4>
+<div class="paragraph">
+<p>Related Quality Goals: <a href="#quality-goals">1 (Context Efficiency)</a></p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -1832,7 +2297,10 @@ Continue? [y/N]
 </table>
 </div>
 <div class="sect3">
-<h4 id="_scenario_4_privacy_compliance">10.1.4. Scenario 4: Privacy Compliance</h4>
+<h4 id="scenario-privacy">10.2.4. Scenario 4: Privacy Compliance</h4>
+<div class="paragraph">
+<p>Related Quality Goals: <a href="#quality-goals">3 (Privacy &amp; Security)</a></p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -1874,7 +2342,7 @@ Continue? [y/N]
 </div>
 </div>
 <div class="sect2">
-<h3 id="_quality_tree">10.2. Quality Tree</h3>
+<h3 id="_quality_tree">10.3. Quality Tree</h3>
 <div class="imageblock">
 <div class="content">
 <img src="../images/quality-tree.svg" alt="quality tree" width="621" height="1035">
@@ -1978,24 +2446,9 @@ Continue? [y/N]
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Two deployment modes</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">MVP needs both CLI and MCP</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Refactor to shared core in v1.1</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>In-memory state only</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Simpler for MVP</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Add persistent state for long-running MCP servers in V2</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Limited diagram type testing</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Focus on C4 and PlantUML initially</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Expand test coverage iteratively</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>No diagram versioning</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Not in initial requirements</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Add in V2 if users request</p></td>
 </tr>
 </tbody>
 </table>

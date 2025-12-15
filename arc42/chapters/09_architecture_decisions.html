@@ -346,8 +346,14 @@
 <li><a href="#section-design-decisions">Architecture Decisions</a>
 <ul class="sectlevel2">
 <li><a href="#_summary_table">Summary Table</a></li>
+<li><a href="#_adr_001_bash_tool_with_help_system_vs_always_on_mcp">ADR-001: Bash Tool with Help System vs. Always-On MCP</a></li>
+<li><a href="#_adr_002_agent_self_iteration_vs_parent_llm_control">ADR-002: Agent Self-Iteration vs. Parent LLM Control</a></li>
+<li><a href="#_adr_003_local_first_with_opt_in_remote">ADR-003: Local-First with Opt-In Remote</a></li>
+<li><a href="#_adr_004_url_references_for_rendered_diagrams">ADR-004: URL References for Rendered Diagrams</a></li>
+<li><a href="#_adr_005_litellm_for_provider_abstraction">ADR-005: LiteLLM for Provider Abstraction</a></li>
 <li><a href="#_adr_006_docker_bundled_kroki_vs_separate_service">ADR-006: Docker-Bundled Kroki vs. Separate Service</a></li>
 <li><a href="#_adr_007_source_file_direct_write_v2_feature">ADR-007: Source File Direct Write (V2 Feature)</a></li>
+<li><a href="#_adr_008_click_as_cli_framework">ADR-008: Click as CLI Framework</a></li>
 </ul>
 </li>
 </ul>
@@ -376,7 +382,7 @@
 <h2 id="section-design-decisions">Architecture Decisions</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section consolidates all Architecture Decision Records. See section 4 (Solution Strategy) for detailed ADRs 001-005.</p>
+<p>This section consolidates all Architecture Decision Records.</p>
 </div>
 <div class="sect2">
 <h3 id="_summary_table">Summary Table</h3>
@@ -429,8 +435,356 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock">Source File Direct Write</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">📋 Planned (V2)</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ADR-008</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Click as CLI Framework</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✅ Accepted</p></td>
+</tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>Details:</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_001_bash_tool_with_help_system_vs_always_on_mcp">ADR-001: Bash Tool with Help System vs. Always-On MCP</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: LLMs with computer use need diagram generation, but MCP descriptions consume context even when unused.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Primary interface is bash tool with <code>--help</code>. MCP mode is optional and explicitly started.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Context efficient: help text only loaded when needed
+* ✅ Works with any LLM that has bash access
+* ✅ MCP still available for LLMs without bash
+* ⚠️ Two deployment modes to maintain</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">1 Context Efficiency</a>, <a href="../chapters/10_quality_requirements.html#quality-goals">4 Autonomy</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix">Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Bash tool (baseline)</th>
+<th class="tableblock halign-center valign-top">Always-on MCP</th>
+<th class="tableblock halign-center valign-top">Bash + MCP opt-in (chosen)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context Efficiency</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (constant context footprint)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (only when needed)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Control</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (user decides mode)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Implementation Effort</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (server upkeep)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LLM Compatibility</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (LLM-native integration)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (works for bash + MCP)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_002_agent_self_iteration_vs_parent_llm_control">ADR-002: Agent Self-Iteration vs. Parent LLM Control</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Feedback loop requires multiple LLM calls. Who controls the iteration?</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Agent iterates autonomously with its own LLM client.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Minimal context in parent conversation
+* ✅ Agent can optimize prompts for diagram generation
+* ✅ Parallel processing possible
+* ⚠️ Requires separate LLM API access
+* ⚠️ User sees less of the process (mitigated by progress output)</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">1 Context Efficiency</a>, <a href="../chapters/10_quality_requirements.html#quality-goals">4 Autonomy</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_2">Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Parent LLM controls loop (baseline)</th>
+<th class="tableblock halign-center valign-top">Agent self-iteration (chosen)</th>
+<th class="tableblock halign-center valign-top">Hybrid (user-stepped)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context Usage</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (minimal parent context)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (more back-and-forth)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reliability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (agent-optimized retries)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Transparency</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (user sees all)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (progress messages)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (full visibility)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Implementation Effort</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (complex orchestration outside agent)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (more prompts, slower)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_003_local_first_with_opt_in_remote">ADR-003: Local-First with Opt-In Remote</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Privacy concerns with sending diagram data to remote services.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>:
+* Default: Local Kroki (Fat-JAR or user-hosted)
+* kroki.io requires interactive confirmation
+* Confirmation stored in config</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ GDPR compliant by default
+* ✅ Works offline
+* ✅ Users make informed decisions
+* ⚠️ Initial setup more complex (Kroki download)</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">3 Privacy &amp; Security</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_3">Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Remote by default (baseline)</th>
+<th class="tableblock halign-center valign-top">Local-first, remote opt-in (chosen)</th>
+<th class="tableblock halign-center valign-top">Local-only</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Privacy</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (data leaves host)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (default local)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (no remote)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Offline Capability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (requires internet)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (works offline)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (offline)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Setup Effort</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (no local install)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (needs jar download)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (must install locally)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Performance/Latency</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (local latency)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (no remote fallback)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_004_url_references_for_rendered_diagrams">ADR-004: URL References for Rendered Diagrams</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted (V2 Feature)</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Base64-encoded images or file paths consume significant context.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: MCP server mode can serve rendered diagrams via HTTP, returning short URLs.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Minimal context consumption
+* ✅ Diagrams displayable in web interfaces
+* ⚠️ Requires HTTP server (already present in MCP streaming mode)
+* ⚠️ Lifecycle management needed (when to delete?)</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">1 Context Efficiency</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_4">Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Base64 in responses (baseline)</th>
+<th class="tableblock halign-center valign-top">File paths only</th>
+<th class="tableblock halign-center valign-top">Short URLs (chosen)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context Size</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (large payloads)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (tiny payload)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Convenience</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (inline)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (easy to preview/embed)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Complexity</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (simple)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (reuse MCP HTTP server)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Lifecycle/Storage</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (bloats responses)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (needs shared FS)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (need cleanup policy)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_005_litellm_for_provider_abstraction">ADR-005: LiteLLM for Provider Abstraction</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Need to support multiple LLM providers (Anthropic, OpenAI, local models).</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Use LiteLLM as unified interface.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ 100+ models supported
+* ✅ Consistent API across providers
+* ✅ Easy to add new providers
+* ⚠️ Additional dependency
+* ⚠️ Abstraction may hide provider-specific features</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">5 Extensibility</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_5">Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Direct provider SDKs (baseline)</th>
+<th class="tableblock halign-center valign-top">LiteLLM abstraction (chosen)</th>
+<th class="tableblock halign-center valign-top">Single-provider lock-in</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provider Flexibility</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (per-provider)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (swap providers easily)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (no flexibility)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dev Velocity</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (multiple SDKs)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (one API surface)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (simplest code)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Runtime Stability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (fewer moving parts)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Feature Access</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (full features)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (some provider-specific features hidden)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (no access to others)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_adr_006_docker_bundled_kroki_vs_separate_service">ADR-006: Docker-Bundled Kroki vs. Separate Service</h3>
@@ -451,10 +805,58 @@
 * ⚠️ Longer build times</p>
 </div>
 <div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">2 Ease of Installation</a>, <a href="../chapters/10_quality_requirements.html#quality-goals">3 Privacy &amp; Security</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_6">Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Hosted Kroki service (baseline)</th>
+<th class="tableblock halign-center valign-top">Local Docker Kroki (chosen)</th>
+<th class="tableblock halign-center valign-top">Local native Kroki install</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Portability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (works offline)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (offline)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Setup Complexity</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (no local setup)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (need Docker + image pull)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (package install/maintenance)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Runtime Reliability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (managed uptime)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (self-controlled uptime)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (depends on host services)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Security Surface</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (network and external trust)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (limited to image and Docker)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (host-level dependencies)</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
 <p><strong>Alternatives Considered</strong>:
 * Multi-stage build with optional Fat-JAR (chosen approach)
 * Always download on first run (slower, requires internet)
 * Separate kroki container via docker-compose (more complex)</p>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -485,6 +887,136 @@
 * How to handle concurrent edits?
 * Should agent create section if missing?
 * Support for multiple diagram formats in one file?</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Simple change tracking per run
+* ✅ Reduces accidental overwrites when omitted
+* ⚠️ Requires source files to be writable
+* ⚠️ No multi-user locking
+* ⚠️ Needs docs to set read/write flags</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">4 Autonomy</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_7">Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">Always allow writes (baseline)</th>
+<th class="tableblock halign-center valign-top">Explicit write-to flag (chosen)</th>
+<th class="tableblock halign-center valign-top">Central locking service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Safety</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (risk of accidental edits)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (opt-in edits)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (prevents conflicts)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User Effort</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (zero friction)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (requires a flag per run)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (setup overhead)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reliability</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (predictable behavior)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (coordinated access)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Collaboration</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (no coordination)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (no extra locks)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (supports multi-user)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_008_click_as_cli_framework">ADR-008: Click as CLI Framework</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Command-line UX is the primary entry point; needs structured arguments, good help texts, and compatibility with bash-driven LLM tooling.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Use Click as the CLI framework.</p>
+</div>
+<div class="paragraph">
+<p><strong>Alternatives Considered</strong>:
+* argparse (stdlib) — stable but verbose, less friendly help output
+* Typer — modern and type-hint friendly, but another dependency and smaller ecosystem
+* docopt / fire — fast to start, but less control over UX and validation</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Rich help/usage output with minimal boilerplate
+* ✅ Mature ecosystem and patterns for nested commands/options
+* ✅ Works well with bash and LLM-driven command execution
+* ⚠️ Additional dependency vs. argparse
+* ⚠️ Some learning curve for contributors unfamiliar with Click</p>
+</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>: <a href="../chapters/10_quality_requirements.html#quality-goals">1 Context Efficiency</a></p>
+</div>
+<div class="sect3">
+<h4 id="_pugh_matrix_8">Pugh Matrix</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Criterion</th>
+<th class="tableblock halign-center valign-top">argparse (baseline)</th>
+<th class="tableblock halign-center valign-top">Click (chosen)</th>
+<th class="tableblock halign-center valign-top">Typer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">UX Quality</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (rich help, colors, nesting)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (fast to code with type hints)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Dev Velocity</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (concise decorators)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (Click-based)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ecosystem</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (stdlib, stable)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">+  (mature extensions)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (smaller ecosystem)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Learning Curve</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">-  (manual help/UX)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (moderate)</p></td>
+<td class="tableblock halign-center valign-top"><p class="tableblock">0  (similar to Click)</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>

@@ -390,24 +390,12 @@
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Python-based</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Reuse existing Kroki integration code</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Multi-platform support</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Must run on macOS, Linux, and Windows (WSL)</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">LiteLLM dependency</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Unified interface for multiple LLM providers</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki for rendering</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Industry-standard diagram rendering service supporting 20+ formats</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Vision-capable LLM recommended</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Design feedback requires image analysis (fallback: syntax-only validation)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Docker optional</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bundled Kroki Fat-JAR for fully offline operation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python 3.10+</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Existing codebase and team expertise</p></td>
 </tr>
 </tbody>
 </table>
@@ -431,12 +419,12 @@
 <td class="tableblock halign-left valign-top"><p class="tableblock">Target developer community with transparent tooling</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Privacy compliance</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">GDPR considerations: no automatic remote data transmission</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Privacy compliance (GDPR)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No automatic transmission of user data to remote servers without explicit consent</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Self-contained</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Must work without internet connection (local Kroki mode)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Self-contained deployment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Must be deployable without complex infrastructure dependencies</p></td>
 </tr>
 </tbody>
 </table>
@@ -452,7 +440,7 @@
 <p><strong>Output formats</strong>: Source (.puml, .mmd) + rendered (PNG, SVG)</p>
 </li>
 <li>
-<p><strong>Error handling</strong>: Interactive prompts for missing config, graceful degradation</p>
+<p><strong>Error handling</strong>: Interactive prompts for missing config, graceful degradation, explanations on what is wrong and what to do instead of plain errors</p>
 </li>
 <li>
 <p><strong>Documentation</strong>: English, AsciiDoc format</p>
