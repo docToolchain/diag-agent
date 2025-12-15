@@ -9,26 +9,26 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 ## Explore
 
 ### Phase Entrance Criteria:
-- [x] LLM Client Cycle 1 abgeschlossen (generate mit LiteLLM)
-- [x] Orchestrator Cycle 1 vorhanden (Iteration-Loop mit Limits)
-- [x] Runtime View Scenario 1 dokumentiert (Orch → LLM → Validator)
-- [x] Bestehende Tests verstanden (max_iterations, max_time)
+- [x] Orchestrator Cycle 2 abgeschlossen (LLMClient-Integration)
+- [x] KrokiClient vorhanden (render_diagram mit Error-Handling)
+- [x] Runtime View Scenario 2 dokumentiert (Orch → Validator → Error → LLM fix)
+- [x] Bestehende Tests verstanden (3 Orchestrator-Tests, 2 Kroki-Tests)
 
 ### Tasks
-- [x] Aktuellen Orchestrator-Code analysieren: Hardcoded diagram_source
-- [x] Runtime View studieren: Orch → LLM.generate(prompt) → PlantUML source
-- [x] LLMClient-Interface verstehen: generate(prompt) → str
-- [x] Bestehende Tests prüfen: Mock-basiert, können erweitert werden
-- [x] MVP-Scope definieren: LLMClient-Integration, simple Prompt-Konstruktion
-- [x] Dependencies: LLMClient ✓, KrokiClient ✓ (noch nicht genutzt)
+- [x] **Orchestrator (Zyklus 3):** KrokiClient-Integration analysieren
+- [x] KrokiClient API verstehen: render_diagram(source, type, format) → bytes or KrokiRenderError
+- [x] Error-Message Format: "Kroki rendering failed for diagram type '{type}': HTTP {status} - {text}"
+- [x] Runtime View Scenario 2 studieren: Validation-Loop mit LLM-Retry
+- [x] MVP-Scope definieren: Validation ohne Analyzer (nur Syntax, kein Design)
+- [x] Test-Strategie: Success-Case (LLM → Kroki ✅) + Error-Case (LLM → Kroki ❌ → Retry)
 
 ### Completed
-- [x] Orchestrator TODO-Kommentar: "Call LLMClient to generate diagram source"
-- [x] Runtime View: Orch → Prompt Builder → LLM.generate() → source
-- [x] LLMClient-API: generate(prompt: str) → str (bereits fertig ✓)
-- [x] Bestehende Tests: 2 Tests für Iteration-Limits, beide grün
-- [x] MVP-Strategie: Simple Prompt (f"Generate {type}: {description}"), LLMClient-Call
-- [x] Validation-Loop verschoben auf Cycle 3 (KrokiClient-Integration)
+- [x] KrokiClient-API: render_diagram() wirft KrokiRenderError bei Syntax-Error ✓
+- [x] Error enthält: Status Code + Response Text (Kroki Error-Message)
+- [x] Runtime View: Orch → Validator → Error → LLM fix(source, error) → Validator
+- [x] MVP ohne separaten Validator: KrokiClient direkt im Orchestrator
+- [x] 2 Test-Szenarien: (1) Success path, (2) Error → Retry → Success
+- [x] Dependencies: KrokiClient ✓, LLMClient ✓, beide mit Error-Handling
 
 ## Red
 
