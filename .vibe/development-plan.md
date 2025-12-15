@@ -9,29 +9,26 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 ## Explore
 
 ### Phase Entrance Criteria:
-- [ ] Es ist klar, welche Komponente als nächstes implementiert werden soll
-- [ ] Architektur-Dokumentation zu Config Management gelesen
-- [ ] Bestehende Patterns und Konventionen verstanden
-- [ ] Config-Precedence-Rules dokumentiert
+- [x] Vorherige Komponenten sind abgeschlossen (KrokiClient, Config Management)
+- [x] CLI-Framework-Entscheidung verstanden (ADR-008: Click)
+- [x] Quality Requirements für Context Efficiency gelesen
+- [x] Runtime View für CLI → Orchestrator-Interaktion verstanden
 
 ### Tasks
-- [x] Arc42-Dokumentation durchgehen und Key Requirements extrahieren
-- [x] Alle 8 ADRs lesen und Architektur-Entscheidungen verstehen
-- [x] Tech Stack und Dependencies definieren (Python 3.10+, LiteLLM, Click, FastMCP, etc.)
-- [x] Projekt-Struktur anlegen (src-Layout mit Tests)
-- [x] Qualitätsziele und Constraints aus arc42 zusammenfassen
-- [x] Erste Komponente für MVP identifizieren: **Kroki Client**
+- [x] ADR-008 (Click CLI Framework) lesen und verstehen
+- [x] Runtime View analysieren: `diag-agent create` → Orchestrator
+- [x] Quality Requirements: Context Efficiency < 3k tokens
+- [x] CLI-Kommandos identifizieren: create, create-batch, --help
+- [x] MVP-Scope definieren: Nur `create` command für ersten Zyklus
+- [x] TDD-Strategie festlegen: Unit-Test mit Orchestrator-Mock
 
 ### Completed
-- [x] Created development plan file
-- [x] Entrance criteria für alle Phasen definiert
-- [x] Alle 8 ADRs lesen und Architektur-Entscheidungen verstehen
-- [x] Arc42-Dokumentation durchgehen und Key Requirements extrahieren
-- [x] Tech Stack und Dependencies definieren (Python 3.10+, LiteLLM, Click, FastMCP, etc.)
-- [x] Qualitätsziele und Constraints aus arc42 zusammenfassen
-- [x] Projekt-Struktur erstellt (src-Layout mit allen Modulen)
-- [x] pyproject.toml, .env.example, README erstellt
-- [x] MVP-Komponente identifiziert: **Kroki Client**
+- [x] ADR-008 gelesen: Click als CLI Framework (accepted)
+- [x] Runtime View verstanden: User → CLI → Orchestrator
+- [x] Quality Goals: Context Efficiency < 3k tokens, Installation < 2 min
+- [x] CLI-Kommandos recherchiert: `create`, `create-batch`
+- [x] MVP-Scope: `diag-agent create "description"` mit --help
+- [x] Nächster TDD-Zyklus: CLI create command mit Click
 
 ## Red
 
@@ -42,16 +39,16 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Es ist klar, welche Funktionalität als nächstes implementiert werden soll
 
 ### Tasks
-- [x] **Config Management:** Tests für Settings-Klasse schreiben
-- [x] Test 1: `test_load_settings_with_defaults` - Defaults ohne ENV
-- [x] Test 2: `test_load_settings_from_env` - ENV vars überschreiben
+- [x] **CLI Basis (Zyklus 1):** Test für `--help` output schreiben
+- [x] Test 1: `test_cli_help_output` - Validiert Click CLI, exit code 0, "create" command sichtbar
+- [x] Test validiert Context-Efficiency: Help < 2000 chars (< 500 tokens)
 - [x] Tests ausführen und Fehlschlag verifizieren (RED)
 
 ### Completed
-- [x] 2 Unit-Tests in tests/unit/test_settings.py geschrieben
-- [x] Test 1 validiert: 7 Default-Werte (llm_provider, kroki_mode, max_iterations, etc.)
-- [x] Test 2 validiert: ENV override + Type conversion (str→int)
-- [x] Tests schlagen fehl: `ImportError: Settings` (erwartet) ✅
+- [x] Test in tests/unit/test_cli.py geschrieben
+- [x] Test validiert: exit_code=0, "create" in output, "diagram" in output
+- [x] Context-Efficiency-Check: < 2000 chars
+- [x] Test schlägt fehl: `ImportError: cannot import name 'cli'` (erwartet) ✅
 
 ## Green
 
@@ -155,6 +152,28 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - 7 Config-Optionen (LLM, Kroki, Agent, Logging)
 - ENV var precedence: ENV > .env > defaults
 - Helper-Methode `_get_int_env()` für robuste Type Conversion
+
+### CLI Basis - IN ARBEIT 🚧 (2025-12-15)
+**Status**: EXPLORE phase abgeschlossen, RED phase startet
+
+**TDD-Strategie:**
+- **Test-Typ**: Unit-Test mit Click.testing.CliRunner + Mock für Orchestrator
+- **TDD-Zyklen geplant**:
+  - Zyklus 1: `diag-agent --help` zeigt Version + Commands
+  - Zyklus 2: `diag-agent create "description"` ruft Orchestrator auf
+  - Zyklus 3 (optional): Error-Handling für fehlende API-Keys
+
+**CLI-Anforderungen (aus arc42):**
+- Click Framework (ADR-008) für rich help output
+- Context-effizient: `--help` < 500 tokens
+- Integration mit Settings (Config Management)
+- Kommandos: `create` (MVP), `create-batch` (später)
+- Flags: `--type`, `--output`, `--format`
+
+**Design-Entscheidungen:**
+- Entry Point: `src/diag_agent/cli/commands.py` mit @click.group()
+- Orchestrator wird gemockt (nicht Teil dieses TDD-Zyklus)
+- Settings werden per Dependency Injection übergeben
 
 ### KrokiClient - ABGESCHLOSSEN ✅ (2025-12-15)
 **Status**: 2 TDD-Zyklen komplett (RED→GREEN→REFACTOR)
