@@ -7,6 +7,15 @@ import httpx
 OutputFormat = Literal["png", "svg", "pdf", "jpeg"]
 
 
+class KrokiRenderError(Exception):
+    """Exception raised when Kroki diagram rendering fails.
+    
+    This wraps HTTP errors from Kroki service with additional context
+    about the diagram type and error details.
+    """
+    pass
+
+
 class KrokiClient:
     """HTTP client for interacting with Kroki diagram rendering service.
 
@@ -41,20 +50,27 @@ class KrokiClient:
             Rendered diagram as bytes
 
         Raises:
-            httpx.HTTPStatusError: If Kroki returns an error status
-            httpx.RequestError: If request fails (network error, timeout, etc.)
+            KrokiRenderError: If Kroki returns an error status or request fails
         """
         # Kroki API endpoint: /{diagram_type}/{output_format}
         endpoint = f"{self.kroki_url}/{diagram_type}/{output_format}"
 
-        # Make HTTP POST request with diagram source
-        response = httpx.post(
-            endpoint,
-            json={"diagram_source": diagram_source},
-            timeout=self.DEFAULT_TIMEOUT
-        )
+        try:
+            # Make HTTP POST request with diagram source
+            response = httpx.post(
+                endpoint,
+                json={"diagram_source": diagram_source},
+                timeout=self.DEFAULT_TIMEOUT
+            )
 
-        # Raise exception if request failed
-        response.raise_for_status()
+            # Raise exception if request failed
+            response.raise_for_status()
 
-        return response.content
+            return response.content
+
+        except httpx.HTTPStatusError as e:
+            # Convert HTTP errors to custom exception with context
+            raise KrokiRenderError(
+                f"Kroki rendering failed for diagram type '{diagram_type}': "
+                f"HTTP {e.response.status_code} - {e.response.text}"
+            ) from e

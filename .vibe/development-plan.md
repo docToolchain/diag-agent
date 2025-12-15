@@ -54,17 +54,17 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Test-Typ (Unit/Integration) wurde mit User abgestimmt
 
 ### Tasks
-- [x] KrokiClient Klasse implementieren mit __init__(kroki_url)
-- [x] render_diagram() Methode implementieren (HTTP POST zu Kroki)
-- [x] Test ausführen und grün machen
-- [x] Keine Shortcuts oder Hacks verwenden
+- [x] **Zyklus 1:** KrokiClient Basis-Implementation (Happy-Path)
+- [x] **Zyklus 2:** KrokiRenderError Exception definieren
+- [x] **Zyklus 2:** HTTP Error-Handling in render_diagram() implementieren
+- [x] Tests ausführen und grün machen
 
 ### Completed
-- [x] KrokiClient mit sauberer Implementation (httpx, keine Hacks)
-- [x] HTTP POST zu `/{diagram_type}/{output_format}` Endpoint
-- [x] JSON payload mit diagram_source
-- [x] Test-Fix: Bessere Assertion für request_data
-- [x] Test passed! ✅
+- [x] **Zyklus 1:** KrokiClient mit HTTP POST Implementation
+- [x] **Zyklus 2:** KrokiRenderError Exception mit klarer Docstring
+- [x] **Zyklus 2:** try-except Block für httpx.HTTPStatusError
+- [x] **Zyklus 2:** Error-Message mit status code + diagram type
+- [x] Beide Tests passed! ✅ (100% Coverage)
 
 ## Refactor
 
