@@ -1,0 +1,143 @@
+:jbake-title: Context and Scope
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 3
+:filename: /chapters/03_context_and_scope.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-context-and-scope]]
+== Context and Scope
+
+=== Business Context
+
+[plantuml, business-context, svg]
+----
+@startuml
+!include <C4/C4_Context>
+
+Person(architect, "Software Architect", "Creates architecture documentation")
+Person(developer, "Developer", "Generates diagrams for docs")
+System_Ext(llm, "LLM Application", "Claude, GPT, Ollama, etc.")
+
+System_Boundary(diag_agent, "diag-agent") {
+    System(agent, "Diagram Agent", "Autonomous diagram generation with feedback loop")
+}
+
+System_Ext(kroki_remote, "kroki.io", "Remote diagram rendering")
+System_Ext(kroki_local, "Local Kroki", "Self-hosted rendering service")
+
+Rel(architect, agent, "Uses CLI", "bash commands")
+Rel(developer, agent, "Uses CLI", "bash commands")
+Rel(llm, agent, "Calls via MCP", "Tool invocation")
+
+Rel(agent, kroki_local, "Renders diagrams", "HTTP API")
+Rel(agent, kroki_remote, "Renders diagrams", "HTTP API (opt-in)")
+Rel(agent, llm, "Requests generation", "LLM API")
+
+SHOW_LEGEND()
+@enduml
+----
+
+==== External Interfaces
+
+[cols="1,2,2",options="header"]
+|===
+|Interface |Description |Protocol
+
+|CLI
+|Command-line interface for direct user interaction
+|Bash commands, stdin/stdout
+
+|MCP Server
+|Model Context Protocol server for LLM integration
+|HTTP/SSE (streaming)
+
+|Kroki API
+|Diagram rendering service
+|HTTP REST (POST /render)
+
+|LLM API
+|Generation and analysis requests
+|Provider-specific (OpenAI, Anthropic, etc.)
+|===
+
+=== Technical Context
+
+[plantuml, technical-context, svg]
+----
+@startuml
+!include <C4/C4_Context>
+
+Person(user, "User/LLM", "Requests diagrams")
+
+System_Boundary(agent, "diag-agent") {
+    Container(cli, "CLI Interface", "Python/Click", "Command parsing and execution")
+    Container(mcp, "MCP Server", "Python/SSE", "Tool exposure for LLMs")
+    Container(core, "Agent Core", "Python", "Iteration logic and orchestration")
+    Container(llm_client, "LLM Client", "LiteLLM", "Multi-provider abstraction")
+    Container(kroki_client, "Kroki Client", "Python/Requests", "Diagram rendering")
+    ContainerDb(config, "Configuration", "YAML/Env", "User preferences and API keys")
+}
+
+System_Ext(llm_api, "LLM API", "Claude, GPT-4, Ollama")
+System_Ext(kroki, "Kroki Service", "Diagram renderer")
+System_Ext(storage, "File System", "Diagram outputs")
+
+Rel(user, cli, "Executes", "bash")
+Rel(user, mcp, "Calls", "HTTP/MCP")
+Rel(cli, core, "Delegates")
+Rel(mcp, core, "Delegates")
+Rel(core, llm_client, "Generates/Analyzes")
+Rel(core, kroki_client, "Renders")
+Rel(llm_client, llm_api, "API calls")
+Rel(kroki_client, kroki, "HTTP POST")
+Rel(core, storage, "Writes outputs")
+Rel(core, config, "Reads settings")
+
+SHOW_LEGEND()
+@enduml
+----
+
+==== Technology Stack
+
+[cols="1,2,1",options="header"]
+|===
+|Component |Technology |Rationale
+
+|Runtime
+|Python 3.10+
+|Existing codebase, rich ecosystem
+
+|LLM Abstraction
+|LiteLLM
+|Unified interface for 100+ models
+
+|CLI Framework
+|Click
+|Intuitive command structure, good help generation
+
+|MCP Implementation
+|FastMCP / MCP SDK
+|Standard protocol for LLM tool integration
+
+|Diagram Rendering
+|Kroki
+|Supports 20+ diagram types
+
+|Configuration
+|python-dotenv, PyYAML
+|Standard config management
+
+|HTTP Client
+|Requests / httpx
+|Kroki API communication
+
+|Containerization
+|Docker
+|Bundled Kroki Fat-JAR option
+|===

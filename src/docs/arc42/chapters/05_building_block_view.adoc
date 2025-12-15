@@ -1,0 +1,136 @@
+:jbake-title: Building Block View
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 5
+:filename: /chapters/05_building_block_view.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-building-block-view]]
+
+
+== Building Block View
+
+=== Level 1: System Overview
+
+[plantuml, building-blocks-l1, svg]
+----
+@startuml
+!include <C4/C4_Component>
+
+System_Boundary(diag_agent, "diag-agent") {
+    Container(cli, "CLI Interface", "Python/Click", "User-facing command interface")
+    Container(mcp_server, "MCP Server", "FastMCP", "LLM tool integration")
+    Container(agent_core, "Agent Core", "Python", "Autonomous iteration engine")
+    Container(kroki_mgmt, "Kroki Manager", "Python", "Service lifecycle and routing")
+    ContainerDb(config_mgmt, "Config Manager", "Python", "Multi-source configuration")
+}
+
+System_Ext(llm_external, "External LLM", "API")
+System_Ext(kroki_service, "Kroki Service", "Local/Remote")
+
+Rel(cli, agent_core, "Commands")
+Rel(mcp_server, agent_core, "Tool calls")
+Rel(agent_core, llm_external, "Generation requests")
+Rel(agent_core, kroki_mgmt, "Render requests")
+Rel(kroki_mgmt, kroki_service, "HTTP")
+Rel(agent_core, config_mgmt, "Read settings")
+
+@enduml
+----
+
+==== Component Descriptions
+
+[cols="1,3",options="header"]
+|===
+|Component |Responsibility
+
+|CLI Interface
+|Parse commands, validate arguments, display help with examples, interactive configuration
+
+|MCP Server
+|Expose tools via Model Context Protocol, handle streaming responses, serve rendered diagrams
+
+|Agent Core
+|Orchestrate feedback loop, manage iteration state, enforce limits, generate progress updates
+
+|Kroki Manager
+|Route to appropriate Kroki instance (local/remote), download and start Fat-JAR, health checks
+
+|Config Manager
+|Load configuration from env vars, .env files, and YAML, handle precedence, interactive setup
+|===
+
+=== Level 2: Agent Core Details
+
+[plantuml, building-blocks-l2, svg]
+----
+@startuml
+
+!include <C4/C4_Component>
+
+Container_Boundary(agent_core, "Agent Core") {
+    Component(orchestrator, "Orchestrator", "Main loop controller")
+    Component(llm_client, "LLM Client", "LiteLLM wrapper")
+    Component(prompt_builder, "Prompt Builder", "Context-aware prompts")
+    Component(syntax_validator, "Syntax Validator", "Kroki integration")
+    Component(design_analyzer, "Design Analyzer", "Vision-based feedback")
+    Component(example_provider, "Example Provider", "Diagram type samples")
+    Component(iteration_limiter, "Iteration Limiter", "Time/count limits")
+    Component(output_writer, "Output Writer", "File and URL management")
+}
+
+Rel(orchestrator, prompt_builder, "Build prompts")
+Rel(prompt_builder, example_provider, "Get examples")
+Rel(orchestrator, llm_client, "Generate/Analyze")
+Rel(orchestrator, syntax_validator, "Validate")
+Rel(orchestrator, design_analyzer, "Analyze design")
+Rel(design_analyzer, llm_client, "Vision API")
+Rel(orchestrator, iteration_limiter, "Check limits")
+Rel(orchestrator, output_writer, "Write results")
+
+@enduml
+----
+
+==== Component Responsibilities
+
+**Orchestrator**::
+Main state machine controlling the feedback loop. Decides whether to continue iteration based on validation results and limits.
+
+**LLM Client**::
+Wrapper around LiteLLM providing retry logic, error handling, and token counting. Supports both text and vision modes.
+
+**Prompt Builder**::
+Constructs prompts with appropriate context:
+* Diagram description from user
+* Relevant examples for the diagram type
+* Previous errors (if iterating)
+* Design feedback (if available)
+
+**Syntax Validator**::
+Submits diagram source to Kroki, parses error messages, determines if errors are fixable.
+
+**Design Analyzer**::
+Only active if vision-capable LLM configured:
+* Renders diagram to PNG
+* Sends to LLM with design evaluation prompt
+* Parses feedback (layout, clarity, C4 compliance, etc.)
+
+**Example Provider**::
+Maintains curated examples for each supported diagram type. Examples loaded on-demand to minimize memory usage.
+
+**Iteration Limiter**::
+Enforces two limits:
+* Maximum iterations (default: 5)
+* Maximum time (default: 60 seconds)
+Prevents infinite loops and excessive API costs.
+
+**Output Writer**::
+Handles multiple output scenarios:
+* Write source files (.puml, .mmd, etc.)
+* Write rendered images (PNG, SVG)
+* Optionally serve via HTTP and return URLs (MCP mode)

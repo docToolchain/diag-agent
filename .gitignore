@@ -1,0 +1,48 @@
+# docToolchain build outputs
+build/
+.gradle/
+
+# AsciiDoc generated files
+*.html
+*.pdf
+!src/**/*.html
+!src/**/*.pdf
+
+# Gradle
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# docToolchain temp files
+.doctoolchain/
+doctoolchain-*/
+
+# IDE files
+.idea/
+*.iml
+*.iws
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# Generated diagram images (if you regenerate them)
+# Uncomment if diagrams are generated during build
+# src/docs/images/generated/

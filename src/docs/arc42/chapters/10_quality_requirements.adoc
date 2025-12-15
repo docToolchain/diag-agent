@@ -1,0 +1,149 @@
+:jbake-title: Quality Requirements
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 10
+:filename: /chapters/10_quality_requirements.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-quality-scenarios]]
+== Quality Requirements
+
+=== Quality Scenarios
+
+==== Scenario 1: Context Efficiency
+
+[cols="1,3",options="header"]
+|===
+|Aspect |Description
+
+|**Scenario**
+|Architect asks LLM to generate C4 diagram in claude.ai
+
+|**Environment**
+|Claude with computer use enabled, existing conversation with 50k tokens
+
+|**Stimulus**
+|User: "Create a C4 context diagram for our API gateway"
+
+|**Response**
+|Claude calls `diag-agent create --help`, then executes command
+
+|**Measure**
+|Total context consumed < 2k tokens (help text + command + file path response)
+
+|**Target**
+|95% of diagram requests use < 3k tokens in parent conversation
+|===
+
+==== Scenario 2: Installation Time
+
+[cols="1,3",options="header"]
+|===
+|Aspect |Description
+
+|**Scenario**
+|Developer installs diag-agent for first time
+
+|**Environment**
+|Fresh Ubuntu system, Python 3.10 installed, internet available
+
+|**Stimulus**
+|Developer runs: `pip install diag-agent && diag-agent create "test"`
+
+|**Response**
+|Interactive setup guides through configuration, downloads Kroki if needed
+
+|**Measure**
+|< 3 minutes from pip install to first generated diagram
+
+|**Target**
+|90% of users generate first diagram within 5 minutes
+|===
+
+==== Scenario 3: Syntax Error Recovery
+
+[cols="1,3",options="header"]
+|===
+|Aspect |Description
+
+|**Scenario**
+|LLM generates PlantUML with syntax error
+
+|**Environment**
+|Agent with Claude Sonnet 4, local Kroki available
+
+|**Stimulus**
+|Invalid PlantUML: `participent User` (typo)
+
+|**Response**
+|Agent detects error, feeds back to LLM, receives corrected version
+
+|**Measure**
+|95% of common syntax errors fixed within 2 iterations
+
+|**Target**
+|< 10 seconds per iteration
+|===
+
+==== Scenario 4: Privacy Compliance
+
+[cols="1,3",options="header"]
+|===
+|Aspect |Description
+
+|**Scenario**
+|User generates diagram containing internal API details
+
+|**Environment**
+|Default configuration, no remote services configured
+
+|**Stimulus**
+|`diag-agent create "Internal microservices architecture"`
+
+|**Response**
+|All processing happens locally (LLM API + local Kroki)
+
+|**Measure**
+|Zero diagram data sent to kroki.io without explicit consent
+
+|**Target**
+|100% compliance with default settings
+|===
+
+=== Quality Tree
+
+[plantuml, quality-tree, svg]
+----
+@startmindmap
+* diag-agent
+** Context Efficiency (High)
+*** Minimal token consumption
+*** Help-on-demand system
+*** URL references (V2)
+** Usability (High)
+*** < 5 min to first diagram
+*** Interactive setup
+*** Clear error messages
+** Privacy (High)
+*** Local-first default
+*** Explicit remote consent
+*** No telemetry
+** Reliability (Medium)
+*** Syntax validation
+*** Design feedback
+*** Graceful degradation
+** Performance (Medium)
+*** < 60s per diagram
+*** Iteration limits
+*** Caching
+** Maintainability (Medium)
+*** Clear component boundaries
+*** LiteLLM abstraction
+*** Comprehensive logging
+@endmindmap
+----

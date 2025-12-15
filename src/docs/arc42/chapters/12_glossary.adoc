@@ -1,0 +1,73 @@
+:jbake-title: Glossary
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 12
+:filename: /chapters/12_glossary.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-glossary]]
+== Glossary
+
+[cols="1,3",options="header"]
+|===
+|Term |Definition
+
+|**Agent**
+|Autonomous component that iterates independently using its own LLM client
+
+|**C4 Model**
+|Context, Containers, Components, Code - hierarchical architecture diagram approach
+
+|**Context Efficiency**
+|Minimizing token consumption in parent LLM conversations
+
+|**Feedback Loop**
+|Iterative process: generate → validate → analyze → refine
+
+|**Headless Mode**
+|Non-interactive operation suitable for CI/CD pipelines
+
+|**Kroki**
+|Unified API for creating diagrams from textual descriptions (PlantUML, Mermaid, etc.)
+
+|**Kroki Fat-JAR**
+|Self-contained Java archive (~80MB) running complete Kroki service locally
+
+|**LiteLLM**
+|Python library providing unified interface to 100+ LLM providers
+
+|**MCP (Model Context Protocol)**
+|Standard protocol for exposing tools to LLMs via HTTP/SSE
+
+|**Vision Model**
+|LLM capable of analyzing images (e.g., Claude Sonnet with vision, GPT-4V)
+
+|**PlantUML**
+|Text-based diagram syntax, particularly popular for UML and architecture diagrams
+
+|**Syntax Validation**
+|Checking if diagram source code is valid for the target renderer
+
+|**Design Analysis**
+|Vision-based evaluation of diagram layout, clarity, and conventions
+
+|**URL Reference**
+|Returning short URL instead of file path or base64 data to save context
+
+|**Remote Confirmation**
+|Interactive consent before sending data to remote services
+
+|**SSE (Server-Sent Events)**
+|HTTP protocol for server-to-client streaming, used in MCP
+
+|**Iteration Limit**
+|Maximum number of refinement cycles before returning current result
+
+|**Example Provider**
+|Component managing curated sample diagrams for each type
+|===

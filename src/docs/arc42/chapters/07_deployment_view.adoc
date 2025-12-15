@@ -1,0 +1,159 @@
+:jbake-title: Deployment View
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 7
+:filename: /chapters/07_deployment_view.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-deployment-view]]
+
+
+== Deployment View
+
+=== Deployment Scenario 1: Local Development (Docker)
+
+[plantuml, deployment-docker, svg]
+----
+@startuml
+!include <C4/C4_Deployment>
+
+Deployment_Node(laptop, "Developer Laptop", "macOS/Linux/Windows") {
+    Deployment_Node(docker, "Docker Engine") {
+        Container(diag_agent, "diag-agent", "Python Container", "CLI + MCP + Kroki Fat-JAR")
+    }
+    
+    Deployment_Node(host_fs, "Host Filesystem") {
+        ContainerDb(output, "Output Directory", "./diagrams", "Mounted volume")
+        ContainerDb(config, "Config", "~/.diag-agent", "Mounted volume")
+    }
+}
+
+System_Ext(llm_api, "LLM API", "claude.ai / OpenAI")
+
+Rel(diag_agent, output, "Writes diagrams")
+Rel(diag_agent, config, "Reads config")
+Rel(diag_agent, llm_api, "API calls", "HTTPS")
+
+@enduml
+----
+
+**Docker Command:**
+[source,bash]
+----
+docker run -it \
+  -v $(pwd)/diagrams:/diagrams \
+  -v ~/.diag-agent:/root/.diag-agent \
+  -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
+  diag-agent:latest \
+  create "System context diagram" --type c4
+----
+
+=== Deployment Scenario 2: CI/CD Pipeline
+
+[plantuml, deployment-cicd, svg]
+----
+@startuml
+!include <C4/C4_Deployment>
+
+Deployment_Node(github, "GitHub Actions", "CI/CD") {
+    Container(workflow, "Documentation Build", "GitHub Actions", "Generates arch docs")
+    Container(diag_agent, "diag-agent", "Python Package", "Headless mode")
+}
+
+Deployment_Node(artifacts, "Build Artifacts") {
+    ContainerDb(docs, "Generated Docs", "HTML/PDF", "arc42 with diagrams")
+}
+
+System_Ext(llm_api, "LLM API", "Paid API access")
+
+Rel(workflow, diag_agent, "Executes")
+Rel(diag_agent, llm_api, "API calls")
+Rel(diag_agent, docs, "Generates diagrams")
+
+@enduml
+----
+
+**GitHub Actions Example:**
+[source,yaml]
+----
+- name: Generate Architecture Diagrams
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    DIAG_AGENT_HEADLESS: true
+  run: |
+    pip install diag-agent
+    diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams
+----
+
+=== Deployment Scenario 3: MCP Server for LLM Applications
+
+[plantuml, deployment-mcp, svg]
+----
+@startuml
+!include <C4/C4_Deployment>
+
+Deployment_Node(server, "Application Server", "Linux") {
+    Container(mcp_server, "diag-agent MCP", "Python Service", "Exposes tools via SSE")
+    Container(kroki_local, "Kroki Service", "Java Fat-JAR", "Local rendering")
+    
+    Deployment_Node(nginx, "NGINX", "Reverse Proxy") {
+        Container(proxy, "Reverse Proxy", "NGINX", "SSL termination")
+    }
+}
+
+Deployment_Node(client, "Client Application") {
+    Container(llm_app, "LLM Application", "TypeScript/Python", "Uses MCP tools")
+}
+
+System_Ext(llm_api, "LLM API", "External service")
+
+Rel(llm_app, proxy, "HTTPS/SSE")
+Rel(proxy, mcp_server, "HTTP/SSE")
+Rel(mcp_server, llm_api, "API calls")
+Rel(mcp_server, kroki_local, "HTTP")
+
+@enduml
+----
+
+**Startup Command:**
+[source,bash]
+----
+diag-agent serve \
+  --mcp \
+  --host 0.0.0.0 \
+  --port 8080 \
+  --url-mode \
+  --cors-origins "https://my-llm-app.com"
+----
+
+=== Infrastructure Requirements
+
+[cols="1,2,1,1",options="header"]
+|===
+|Component |Resource Requirements |Scaling |Availability
+
+|diag-agent (CLI)
+|Minimal (single invocation)
+|N/A
+|N/A
+
+|diag-agent (MCP)
+|512MB RAM, 1 CPU
+|Horizontal (stateless)
+|99.9% (load balanced)
+
+|Kroki Fat-JAR
+|1GB RAM, 2 CPU
+|Single instance sufficient
+|99% (restart on failure)
+
+|LLM API
+|External service
+|N/A
+|Provider SLA
+|===

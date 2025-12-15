@@ -1,0 +1,176 @@
+:jbake-title: Runtime View
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 6
+:filename: /chapters/06_runtime_view.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-runtime-view]]
+== Runtime View
+
+=== Scenario 1: CLI Diagram Generation (Success Path)
+
+[plantuml, runtime-cli-success, svg]
+----
+@startuml
+actor User
+participant "CLI" as CLI
+participant "Orchestrator" as Orch
+participant "Prompt Builder" as Prompt
+participant "Example Provider" as Examples
+participant "LLM Client" as LLM
+participant "Syntax Validator" as Validator
+participant "Kroki" as Kroki
+participant "Design Analyzer" as Analyzer
+participant "Output Writer" as Writer
+
+User -> CLI: diag-agent create "User auth flow" --type c4
+CLI -> Orch: execute(description, type)
+Orch -> Prompt: build_initial_prompt(description, type)
+Prompt -> Examples: get_example("c4")
+Examples --> Prompt: C4 example
+Prompt --> Orch: Complete prompt
+Orch -> LLM: generate(prompt)
+LLM --> Orch: PlantUML source
+
+note right: Iteration 1
+Orch -> Validator: validate(source)
+Validator -> Kroki: POST /render
+Kroki --> Validator: Success + PNG
+Validator --> Orch: Valid
+
+Orch -> Analyzer: analyze_design(png)
+Analyzer -> LLM: vision_analyze(png, criteria)
+LLM --> Analyzer: "Layout cramped, suggest vertical"
+Analyzer --> Orch: Design feedback
+
+note right: Iteration 2
+Orch -> Prompt: build_refinement_prompt(source, feedback)
+Prompt --> Orch: Refinement prompt
+Orch -> LLM: generate(prompt)
+LLM --> Orch: Improved source
+
+Orch -> Validator: validate(improved_source)
+Validator -> Kroki: POST /render
+Kroki --> Validator: Success + PNG
+Validator --> Orch: Valid
+
+Orch -> Analyzer: analyze_design(png)
+Analyzer -> LLM: vision_analyze(png, criteria)
+LLM --> Analyzer: "Looks good"
+Analyzer --> Orch: Approved
+
+Orch -> Writer: write_outputs(source, png, svg)
+Writer --> Orch: File paths
+Orch --> CLI: Success + paths
+CLI --> User: ✓ Generated: ./diagram.puml, ./diagram.png, ./diagram.svg
+@enduml
+----
+
+=== Scenario 2: MCP Tool Invocation with Streaming
+
+[plantuml, runtime-mcp-streaming, svg]
+----
+@startuml
+participant "LLM App" as App
+participant "MCP Server" as MCP
+participant "Orchestrator" as Orch
+participant "LLM Client" as LLM
+participant "Validator" as Val
+participant "HTTP Server" as HTTP
+
+App -> MCP: create_diagram(description="API flow", type="sequence")
+MCP -> Orch: execute_async(description, type)
+
+note right: Stream progress updates
+Orch -> MCP: stream("Starting generation...")
+MCP -> App: SSE: status update
+
+Orch -> LLM: generate(prompt)
+Orch -> MCP: stream("Generated initial source")
+MCP -> App: SSE: status update
+
+Orch -> Val: validate(source)
+note right: Syntax error found
+Val --> Orch: Error: "Line 5: unknown participant"
+
+Orch -> MCP: stream("Fixing syntax error...")
+MCP -> App: SSE: status update
+
+Orch -> LLM: fix(source, error)
+Orch -> Val: validate(fixed_source)
+Val --> Orch: Valid
+
+Orch -> MCP: stream("Rendering...")
+MCP -> App: SSE: status update
+
+Orch -> HTTP: store_diagram(source, png, svg)
+HTTP --> Orch: URL: /diagrams/abc123
+
+Orch -> MCP: complete(source, url)
+MCP --> App: Result: {source: "...", url: "/diagrams/abc123"}
+
+App -> HTTP: GET /diagrams/abc123
+HTTP --> App: PNG image
+@enduml
+----
+
+=== Scenario 3: First-Time Setup (Interactive)
+
+[plantuml, runtime-setup, svg]
+----
+@startuml
+actor User
+participant "CLI" as CLI
+participant "Config Manager" as Config
+participant "Kroki Manager" as KrokiMgr
+participant "LLM Client" as LLM
+
+User -> CLI: diag-agent create "My diagram"
+CLI -> Config: load_config()
+Config --> CLI: Config missing
+
+CLI -> User: ⚠ No configuration found. Run setup? [Y/n]
+User -> CLI: Y
+
+CLI -> Config: interactive_setup()
+Config -> User: LLM Provider? [anthropic/openai/ollama/other]
+User -> Config: anthropic
+Config -> User: API Key? (or press Enter for env var)
+User -> Config: sk-ant-...
+Config -> User: Model? [claude-sonnet-4/other]
+User -> Config: claude-sonnet-4
+
+Config -> User: Enable vision for design feedback? [Y/n]
+User -> Config: Y
+
+Config -> User: Save configuration? [Y/n]
+User -> Config: Y
+Config -> Config: write ~/.diag-agent/config.yaml
+
+CLI -> KrokiMgr: check_kroki_available()
+KrokiMgr --> CLI: Not found
+
+CLI -> User: Kroki not found. Options:\n1) Download Fat-JAR\n2) Use kroki.io (sends diagrams remotely)\n3) Configure custom endpoint
+User -> CLI: 1
+
+CLI -> KrokiMgr: download_kroki_jar()
+KrokiMgr -> User: Download 80MB? [Y/n]
+User -> KrokiMgr: Y
+KrokiMgr -> KrokiMgr: Download...
+KrokiMgr --> CLI: Downloaded
+
+CLI -> KrokiMgr: start_kroki()
+KrokiMgr --> CLI: Started on :8000
+
+CLI -> LLM: test_connection()
+LLM --> CLI: OK
+
+CLI --> User: ✓ Setup complete! Creating your diagram...
+@enduml
+----

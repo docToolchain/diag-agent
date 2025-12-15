@@ -1,0 +1,51 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # Set a branch name to trigger deployment
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    env:
+      DTC_HEADLES: true
+    steps:
+      - uses: actions/checkout@v3
+
+      # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          ./setup_test_environment.sh
+
+      # Setup and generate site
+      - name: setup
+        run: chmod +x dtcw
+      - name: generateSite
+        run: ./dtcw generateSite
+
+      # Run tests and generate reports
+      - name: Run tests with coverage
+        run: python run_tests_html.py
+
+      - name: copyToPublic
+        run: cp -r ./build/microsite/output ./public
+
+      # Deploy
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        #        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          

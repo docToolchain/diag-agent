@@ -1,0 +1,59 @@
+:jbake-title: Architecture Constraints
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 2
+:filename: /chapters/02_architecture_constraints.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-architecture-constraints]]
+== Architecture Constraints
+
+=== Technical Constraints
+
+[cols="1,2",options="header"]
+|===
+|Constraint |Background
+
+|Python-based
+|Reuse existing Kroki integration code
+
+|LiteLLM dependency
+|Unified interface for multiple LLM providers
+
+|Kroki for rendering
+|Industry-standard diagram rendering service supporting 20+ formats
+
+|Vision-capable LLM recommended
+|Design feedback requires image analysis (fallback: syntax-only validation)
+
+|Docker optional
+|Bundled Kroki Fat-JAR for fully offline operation
+|===
+
+=== Organizational Constraints
+
+[cols="1,2",options="header"]
+|===
+|Constraint |Background
+
+|Open Source
+|Target developer community with transparent tooling
+
+|Privacy compliance
+|GDPR considerations: no automatic remote data transmission
+
+|Self-contained
+|Must work without internet connection (local Kroki mode)
+|===
+
+=== Conventions
+
+* **Configuration**: Environment variables > .env file > ~/.diag-agent/config.yaml
+* **Output formats**: Source (.puml, .mmd) + rendered (PNG, SVG)
+* **Error handling**: Interactive prompts for missing config, graceful degradation
+* **Documentation**: English, AsciiDoc format

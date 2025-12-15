@@ -1,0 +1,95 @@
+:jbake-title: Risks and Technical Debts
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 11
+:filename: /chapters/11_technical_risks.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-technical-risks]]
+== Risks and Technical Debts
+
+=== Risk Assessment
+
+[cols="1,2,1,1,2",options="header"]
+|===
+|Risk |Description |Probability |Impact |Mitigation
+
+|**LLM API Costs**
+|Iterative refinement may consume significant API credits
+|High
+|Medium
+|Set conservative default limits (5 iterations, 60s timeout), expose costs in docs
+
+|**Vision Model Unavailability**
+|Not all users have access to vision-capable models
+|Medium
+|Low
+|Graceful fallback to syntax-only validation, clear messaging
+
+|**Kroki Service Instability**
+|Local Kroki may crash or become unresponsive
+|Low
+|Medium
+|Health checks, auto-restart, clear error messages, fallback to source-only output
+
+|**Prompt Injection**
+|Malicious diagram descriptions could manipulate agent behavior
+|Medium
+|Medium
+|Sanitize inputs, limit LLM capabilities in agent context, review prompts
+
+|**Context Window Limits**
+|Large diagrams + examples may exceed model context
+|Low
+|High
+|Truncate examples intelligently, split large diagrams, clear error messages
+
+|**Example Maintenance**
+|Examples may become outdated with new Kroki versions
+|Medium
+|Low
+|Version examples with Kroki compatibility info, community contributions
+
+|**Docker Image Size**
+|Bundled Kroki increases image to ~300MB
+|High
+|Low
+|Provide slim variant, document trade-offs, optimize layers
+|===
+
+=== Technical Debt
+
+==== Accepted Debt
+
+[cols="1,2,2",options="header"]
+|===
+|Item |Reason |Payback Plan
+
+|**Two deployment modes**
+|MVP needs both CLI and MCP
+|Refactor to shared core in v1.1
+
+|**In-memory state only**
+|Simpler for MVP
+|Add persistent state for long-running MCP servers in V2
+
+|**Limited diagram type testing**
+|Focus on C4 and PlantUML initially
+|Expand test coverage iteratively
+
+|**No diagram versioning**
+|Not in initial requirements
+|Add in V2 if users request
+|===
+
+==== Debt to Avoid
+
+* **Tight coupling to LLM provider**: Use LiteLLM abstraction consistently
+* **Hard-coded prompts**: Externalize to templates for easy iteration
+* **No integration tests**: CI must include end-to-end tests with real Kroki
+* **Ignoring token costs**: Instrument and log API usage from day one

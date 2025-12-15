@@ -1,0 +1,77 @@
+:jbake-title: Introduction and Goals
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 1
+:filename: /chapters/01_introduction_and_goals.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-introduction-and-goals]]
+== Introduction and Goals
+
+=== Requirements Overview
+
+diag-agent is an intelligent diagram generation tool that assists LLMs and developers in creating high-quality architecture diagrams. It addresses the common problems of syntax errors and poor layout in LLM-generated diagrams through an autonomous feedback loop.
+
+==== Key Features
+
+* **Autonomous diagram generation** with syntax validation and design feedback
+* **Multi-format support** via Kroki integration (PlantUML, C4, BPMN, Mermaid, etc.)
+* **Flexible deployment**: CLI tool, MCP server (local/remote), or Docker container
+* **Privacy-first**: Local-first approach with optional remote rendering
+* **LLM-agnostic**: Works with any LLM via LiteLLM abstraction
+* **Context-efficient**: Minimal context consumption through help system and reference URLs
+
+=== Quality Goals
+
+[cols="1,2,1",options="header"]
+|===
+|Priority |Quality Goal |Motivation
+
+|1
+|**Context Efficiency**
+|Minimize token consumption in parent LLM conversations through help system, URL references, and self-contained agent logic
+
+|2
+|**Ease of Installation**
+|Developers should install via pip or docker run without complex setup
+
+|3
+|**Privacy & Security**
+|No diagram data sent to remote servers without explicit user consent
+
+|4
+|**Autonomy**
+|Agent iterates independently without requiring parent LLM intervention
+
+|5
+|**Extensibility**
+|Support for all Kroki diagram types and easy LLM provider switching
+|===
+
+=== Stakeholders
+
+[cols="1,2,2",options="header"]
+|===
+|Role |Expectation |Concern
+
+|Software Architects
+|Generate C4 and other architecture diagrams quickly
+|Diagram quality, AsciiDoc integration
+
+|Developers
+|Simple CLI tool for documentation
+|Easy installation, good defaults
+
+|LLM Applications
+|Delegate diagram generation without context overhead
+|Clear interface, reliable results
+
+|Privacy-conscious Users
+|Control over where diagram data is processed
+|Local-first options, explicit consent for remote services
+|===

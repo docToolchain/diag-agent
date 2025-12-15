@@ -1,0 +1,93 @@
+:jbake-title: Architecture Decisions
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 9
+:filename: /chapters/09_architecture_decisions.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-design-decisions]]
+== Architecture Decisions
+
+This section consolidates all Architecture Decision Records. See section 4 (Solution Strategy) for detailed ADRs 001-005.
+
+=== Summary Table
+
+[cols="1,2,1",options="header"]
+|===
+|ADR |Decision |Status
+
+|ADR-001
+|Bash Tool with Help System vs. Always-On MCP
+|✅ Accepted
+
+|ADR-002
+|Agent Self-Iteration vs. Parent LLM Control
+|✅ Accepted
+
+|ADR-003
+|Local-First with Opt-In Remote
+|✅ Accepted
+
+|ADR-004
+|URL References for Rendered Diagrams
+|✅ Accepted (V2)
+
+|ADR-005
+|LiteLLM for Provider Abstraction
+|✅ Accepted
+
+|ADR-006
+|Docker-Bundled Kroki vs. Separate Service
+|✅ Accepted
+
+|ADR-007
+|Source File Direct Write
+|📋 Planned (V2)
+|===
+
+=== ADR-006: Docker-Bundled Kroki vs. Separate Service
+
+**Status**: Accepted
+
+**Context**: Users want simple installation. Kroki Fat-JAR is ~80MB. Should it be included in Docker image?
+
+**Decision**: Include Kroki Fat-JAR in Docker image by default. Provide slim variant without it.
+
+**Consequences**:
+* ✅ One-command deployment: `docker run diag-agent`
+* ✅ Works offline immediately
+* ⚠️ Larger image size (~300MB vs ~50MB slim)
+* ⚠️ Longer build times
+
+**Alternatives Considered**:
+* Multi-stage build with optional Fat-JAR (chosen approach)
+* Always download on first run (slower, requires internet)
+* Separate kroki container via docker-compose (more complex)
+
+=== ADR-007: Source File Direct Write (V2 Feature)
+
+**Status**: Planned for V2
+
+**Context**: Users want agent to directly update .adoc files with generated diagrams.
+
+**Decision**: Add `--write-to` flag that allows specifying target file and location within file.
+
+**Implementation Ideas**:
+[source,bash]
+----
+diag-agent create "Component diagram" \
+  --type c4 \
+  --write-to architecture.adoc \
+  --section "Level 2: Components" \
+  --replace-marker "<!-- DIAGRAM: components -->"
+----
+
+**Open Questions**:
+* How to handle concurrent edits?
+* Should agent create section if missing?
+* Support for multiple diagram formats in one file?

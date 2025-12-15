@@ -1,0 +1,1408 @@
+= Architecture Documentation: diag-agent
+:toc: left
+:toclevels: 3
+:sectnums:
+:icons: font
+:source-highlighter: rouge
+
+== Introduction and Goals
+
+=== Requirements Overview
+
+diag-agent is an intelligent diagram generation tool that assists LLMs and developers in creating high-quality architecture diagrams. It addresses the common problems of syntax errors and poor layout in LLM-generated diagrams through an autonomous feedback loop.
+
+==== Key Features
+
+* **Autonomous diagram generation** with syntax validation and design feedback
+* **Multi-format support** via Kroki integration (PlantUML, C4, BPMN, Mermaid, etc.)
+* **Flexible deployment**: CLI tool, MCP server (local/remote), or Docker container
+* **Privacy-first**: Local-first approach with optional remote rendering
+* **LLM-agnostic**: Works with any LLM via LiteLLM abstraction
+* **Context-efficient**: Minimal context consumption through help system and reference URLs
+
+=== Quality Goals
+
+[cols="1,2,1",options="header"]
+|===
+|Priority |Quality Goal |Motivation
+
+|1
+|**Context Efficiency**
+|Minimize token consumption in parent LLM conversations through help system, URL references, and self-contained agent logic
+
+|2
+|**Ease of Installation**
+|Developers should install via pip or docker run without complex setup
+
+|3
+|**Privacy & Security**
+|No diagram data sent to remote servers without explicit user consent
+
+|4
+|**Autonomy**
+|Agent iterates independently without requiring parent LLM intervention
+
+|5
+|**Extensibility**
+|Support for all Kroki diagram types and easy LLM provider switching
+|===
+
+=== Stakeholders
+
+[cols="1,2,2",options="header"]
+|===
+|Role |Expectation |Concern
+
+|Software Architects
+|Generate C4 and other architecture diagrams quickly
+|Diagram quality, AsciiDoc integration
+
+|Developers
+|Simple CLI tool for documentation
+|Easy installation, good defaults
+
+|LLM Applications
+|Delegate diagram generation without context overhead
+|Clear interface, reliable results
+
+|Privacy-conscious Users
+|Control over where diagram data is processed
+|Local-first options, explicit consent for remote services
+|===
+
+== Architecture Constraints
+
+=== Technical Constraints
+
+[cols="1,2",options="header"]
+|===
+|Constraint |Background
+
+|Python-based
+|Reuse existing Kroki integration code
+
+|LiteLLM dependency
+|Unified interface for multiple LLM providers
+
+|Kroki for rendering
+|Industry-standard diagram rendering service supporting 20+ formats
+
+|Vision-capable LLM recommended
+|Design feedback requires image analysis (fallback: syntax-only validation)
+
+|Docker optional
+|Bundled Kroki Fat-JAR for fully offline operation
+|===
+
+=== Organizational Constraints
+
+[cols="1,2",options="header"]
+|===
+|Constraint |Background
+
+|Open Source
+|Target developer community with transparent tooling
+
+|Privacy compliance
+|GDPR considerations: no automatic remote data transmission
+
+|Self-contained
+|Must work without internet connection (local Kroki mode)
+|===
+
+=== Conventions
+
+* **Configuration**: Environment variables > .env file > ~/.diag-agent/config.yaml
+* **Output formats**: Source (.puml, .mmd) + rendered (PNG, SVG)
+* **Error handling**: Interactive prompts for missing config, graceful degradation
+* **Documentation**: English, AsciiDoc format
+
+== Context and Scope
+
+=== Business Context
+
+[plantuml, business-context, svg]
+----
+@startuml
+!include <C4/C4_Context>
+
+Person(architect, "Software Architect", "Creates architecture documentation")
+Person(developer, "Developer", "Generates diagrams for docs")
+System_Ext(llm, "LLM Application", "Claude, GPT, Ollama, etc.")
+
+System_Boundary(diag_agent, "diag-agent") {
+    System(agent, "Diagram Agent", "Autonomous diagram generation with feedback loop")
+}
+
+System_Ext(kroki_remote, "kroki.io", "Remote diagram rendering")
+System_Ext(kroki_local, "Local Kroki", "Self-hosted rendering service")
+
+Rel(architect, agent, "Uses CLI", "bash commands")
+Rel(developer, agent, "Uses CLI", "bash commands")
+Rel(llm, agent, "Calls via MCP", "Tool invocation")
+
+Rel(agent, kroki_local, "Renders diagrams", "HTTP API")
+Rel(agent, kroki_remote, "Renders diagrams", "HTTP API (opt-in)")
+Rel(agent, llm, "Requests generation", "LLM API")
+
+SHOW_LEGEND()
+@enduml
+----
+
+==== External Interfaces
+
+[cols="1,2,2",options="header"]
+|===
+|Interface |Description |Protocol
+
+|CLI
+|Command-line interface for direct user interaction
+|Bash commands, stdin/stdout
+
+|MCP Server
+|Model Context Protocol server for LLM integration
+|HTTP/SSE (streaming)
+
+|Kroki API
+|Diagram rendering service
+|HTTP REST (POST /render)
+
+|LLM API
+|Generation and analysis requests
+|Provider-specific (OpenAI, Anthropic, etc.)
+|===
+
+=== Technical Context
+
+[plantuml, technical-context, svg]
+----
+@startuml
+!include <C4/C4_Context>
+
+Person(user, "User/LLM", "Requests diagrams")
+
+System_Boundary(agent, "diag-agent") {
+    Container(cli, "CLI Interface", "Python/Click", "Command parsing and execution")
+    Container(mcp, "MCP Server", "Python/SSE", "Tool exposure for LLMs")
+    Container(core, "Agent Core", "Python", "Iteration logic and orchestration")
+    Container(llm_client, "LLM Client", "LiteLLM", "Multi-provider abstraction")
+    Container(kroki_client, "Kroki Client", "Python/Requests", "Diagram rendering")
+    ContainerDb(config, "Configuration", "YAML/Env", "User preferences and API keys")
+}
+
+System_Ext(llm_api, "LLM API", "Claude, GPT-4, Ollama")
+System_Ext(kroki, "Kroki Service", "Diagram renderer")
+System_Ext(storage, "File System", "Diagram outputs")
+
+Rel(user, cli, "Executes", "bash")
+Rel(user, mcp, "Calls", "HTTP/MCP")
+Rel(cli, core, "Delegates")
+Rel(mcp, core, "Delegates")
+Rel(core, llm_client, "Generates/Analyzes")
+Rel(core, kroki_client, "Renders")
+Rel(llm_client, llm_api, "API calls")
+Rel(kroki_client, kroki, "HTTP POST")
+Rel(core, storage, "Writes outputs")
+Rel(core, config, "Reads settings")
+
+SHOW_LEGEND()
+@enduml
+----
+
+==== Technology Stack
+
+[cols="1,2,1",options="header"]
+|===
+|Component |Technology |Rationale
+
+|Runtime
+|Python 3.10+
+|Existing codebase, rich ecosystem
+
+|LLM Abstraction
+|LiteLLM
+|Unified interface for 100+ models
+
+|CLI Framework
+|Click
+|Intuitive command structure, good help generation
+
+|MCP Implementation
+|FastMCP / MCP SDK
+|Standard protocol for LLM tool integration
+
+|Diagram Rendering
+|Kroki
+|Supports 20+ diagram types
+
+|Configuration
+|python-dotenv, PyYAML
+|Standard config management
+
+|HTTP Client
+|Requests / httpx
+|Kroki API communication
+
+|Containerization
+|Docker
+|Bundled Kroki Fat-JAR option
+|===
+
+== Solution Strategy
+
+=== Core Strategy: Autonomous Feedback Loop
+
+The agent operates independently from the calling LLM to minimize context consumption:
+
+1. **Generate**: Agent calls LLM to create diagram source code with examples
+2. **Validate**: Submit to Kroki, capture syntax errors
+3. **Fix**: If errors, agent provides feedback to LLM for correction
+4. **Analyze** (if vision available): Render image, LLM evaluates layout/design
+5. **Iterate**: Repeat steps 2-4 until quality threshold or limits reached
+6. **Return**: Provide source + rendered outputs (or URL references)
+
+[plantuml, feedback-loop, svg]
+----
+@startuml
+!include <C4/C4_Component>
+
+Container_Boundary(agent, "Agent Core") {
+    Component(orchestrator, "Orchestrator", "Python", "Manages iteration loop")
+    Component(generator, "Generator", "LiteLLM", "Creates diagram source")
+    Component(validator, "Validator", "Kroki Client", "Validates syntax")
+    Component(analyzer, "Analyzer", "LiteLLM + Vision", "Evaluates design")
+    Component(limiter, "Limiter", "Python", "Enforces time/iteration limits")
+}
+
+Rel(orchestrator, generator, "1. Request generation")
+Rel(generator, orchestrator, "Returns source")
+Rel(orchestrator, validator, "2. Validate")
+Rel(validator, orchestrator, "Errors/Success")
+Rel(orchestrator, generator, "3. Fix errors", "If validation fails")
+Rel(orchestrator, analyzer, "4. Analyze design", "If vision available")
+Rel(analyzer, orchestrator, "Design feedback")
+Rel(orchestrator, generator, "5. Improve design", "If issues found")
+Rel(orchestrator, limiter, "Check limits")
+Rel(limiter, orchestrator, "Continue/Stop")
+
+@enduml
+----
+
+=== Design Decisions
+
+==== ADR-001: Bash Tool with Help System vs. Always-On MCP
+
+**Status**: Accepted
+
+**Context**: LLMs with computer use need diagram generation, but MCP descriptions consume context even when unused.
+
+**Decision**: Primary interface is bash tool with `--help`. MCP mode is optional and explicitly started.
+
+**Consequences**:
+* ✅ Context efficient: help text only loaded when needed
+* ✅ Works with any LLM that has bash access
+* ✅ MCP still available for LLMs without bash
+* ⚠️ Two deployment modes to maintain
+
+==== ADR-002: Agent Self-Iteration vs. Parent LLM Control
+
+**Status**: Accepted
+
+**Context**: Feedback loop requires multiple LLM calls. Who controls the iteration?
+
+**Decision**: Agent iterates autonomously with its own LLM client.
+
+**Consequences**:
+* ✅ Minimal context in parent conversation
+* ✅ Agent can optimize prompts for diagram generation
+* ✅ Parallel processing possible
+* ⚠️ Requires separate LLM API access
+* ⚠️ User sees less of the process (mitigated by progress output)
+
+==== ADR-003: Local-First with Opt-In Remote
+
+**Status**: Accepted
+
+**Context**: Privacy concerns with sending diagram data to remote services.
+
+**Decision**: 
+* Default: Local Kroki (Fat-JAR or user-hosted)
+* kroki.io requires interactive confirmation
+* Confirmation stored in config
+
+**Consequences**:
+* ✅ GDPR compliant by default
+* ✅ Works offline
+* ✅ Users make informed decisions
+* ⚠️ Initial setup more complex (Kroki download)
+
+==== ADR-004: URL References for Rendered Diagrams
+
+**Status**: Accepted (V2 Feature)
+
+**Context**: Base64-encoded images or file paths consume significant context.
+
+**Decision**: MCP server mode can serve rendered diagrams via HTTP, returning short URLs.
+
+**Consequences**:
+* ✅ Minimal context consumption
+* ✅ Diagrams displayable in web interfaces
+* ⚠️ Requires HTTP server (already present in MCP streaming mode)
+* ⚠️ Lifecycle management needed (when to delete?)
+
+==== ADR-005: LiteLLM for Provider Abstraction
+
+**Status**: Accepted
+
+**Context**: Need to support multiple LLM providers (Anthropic, OpenAI, local models).
+
+**Decision**: Use LiteLLM as unified interface.
+
+**Consequences**:
+* ✅ 100+ models supported
+* ✅ Consistent API across providers
+* ✅ Easy to add new providers
+* ⚠️ Additional dependency
+* ⚠️ Abstraction may hide provider-specific features
+
+== Building Block View
+
+=== Level 1: System Overview
+
+[plantuml, building-blocks-l1, svg]
+----
+@startuml
+!include <C4/C4_Component>
+
+System_Boundary(diag_agent, "diag-agent") {
+    Container(cli, "CLI Interface", "Python/Click", "User-facing command interface")
+    Container(mcp_server, "MCP Server", "FastMCP", "LLM tool integration")
+    Container(agent_core, "Agent Core", "Python", "Autonomous iteration engine")
+    Container(kroki_mgmt, "Kroki Manager", "Python", "Service lifecycle and routing")
+    ContainerDb(config_mgmt, "Config Manager", "Python", "Multi-source configuration")
+}
+
+System_Ext(llm_external, "External LLM", "API")
+System_Ext(kroki_service, "Kroki Service", "Local/Remote")
+
+Rel(cli, agent_core, "Commands")
+Rel(mcp_server, agent_core, "Tool calls")
+Rel(agent_core, llm_external, "Generation requests")
+Rel(agent_core, kroki_mgmt, "Render requests")
+Rel(kroki_mgmt, kroki_service, "HTTP")
+Rel(agent_core, config_mgmt, "Read settings")
+
+@enduml
+----
+
+==== Component Descriptions
+
+[cols="1,3",options="header"]
+|===
+|Component |Responsibility
+
+|CLI Interface
+|Parse commands, validate arguments, display help with examples, interactive configuration
+
+|MCP Server
+|Expose tools via Model Context Protocol, handle streaming responses, serve rendered diagrams
+
+|Agent Core
+|Orchestrate feedback loop, manage iteration state, enforce limits, generate progress updates
+
+|Kroki Manager
+|Route to appropriate Kroki instance (local/remote), download and start Fat-JAR, health checks
+
+|Config Manager
+|Load configuration from env vars, .env files, and YAML, handle precedence, interactive setup
+|===
+
+=== Level 2: Agent Core Details
+
+[plantuml, building-blocks-l2, svg]
+----
+@startuml
+
+!include <C4/C4_Component>
+
+Container_Boundary(agent_core, "Agent Core") {
+    Component(orchestrator, "Orchestrator", "Main loop controller")
+    Component(llm_client, "LLM Client", "LiteLLM wrapper")
+    Component(prompt_builder, "Prompt Builder", "Context-aware prompts")
+    Component(syntax_validator, "Syntax Validator", "Kroki integration")
+    Component(design_analyzer, "Design Analyzer", "Vision-based feedback")
+    Component(example_provider, "Example Provider", "Diagram type samples")
+    Component(iteration_limiter, "Iteration Limiter", "Time/count limits")
+    Component(output_writer, "Output Writer", "File and URL management")
+}
+
+Rel(orchestrator, prompt_builder, "Build prompts")
+Rel(prompt_builder, example_provider, "Get examples")
+Rel(orchestrator, llm_client, "Generate/Analyze")
+Rel(orchestrator, syntax_validator, "Validate")
+Rel(orchestrator, design_analyzer, "Analyze design")
+Rel(design_analyzer, llm_client, "Vision API")
+Rel(orchestrator, iteration_limiter, "Check limits")
+Rel(orchestrator, output_writer, "Write results")
+
+@enduml
+----
+
+==== Component Responsibilities
+
+**Orchestrator**::
+Main state machine controlling the feedback loop. Decides whether to continue iteration based on validation results and limits.
+
+**LLM Client**::
+Wrapper around LiteLLM providing retry logic, error handling, and token counting. Supports both text and vision modes.
+
+**Prompt Builder**::
+Constructs prompts with appropriate context:
+* Diagram description from user
+* Relevant examples for the diagram type
+* Previous errors (if iterating)
+* Design feedback (if available)
+
+**Syntax Validator**::
+Submits diagram source to Kroki, parses error messages, determines if errors are fixable.
+
+**Design Analyzer**::
+Only active if vision-capable LLM configured:
+* Renders diagram to PNG
+* Sends to LLM with design evaluation prompt
+* Parses feedback (layout, clarity, C4 compliance, etc.)
+
+**Example Provider**::
+Maintains curated examples for each supported diagram type. Examples loaded on-demand to minimize memory usage.
+
+**Iteration Limiter**::
+Enforces two limits:
+* Maximum iterations (default: 5)
+* Maximum time (default: 60 seconds)
+Prevents infinite loops and excessive API costs.
+
+**Output Writer**::
+Handles multiple output scenarios:
+* Write source files (.puml, .mmd, etc.)
+* Write rendered images (PNG, SVG)
+* Optionally serve via HTTP and return URLs (MCP mode)
+
+== Runtime View
+
+=== Scenario 1: CLI Diagram Generation (Success Path)
+
+[plantuml, runtime-cli-success, svg]
+----
+@startuml
+actor User
+participant "CLI" as CLI
+participant "Orchestrator" as Orch
+participant "Prompt Builder" as Prompt
+participant "Example Provider" as Examples
+participant "LLM Client" as LLM
+participant "Syntax Validator" as Validator
+participant "Kroki" as Kroki
+participant "Design Analyzer" as Analyzer
+participant "Output Writer" as Writer
+
+User -> CLI: diag-agent create "User auth flow" --type c4
+CLI -> Orch: execute(description, type)
+Orch -> Prompt: build_initial_prompt(description, type)
+Prompt -> Examples: get_example("c4")
+Examples --> Prompt: C4 example
+Prompt --> Orch: Complete prompt
+Orch -> LLM: generate(prompt)
+LLM --> Orch: PlantUML source
+
+note right: Iteration 1
+Orch -> Validator: validate(source)
+Validator -> Kroki: POST /render
+Kroki --> Validator: Success + PNG
+Validator --> Orch: Valid
+
+Orch -> Analyzer: analyze_design(png)
+Analyzer -> LLM: vision_analyze(png, criteria)
+LLM --> Analyzer: "Layout cramped, suggest vertical"
+Analyzer --> Orch: Design feedback
+
+note right: Iteration 2
+Orch -> Prompt: build_refinement_prompt(source, feedback)
+Prompt --> Orch: Refinement prompt
+Orch -> LLM: generate(prompt)
+LLM --> Orch: Improved source
+
+Orch -> Validator: validate(improved_source)
+Validator -> Kroki: POST /render
+Kroki --> Validator: Success + PNG
+Validator --> Orch: Valid
+
+Orch -> Analyzer: analyze_design(png)
+Analyzer -> LLM: vision_analyze(png, criteria)
+LLM --> Analyzer: "Looks good"
+Analyzer --> Orch: Approved
+
+Orch -> Writer: write_outputs(source, png, svg)
+Writer --> Orch: File paths
+Orch --> CLI: Success + paths
+CLI --> User: ✓ Generated: ./diagram.puml, ./diagram.png, ./diagram.svg
+@enduml
+----
+
+=== Scenario 2: MCP Tool Invocation with Streaming
+
+[plantuml, runtime-mcp-streaming, svg]
+----
+@startuml
+participant "LLM App" as App
+participant "MCP Server" as MCP
+participant "Orchestrator" as Orch
+participant "LLM Client" as LLM
+participant "Validator" as Val
+participant "HTTP Server" as HTTP
+
+App -> MCP: create_diagram(description="API flow", type="sequence")
+MCP -> Orch: execute_async(description, type)
+
+note right: Stream progress updates
+Orch -> MCP: stream("Starting generation...")
+MCP -> App: SSE: status update
+
+Orch -> LLM: generate(prompt)
+Orch -> MCP: stream("Generated initial source")
+MCP -> App: SSE: status update
+
+Orch -> Val: validate(source)
+note right: Syntax error found
+Val --> Orch: Error: "Line 5: unknown participant"
+
+Orch -> MCP: stream("Fixing syntax error...")
+MCP -> App: SSE: status update
+
+Orch -> LLM: fix(source, error)
+Orch -> Val: validate(fixed_source)
+Val --> Orch: Valid
+
+Orch -> MCP: stream("Rendering...")
+MCP -> App: SSE: status update
+
+Orch -> HTTP: store_diagram(source, png, svg)
+HTTP --> Orch: URL: /diagrams/abc123
+
+Orch -> MCP: complete(source, url)
+MCP --> App: Result: {source: "...", url: "/diagrams/abc123"}
+
+App -> HTTP: GET /diagrams/abc123
+HTTP --> App: PNG image
+@enduml
+----
+
+=== Scenario 3: First-Time Setup (Interactive)
+
+[plantuml, runtime-setup, svg]
+----
+@startuml
+actor User
+participant "CLI" as CLI
+participant "Config Manager" as Config
+participant "Kroki Manager" as KrokiMgr
+participant "LLM Client" as LLM
+
+User -> CLI: diag-agent create "My diagram"
+CLI -> Config: load_config()
+Config --> CLI: Config missing
+
+CLI -> User: ⚠ No configuration found. Run setup? [Y/n]
+User -> CLI: Y
+
+CLI -> Config: interactive_setup()
+Config -> User: LLM Provider? [anthropic/openai/ollama/other]
+User -> Config: anthropic
+Config -> User: API Key? (or press Enter for env var)
+User -> Config: sk-ant-...
+Config -> User: Model? [claude-sonnet-4/other]
+User -> Config: claude-sonnet-4
+
+Config -> User: Enable vision for design feedback? [Y/n]
+User -> Config: Y
+
+Config -> User: Save configuration? [Y/n]
+User -> Config: Y
+Config -> Config: write ~/.diag-agent/config.yaml
+
+CLI -> KrokiMgr: check_kroki_available()
+KrokiMgr --> CLI: Not found
+
+CLI -> User: Kroki not found. Options:\n1) Download Fat-JAR\n2) Use kroki.io (sends diagrams remotely)\n3) Configure custom endpoint
+User -> CLI: 1
+
+CLI -> KrokiMgr: download_kroki_jar()
+KrokiMgr -> User: Download 80MB? [Y/n]
+User -> KrokiMgr: Y
+KrokiMgr -> KrokiMgr: Download...
+KrokiMgr --> CLI: Downloaded
+
+CLI -> KrokiMgr: start_kroki()
+KrokiMgr --> CLI: Started on :8000
+
+CLI -> LLM: test_connection()
+LLM --> CLI: OK
+
+CLI --> User: ✓ Setup complete! Creating your diagram...
+@enduml
+----
+
+== Cross-cutting Concepts
+
+=== Configuration Management
+
+==== Configuration Precedence
+
+1. **Environment Variables** (highest priority)
+   - `DIAG_AGENT_LLM_PROVIDER`
+   - `DIAG_AGENT_LLM_MODEL`
+   - `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.
+   - `DIAG_AGENT_KROKI_URL`
+
+2. **.env File** (project-specific)
+   - Located in current directory
+   - Same variable names as environment
+
+3. **Config File** (lowest priority)
+   - `~/.diag-agent/config.yaml`
+   - Structured format for complex settings
+
+==== Example Configuration
+
+[source,yaml]
+----
+llm:
+  provider: anthropic
+  model: claude-sonnet-4
+  api_key: ${ANTHROPIC_API_KEY}  # Reference env var
+  max_tokens: 4096
+  temperature: 0.3
+  vision_enabled: true
+
+kroki:
+  mode: local  # local, remote, auto
+  local_url: http://localhost:8000
+  remote_url: https://kroki.io
+  remote_confirmed: false  # Requires interactive confirmation
+  jar_path: ~/.diag-agent/kroki-server.jar
+
+agent:
+  max_iterations: 5
+  max_time_seconds: 60
+  validate_syntax: true
+  validate_design: true  # Only if vision_enabled
+
+output:
+  default_directory: ./diagrams
+  formats: [source, png, svg]
+  url_mode: false  # Return URLs instead of file paths
+
+examples:
+  cache_enabled: true
+  custom_examples_dir: ~/.diag-agent/examples
+----
+
+=== Error Handling Strategy
+
+==== Error Categories
+
+[cols="1,2,2",options="header"]
+|===
+|Category |Handling |User Experience
+
+|**Configuration Errors**
+|Interactive prompt to fix
+|"API key missing. Enter now or set ANTHROPIC_API_KEY"
+
+|**Network Errors**
+|Retry with exponential backoff
+|Progress indicator with retry count
+
+|**Syntax Errors**
+|Feed back to LLM for fixing
+|"Fixing syntax error (attempt 2/5)..."
+
+|**Design Issues**
+|Feed back to LLM for refinement
+|"Improving layout based on analysis..."
+
+|**Limit Exceeded**
+|Return best attempt so far
+|"⚠ Time limit reached. Returning current version."
+
+|**LLM API Errors**
+|Fail fast with clear message
+|"LLM API error: Rate limit exceeded. Try again in 60s."
+
+|**Kroki Unavailable**
+|Offer alternatives
+|"Kroki not available. Download Fat-JAR or enable kroki.io?"
+|===
+
+==== Graceful Degradation
+
+* **No vision model**: Skip design analysis, validate syntax only
+* **Kroki timeout**: Return source code only
+* **Iteration limit**: Return last valid version
+* **Network issues**: Fall back to cached examples
+
+=== Logging and Observability
+
+==== Log Levels
+
+* **DEBUG**: LLM prompts, API requests/responses, iteration details
+* **INFO**: Progress updates, validation results, file writes
+* **WARNING**: Degraded functionality, retries, approaching limits
+* **ERROR**: Failures requiring user intervention
+
+==== Progress Updates
+
+In interactive mode (CLI) and MCP streaming:
+
+[source]
+----
+🔄 Generating diagram...
+✓ Generated initial source (350 tokens)
+🔍 Validating syntax...
+✓ Syntax valid
+📊 Analyzing design...
+⚠ Layout could be improved
+🔄 Refining design (iteration 2/5)...
+✓ Design approved
+💾 Writing outputs...
+✓ Created: diagram.puml, diagram.png, diagram.svg
+----
+
+=== Security Considerations
+
+==== API Key Management
+
+* Never log API keys
+* Support key rotation via environment variables
+* Validate keys before saving to config
+* Warn if keys in config file (suggest env vars instead)
+
+==== Diagram Content Privacy
+
+* **Default**: All processing local (Kroki Fat-JAR)
+* **Remote Kroki**: Explicit opt-in with privacy notice:
+  ```
+  ⚠️  Using kroki.io will send diagram content to a remote server.
+  This may include sensitive architecture information.
+  Continue? [y/N]
+  ```
+* **Audit**: Log when remote services are used
+
+==== MCP Server Security
+
+* Bind to localhost by default
+* Optional authentication for remote access
+* Rate limiting on tool calls
+* Sanitize user inputs before LLM prompts
+
+=== Performance Optimization
+
+==== Context Efficiency Techniques
+
+1. **Lazy Example Loading**: Only load examples for requested diagram type
+2. **URL References**: Return URLs instead of base64 images in MCP mode
+3. **Streaming**: Progress updates don't wait for completion
+4. **Minimal Help**: `--help` shows only essential info, `--help-full` for examples
+
+==== Caching Strategy
+
+* **Example Diagrams**: In-memory cache, keyed by diagram type
+* **Kroki Health**: Cache status for 30 seconds
+* **LLM Responses**: No caching (always fresh generation)
+
+== Deployment View
+
+=== Deployment Scenario 1: Local Development (Docker)
+
+[plantuml, deployment-docker, svg]
+----
+@startuml
+!include <C4/C4_Deployment>
+
+Deployment_Node(laptop, "Developer Laptop", "macOS/Linux/Windows") {
+    Deployment_Node(docker, "Docker Engine") {
+        Container(diag_agent, "diag-agent", "Python Container", "CLI + MCP + Kroki Fat-JAR")
+    }
+    
+    Deployment_Node(host_fs, "Host Filesystem") {
+        ContainerDb(output, "Output Directory", "./diagrams", "Mounted volume")
+        ContainerDb(config, "Config", "~/.diag-agent", "Mounted volume")
+    }
+}
+
+System_Ext(llm_api, "LLM API", "claude.ai / OpenAI")
+
+Rel(diag_agent, output, "Writes diagrams")
+Rel(diag_agent, config, "Reads config")
+Rel(diag_agent, llm_api, "API calls", "HTTPS")
+
+@enduml
+----
+
+**Docker Command:**
+[source,bash]
+----
+docker run -it \
+  -v $(pwd)/diagrams:/diagrams \
+  -v ~/.diag-agent:/root/.diag-agent \
+  -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
+  diag-agent:latest \
+  create "System context diagram" --type c4
+----
+
+=== Deployment Scenario 2: CI/CD Pipeline
+
+[plantuml, deployment-cicd, svg]
+----
+@startuml
+!include <C4/C4_Deployment>
+
+Deployment_Node(github, "GitHub Actions", "CI/CD") {
+    Container(workflow, "Documentation Build", "GitHub Actions", "Generates arch docs")
+    Container(diag_agent, "diag-agent", "Python Package", "Headless mode")
+}
+
+Deployment_Node(artifacts, "Build Artifacts") {
+    ContainerDb(docs, "Generated Docs", "HTML/PDF", "arc42 with diagrams")
+}
+
+System_Ext(llm_api, "LLM API", "Paid API access")
+
+Rel(workflow, diag_agent, "Executes")
+Rel(diag_agent, llm_api, "API calls")
+Rel(diag_agent, docs, "Generates diagrams")
+
+@enduml
+----
+
+**GitHub Actions Example:**
+[source,yaml]
+----
+- name: Generate Architecture Diagrams
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    DIAG_AGENT_HEADLESS: true
+  run: |
+    pip install diag-agent
+    diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams
+----
+
+=== Deployment Scenario 3: MCP Server for LLM Applications
+
+[plantuml, deployment-mcp, svg]
+----
+@startuml
+!include <C4/C4_Deployment>
+
+Deployment_Node(server, "Application Server", "Linux") {
+    Container(mcp_server, "diag-agent MCP", "Python Service", "Exposes tools via SSE")
+    Container(kroki_local, "Kroki Service", "Java Fat-JAR", "Local rendering")
+    
+    Deployment_Node(nginx, "NGINX", "Reverse Proxy") {
+        Container(proxy, "Reverse Proxy", "NGINX", "SSL termination")
+    }
+}
+
+Deployment_Node(client, "Client Application") {
+    Container(llm_app, "LLM Application", "TypeScript/Python", "Uses MCP tools")
+}
+
+System_Ext(llm_api, "LLM API", "External service")
+
+Rel(llm_app, proxy, "HTTPS/SSE")
+Rel(proxy, mcp_server, "HTTP/SSE")
+Rel(mcp_server, llm_api, "API calls")
+Rel(mcp_server, kroki_local, "HTTP")
+
+@enduml
+----
+
+**Startup Command:**
+[source,bash]
+----
+diag-agent serve \
+  --mcp \
+  --host 0.0.0.0 \
+  --port 8080 \
+  --url-mode \
+  --cors-origins "https://my-llm-app.com"
+----
+
+=== Infrastructure Requirements
+
+[cols="1,2,1,1",options="header"]
+|===
+|Component |Resource Requirements |Scaling |Availability
+
+|diag-agent (CLI)
+|Minimal (single invocation)
+|N/A
+|N/A
+
+|diag-agent (MCP)
+|512MB RAM, 1 CPU
+|Horizontal (stateless)
+|99.9% (load balanced)
+
+|Kroki Fat-JAR
+|1GB RAM, 2 CPU
+|Single instance sufficient
+|99% (restart on failure)
+
+|LLM API
+|External service
+|N/A
+|Provider SLA
+|===
+
+== Design Decisions (ADRs)
+
+This section consolidates all Architecture Decision Records. See section 4 (Solution Strategy) for detailed ADRs 001-005.
+
+=== Summary Table
+
+[cols="1,2,1",options="header"]
+|===
+|ADR |Decision |Status
+
+|ADR-001
+|Bash Tool with Help System vs. Always-On MCP
+|✅ Accepted
+
+|ADR-002
+|Agent Self-Iteration vs. Parent LLM Control
+|✅ Accepted
+
+|ADR-003
+|Local-First with Opt-In Remote
+|✅ Accepted
+
+|ADR-004
+|URL References for Rendered Diagrams
+|✅ Accepted (V2)
+
+|ADR-005
+|LiteLLM for Provider Abstraction
+|✅ Accepted
+
+|ADR-006
+|Docker-Bundled Kroki vs. Separate Service
+|✅ Accepted
+
+|ADR-007
+|Source File Direct Write
+|📋 Planned (V2)
+|===
+
+=== ADR-006: Docker-Bundled Kroki vs. Separate Service
+
+**Status**: Accepted
+
+**Context**: Users want simple installation. Kroki Fat-JAR is ~80MB. Should it be included in Docker image?
+
+**Decision**: Include Kroki Fat-JAR in Docker image by default. Provide slim variant without it.
+
+**Consequences**:
+* ✅ One-command deployment: `docker run diag-agent`
+* ✅ Works offline immediately
+* ⚠️ Larger image size (~300MB vs ~50MB slim)
+* ⚠️ Longer build times
+
+**Alternatives Considered**:
+* Multi-stage build with optional Fat-JAR (chosen approach)
+* Always download on first run (slower, requires internet)
+* Separate kroki container via docker-compose (more complex)
+
+=== ADR-007: Source File Direct Write (V2 Feature)
+
+**Status**: Planned for V2
+
+**Context**: Users want agent to directly update .adoc files with generated diagrams.
+
+**Decision**: Add `--write-to` flag that allows specifying target file and location within file.
+
+**Implementation Ideas**:
+[source,bash]
+----
+diag-agent create "Component diagram" \
+  --type c4 \
+  --write-to architecture.adoc \
+  --section "Level 2: Components" \
+  --replace-marker "<!-- DIAGRAM: components -->"
+----
+
+**Open Questions**:
+* How to handle concurrent edits?
+* Should agent create section if missing?
+* Support for multiple diagram formats in one file?
+
+== Quality Requirements
+
+=== Quality Scenarios
+
+==== Scenario 1: Context Efficiency
+
+[cols="1,3",options="header"]
+|===
+|Aspect |Description
+
+|**Scenario**
+|Architect asks LLM to generate C4 diagram in claude.ai
+
+|**Environment**
+|Claude with computer use enabled, existing conversation with 50k tokens
+
+|**Stimulus**
+|User: "Create a C4 context diagram for our API gateway"
+
+|**Response**
+|Claude calls `diag-agent create --help`, then executes command
+
+|**Measure**
+|Total context consumed < 2k tokens (help text + command + file path response)
+
+|**Target**
+|95% of diagram requests use < 3k tokens in parent conversation
+|===
+
+==== Scenario 2: Installation Time
+
+[cols="1,3",options="header"]
+|===
+|Aspect |Description
+
+|**Scenario**
+|Developer installs diag-agent for first time
+
+|**Environment**
+|Fresh Ubuntu system, Python 3.10 installed, internet available
+
+|**Stimulus**
+|Developer runs: `pip install diag-agent && diag-agent create "test"`
+
+|**Response**
+|Interactive setup guides through configuration, downloads Kroki if needed
+
+|**Measure**
+|< 3 minutes from pip install to first generated diagram
+
+|**Target**
+|90% of users generate first diagram within 5 minutes
+|===
+
+==== Scenario 3: Syntax Error Recovery
+
+[cols="1,3",options="header"]
+|===
+|Aspect |Description
+
+|**Scenario**
+|LLM generates PlantUML with syntax error
+
+|**Environment**
+|Agent with Claude Sonnet 4, local Kroki available
+
+|**Stimulus**
+|Invalid PlantUML: `participent User` (typo)
+
+|**Response**
+|Agent detects error, feeds back to LLM, receives corrected version
+
+|**Measure**
+|95% of common syntax errors fixed within 2 iterations
+
+|**Target**
+|< 10 seconds per iteration
+|===
+
+==== Scenario 4: Privacy Compliance
+
+[cols="1,3",options="header"]
+|===
+|Aspect |Description
+
+|**Scenario**
+|User generates diagram containing internal API details
+
+|**Environment**
+|Default configuration, no remote services configured
+
+|**Stimulus**
+|`diag-agent create "Internal microservices architecture"`
+
+|**Response**
+|All processing happens locally (LLM API + local Kroki)
+
+|**Measure**
+|Zero diagram data sent to kroki.io without explicit consent
+
+|**Target**
+|100% compliance with default settings
+|===
+
+=== Quality Tree
+
+[plantuml, quality-tree, svg]
+----
+@startmindmap
+* diag-agent
+** Context Efficiency (High)
+*** Minimal token consumption
+*** Help-on-demand system
+*** URL references (V2)
+** Usability (High)
+*** < 5 min to first diagram
+*** Interactive setup
+*** Clear error messages
+** Privacy (High)
+*** Local-first default
+*** Explicit remote consent
+*** No telemetry
+** Reliability (Medium)
+*** Syntax validation
+*** Design feedback
+*** Graceful degradation
+** Performance (Medium)
+*** < 60s per diagram
+*** Iteration limits
+*** Caching
+** Maintainability (Medium)
+*** Clear component boundaries
+*** LiteLLM abstraction
+*** Comprehensive logging
+@endmindmap
+----
+
+== Risks and Technical Debt
+
+=== Risk Assessment
+
+[cols="1,2,1,1,2",options="header"]
+|===
+|Risk |Description |Probability |Impact |Mitigation
+
+|**LLM API Costs**
+|Iterative refinement may consume significant API credits
+|High
+|Medium
+|Set conservative default limits (5 iterations, 60s timeout), expose costs in docs
+
+|**Vision Model Unavailability**
+|Not all users have access to vision-capable models
+|Medium
+|Low
+|Graceful fallback to syntax-only validation, clear messaging
+
+|**Kroki Service Instability**
+|Local Kroki may crash or become unresponsive
+|Low
+|Medium
+|Health checks, auto-restart, clear error messages, fallback to source-only output
+
+|**Prompt Injection**
+|Malicious diagram descriptions could manipulate agent behavior
+|Medium
+|Medium
+|Sanitize inputs, limit LLM capabilities in agent context, review prompts
+
+|**Context Window Limits**
+|Large diagrams + examples may exceed model context
+|Low
+|High
+|Truncate examples intelligently, split large diagrams, clear error messages
+
+|**Example Maintenance**
+|Examples may become outdated with new Kroki versions
+|Medium
+|Low
+|Version examples with Kroki compatibility info, community contributions
+
+|**Docker Image Size**
+|Bundled Kroki increases image to ~300MB
+|High
+|Low
+|Provide slim variant, document trade-offs, optimize layers
+|===
+
+=== Technical Debt
+
+==== Accepted Debt
+
+[cols="1,2,2",options="header"]
+|===
+|Item |Reason |Payback Plan
+
+|**Two deployment modes**
+|MVP needs both CLI and MCP
+|Refactor to shared core in v1.1
+
+|**In-memory state only**
+|Simpler for MVP
+|Add persistent state for long-running MCP servers in V2
+
+|**Limited diagram type testing**
+|Focus on C4 and PlantUML initially
+|Expand test coverage iteratively
+
+|**No diagram versioning**
+|Not in initial requirements
+|Add in V2 if users request
+|===
+
+==== Debt to Avoid
+
+* **Tight coupling to LLM provider**: Use LiteLLM abstraction consistently
+* **Hard-coded prompts**: Externalize to templates for easy iteration
+* **No integration tests**: CI must include end-to-end tests with real Kroki
+* **Ignoring token costs**: Instrument and log API usage from day one
+
+== Glossary
+
+[cols="1,3",options="header"]
+|===
+|Term |Definition
+
+|**Agent**
+|Autonomous component that iterates independently using its own LLM client
+
+|**C4 Model**
+|Context, Containers, Components, Code - hierarchical architecture diagram approach
+
+|**Context Efficiency**
+|Minimizing token consumption in parent LLM conversations
+
+|**Feedback Loop**
+|Iterative process: generate → validate → analyze → refine
+
+|**Headless Mode**
+|Non-interactive operation suitable for CI/CD pipelines
+
+|**Kroki**
+|Unified API for creating diagrams from textual descriptions (PlantUML, Mermaid, etc.)
+
+|**Kroki Fat-JAR**
+|Self-contained Java archive (~80MB) running complete Kroki service locally
+
+|**LiteLLM**
+|Python library providing unified interface to 100+ LLM providers
+
+|**MCP (Model Context Protocol)**
+|Standard protocol for exposing tools to LLMs via HTTP/SSE
+
+|**Vision Model**
+|LLM capable of analyzing images (e.g., Claude Sonnet with vision, GPT-4V)
+
+|**PlantUML**
+|Text-based diagram syntax, particularly popular for UML and architecture diagrams
+
+|**Syntax Validation**
+|Checking if diagram source code is valid for the target renderer
+
+|**Design Analysis**
+|Vision-based evaluation of diagram layout, clarity, and conventions
+
+|**URL Reference**
+|Returning short URL instead of file path or base64 data to save context
+
+|**Remote Confirmation**
+|Interactive consent before sending data to remote services
+
+|**SSE (Server-Sent Events)**
+|HTTP protocol for server-to-client streaming, used in MCP
+
+|**Iteration Limit**
+|Maximum number of refinement cycles before returning current result
+
+|**Example Provider**
+|Component managing curated sample diagrams for each type
+|===
+
+== Future Enhancements (V2+)
+
+=== Planned Features
+
+==== Direct Source File Writing
+Allow agent to update .adoc or .md files directly:
+[source,bash]
+----
+diag-agent create "API flow" \
+  --write-to docs/architecture.adoc \
+  --section "Runtime View" \
+  --format plantuml
+----
+
+**Benefits**: Reduces manual copy-paste, enables automated doc updates
+
+==== Diagram Diffing
+Compare generated diagram with existing version:
+[source,bash]
+----
+diag-agent diff \
+  --old docs/diagrams/context.puml \
+  --new "Updated context with new services"
+----
+
+**Benefits**: Review changes before committing, merge workflow support
+
+==== Batch Generation
+Generate multiple related diagrams:
+[source,bash]
+----
+diag-agent create-batch --input diagram-requirements.yaml
+----
+
+Where `diagram-requirements.yaml`:
+[source,yaml]
+----
+diagrams:
+  - name: context
+    type: c4-context
+    description: "System landscape with external integrations"
+  - name: containers
+    type: c4-container
+    description: "Internal container breakdown"
+----
+
+**Benefits**: Consistent style across diagram set, faster documentation
+
+==== Custom Style Templates
+User-defined style preferences:
+[source,yaml]
+----
+style:
+  c4:
+    skin: dark
+    layout: vertical
+    include: custom-c4-theme.puml
+----
+
+**Benefits**: Corporate branding, personal preferences
+
+==== Collaboration Features
+* **Shared example library**: Community-contributed examples
+* **Diagram reviews**: Feedback loop includes human reviewer
+* **Team templates**: Shared styles and conventions
+
+=== Research Items
+
+* **Incremental updates**: Instead of regenerating, modify existing diagrams
+* **Multi-model consensus**: Use multiple LLMs, compare outputs
+* **Adaptive limits**: Learn optimal iteration counts per diagram type
+* **Natural language queries**: "Show me authentication flow" finds/generates diagram
+* **Integration with architecture tools**: Export to Structurizr, Archimate, etc.
+
+---
+
+**Document Status**: Draft v1.0 +
+**Last Updated**: 2024-12-15 +
+**Authors**: Architecture Team +
+**Reviewers**: TBD

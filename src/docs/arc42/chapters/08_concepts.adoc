@@ -1,0 +1,180 @@
+:jbake-title: Cross-cutting Concepts
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 8
+:filename: /chapters/08_concepts.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-concepts]]
+== Cross-cutting Concepts
+
+=== Configuration Management
+
+==== Configuration Precedence
+
+1. **Environment Variables** (highest priority)
+   - `DIAG_AGENT_LLM_PROVIDER`
+   - `DIAG_AGENT_LLM_MODEL`
+   - `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.
+   - `DIAG_AGENT_KROKI_URL`
+
+2. **.env File** (project-specific)
+   - Located in current directory
+   - Same variable names as environment
+
+3. **Config File** (lowest priority)
+   - `~/.diag-agent/config.yaml`
+   - Structured format for complex settings
+
+==== Example Configuration
+
+[source,yaml]
+----
+llm:
+  provider: anthropic
+  model: claude-sonnet-4
+  api_key: ${ANTHROPIC_API_KEY}  # Reference env var
+  max_tokens: 4096
+  temperature: 0.3
+  vision_enabled: true
+
+kroki:
+  mode: local  # local, remote, auto
+  local_url: http://localhost:8000
+  remote_url: https://kroki.io
+  remote_confirmed: false  # Requires interactive confirmation
+  jar_path: ~/.diag-agent/kroki-server.jar
+
+agent:
+  max_iterations: 5
+  max_time_seconds: 60
+  validate_syntax: true
+  validate_design: true  # Only if vision_enabled
+
+output:
+  default_directory: ./diagrams
+  formats: [source, png, svg]
+  url_mode: false  # Return URLs instead of file paths
+
+examples:
+  cache_enabled: true
+  custom_examples_dir: ~/.diag-agent/examples
+----
+
+=== Error Handling Strategy
+
+==== Error Categories
+
+[cols="1,2,2",options="header"]
+|===
+|Category |Handling |User Experience
+
+|**Configuration Errors**
+|Interactive prompt to fix
+|"API key missing. Enter now or set ANTHROPIC_API_KEY"
+
+|**Network Errors**
+|Retry with exponential backoff
+|Progress indicator with retry count
+
+|**Syntax Errors**
+|Feed back to LLM for fixing
+|"Fixing syntax error (attempt 2/5)..."
+
+|**Design Issues**
+|Feed back to LLM for refinement
+|"Improving layout based on analysis..."
+
+|**Limit Exceeded**
+|Return best attempt so far
+|"⚠ Time limit reached. Returning current version."
+
+|**LLM API Errors**
+|Fail fast with clear message
+|"LLM API error: Rate limit exceeded. Try again in 60s."
+
+|**Kroki Unavailable**
+|Offer alternatives
+|"Kroki not available. Download Fat-JAR or enable kroki.io?"
+|===
+
+==== Graceful Degradation
+
+* **No vision model**: Skip design analysis, validate syntax only
+* **Kroki timeout**: Return source code only
+* **Iteration limit**: Return last valid version
+* **Network issues**: Fall back to cached examples
+
+=== Logging and Observability
+
+==== Log Levels
+
+* **DEBUG**: LLM prompts, API requests/responses, iteration details
+* **INFO**: Progress updates, validation results, file writes
+* **WARNING**: Degraded functionality, retries, approaching limits
+* **ERROR**: Failures requiring user intervention
+
+==== Progress Updates
+
+In interactive mode (CLI) and MCP streaming:
+
+[source]
+----
+🔄 Generating diagram...
+✓ Generated initial source (350 tokens)
+🔍 Validating syntax...
+✓ Syntax valid
+📊 Analyzing design...
+⚠ Layout could be improved
+🔄 Refining design (iteration 2/5)...
+✓ Design approved
+💾 Writing outputs...
+✓ Created: diagram.puml, diagram.png, diagram.svg
+----
+
+=== Security Considerations
+
+==== API Key Management
+
+* Never log API keys
+* Support key rotation via environment variables
+* Validate keys before saving to config
+* Warn if keys in config file (suggest env vars instead)
+
+==== Diagram Content Privacy
+
+* **Default**: All processing local (Kroki Fat-JAR)
+* **Remote Kroki**: Explicit opt-in with privacy notice:
+  ```
+  ⚠️  Using kroki.io will send diagram content to a remote server.
+  This may include sensitive architecture information.
+  Continue? [y/N]
+  ```
+* **Audit**: Log when remote services are used
+
+==== MCP Server Security
+
+* Bind to localhost by default
+* Optional authentication for remote access
+* Rate limiting on tool calls
+* Sanitize user inputs before LLM prompts
+
+=== Performance Optimization
+
+==== Context Efficiency Techniques
+
+1. **Lazy Example Loading**: Only load examples for requested diagram type
+2. **URL References**: Return URLs instead of base64 images in MCP mode
+3. **Streaming**: Progress updates don't wait for completion
+4. **Minimal Help**: `--help` shows only essential info, `--help-full` for examples
+
+==== Caching Strategy
+
+* **Example Diagrams**: In-memory cache, keyed by diagram type
+* **Kroki Health**: Cache status for 30 seconds
+* **LLM Responses**: No caching (always fresh generation)

@@ -1,0 +1,129 @@
+:jbake-title: Solution Strategy
+:jbake-type: page_toc
+:jbake-status: published
+:jbake-menu: arc42
+:jbake-order: 4
+:filename: /chapters/04_solution_strategy.adoc
+ifndef::imagesdir[:imagesdir: ../../images]
+
+:toc:
+
+
+
+[[section-solution-strategy]]
+== Solution Strategy
+
+=== Core Strategy: Autonomous Feedback Loop
+
+The agent operates independently from the calling LLM to minimize context consumption:
+
+1. **Generate**: Agent calls LLM to create diagram source code with examples
+2. **Validate**: Submit to Kroki, capture syntax errors
+3. **Fix**: If errors, agent provides feedback to LLM for correction
+4. **Analyze** (if vision available): Render image, LLM evaluates layout/design
+5. **Iterate**: Repeat steps 2-4 until quality threshold or limits reached
+6. **Return**: Provide source + rendered outputs (or URL references)
+
+[plantuml, feedback-loop, svg]
+----
+@startuml
+!include <C4/C4_Component>
+
+Container_Boundary(agent, "Agent Core") {
+    Component(orchestrator, "Orchestrator", "Python", "Manages iteration loop")
+    Component(generator, "Generator", "LiteLLM", "Creates diagram source")
+    Component(validator, "Validator", "Kroki Client", "Validates syntax")
+    Component(analyzer, "Analyzer", "LiteLLM + Vision", "Evaluates design")
+    Component(limiter, "Limiter", "Python", "Enforces time/iteration limits")
+}
+
+Rel(orchestrator, generator, "1. Request generation")
+Rel(generator, orchestrator, "Returns source")
+Rel(orchestrator, validator, "2. Validate")
+Rel(validator, orchestrator, "Errors/Success")
+Rel(orchestrator, generator, "3. Fix errors", "If validation fails")
+Rel(orchestrator, analyzer, "4. Analyze design", "If vision available")
+Rel(analyzer, orchestrator, "Design feedback")
+Rel(orchestrator, generator, "5. Improve design", "If issues found")
+Rel(orchestrator, limiter, "Check limits")
+Rel(limiter, orchestrator, "Continue/Stop")
+
+@enduml
+----
+
+=== Design Decisions
+
+==== ADR-001: Bash Tool with Help System vs. Always-On MCP
+
+**Status**: Accepted
+
+**Context**: LLMs with computer use need diagram generation, but MCP descriptions consume context even when unused.
+
+**Decision**: Primary interface is bash tool with `--help`. MCP mode is optional and explicitly started.
+
+**Consequences**:
+* ✅ Context efficient: help text only loaded when needed
+* ✅ Works with any LLM that has bash access
+* ✅ MCP still available for LLMs without bash
+* ⚠️ Two deployment modes to maintain
+
+==== ADR-002: Agent Self-Iteration vs. Parent LLM Control
+
+**Status**: Accepted
+
+**Context**: Feedback loop requires multiple LLM calls. Who controls the iteration?
+
+**Decision**: Agent iterates autonomously with its own LLM client.
+
+**Consequences**:
+* ✅ Minimal context in parent conversation
+* ✅ Agent can optimize prompts for diagram generation
+* ✅ Parallel processing possible
+* ⚠️ Requires separate LLM API access
+* ⚠️ User sees less of the process (mitigated by progress output)
+
+==== ADR-003: Local-First with Opt-In Remote
+
+**Status**: Accepted
+
+**Context**: Privacy concerns with sending diagram data to remote services.
+
+**Decision**: 
+* Default: Local Kroki (Fat-JAR or user-hosted)
+* kroki.io requires interactive confirmation
+* Confirmation stored in config
+
+**Consequences**:
+* ✅ GDPR compliant by default
+* ✅ Works offline
+* ✅ Users make informed decisions
+* ⚠️ Initial setup more complex (Kroki download)
+
+==== ADR-004: URL References for Rendered Diagrams
+
+**Status**: Accepted (V2 Feature)
+
+**Context**: Base64-encoded images or file paths consume significant context.
+
+**Decision**: MCP server mode can serve rendered diagrams via HTTP, returning short URLs.
+
+**Consequences**:
+* ✅ Minimal context consumption
+* ✅ Diagrams displayable in web interfaces
+* ⚠️ Requires HTTP server (already present in MCP streaming mode)
+* ⚠️ Lifecycle management needed (when to delete?)
+
+==== ADR-005: LiteLLM for Provider Abstraction
+
+**Status**: Accepted
+
+**Context**: Need to support multiple LLM providers (Anthropic, OpenAI, local models).
+
+**Decision**: Use LiteLLM as unified interface.
+
+**Consequences**:
+* ✅ 100+ models supported
+* ✅ Consistent API across providers
+* ✅ Easy to add new providers
+* ⚠️ Additional dependency
+* ⚠️ Abstraction may hide provider-specific features
