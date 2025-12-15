@@ -59,18 +59,18 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Test-Typ (Unit/Integration) wurde mit User abgestimmt
 
 ### Tasks
-- [x] **Config Management:** Settings-Klasse implementieren
-- [x] dataclass mit __init__ für ENV var loading
-- [x] python-dotenv Integration (load_dotenv())
-- [x] Type conversion für Integer-Werte (max_iterations, max_time_seconds)
+- [x] **CLI Basis (Zyklus 1):** Click CLI mit --help implementieren
+- [x] @click.group() als Entry Point mit Version
+- [x] @click.command() für create mit Description
+- [x] Options: --type, --output, --format
 - [x] Tests ausführen und grün machen
 
 ### Completed
-- [x] Settings-Klasse in src/diag_agent/config/settings.py erstellt
-- [x] 7 Config-Optionen implementiert mit Defaults aus .env.example
-- [x] ENV var loading mit DIAG_AGENT_ prefix
-- [x] Type-safe Integer Conversion (str→int)
-- [x] Beide Tests passed! ✅ (100% Coverage)
+- [x] CLI in src/diag_agent/cli/commands.py erstellt
+- [x] Click framework integriert (@click.group + @click.command)
+- [x] create command mit 3 Options (type, output, format)
+- [x] Version info: 0.1.0
+- [x] Test passed! ✅ (71% Coverage - 4 missed lines in create body, kommt in Zyklus 2)
 - [x] **Zyklus 2:** KrokiRenderError Exception mit klarer Docstring
 - [x] **Zyklus 2:** try-except Block für httpx.HTTPStatusError
 - [x] **Zyklus 2:** Error-Message mit status code + diagram type
