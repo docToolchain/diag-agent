@@ -34,23 +34,26 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 
 ### Phase Entrance Criteria:
 - [x] Exploration ist abgeschlossen und Anforderungen sind dokumentiert
-- [x] Architektur-Entscheidungen aus arc42-Dokumentation sind verstanden
-- [x] Bestehende Patterns und Konventionen sind erfasst
+- [x] KrokiClient API verstanden (render_diagram + KrokiRenderError)
+- [x] Test-Strategie definiert (2 Tests: Success + Error-Retry)
 - [x] Es ist klar, welche Funktionalität als nächstes implementiert werden soll
 
 ### Tasks
-- [x] **Orchestrator (Zyklus 2):** Test für LLMClient-Integration schreiben
-- [x] Test: `test_orchestrator_uses_llm_client_for_generation`
-- [x] Test validiert: LLMClient.generate() Call mit Prompt (description + type)
-- [x] Test validiert: Result enthält LLM-Output (nicht hardcoded)
-- [x] Test ausführen und Fehlschlag verifizieren (RED)
+- [x] **Orchestrator (Zyklus 3):** Tests für KrokiClient-Validation schreiben
+- [x] Test 1: `test_orchestrator_validates_with_kroki_success`
+- [x] Test validiert: KrokiClient.render_diagram() Call für Syntax-Check
+- [x] Test validiert: Success-Path (1 Iteration, kein Retry)
+- [x] Test 2: `test_orchestrator_retries_on_kroki_validation_error`
+- [x] Test validiert: Error → Retry mit Error-Message im Prompt
+- [x] Test validiert: 2 Iterationen, 2. erfolgreich
+- [x] Tests ausführen und Fehlschlag verifizieren (RED)
 
 ### Completed
-- [x] Test in tests/unit/test_orchestrator.py hinzugefügt
-- [x] Test validiert: Orchestrator → LLMClient.generate(prompt)
-- [x] Test validiert: Prompt enthält description + diagram_type
-- [x] Test validiert: diagram_source vom LLM (nicht "' Generated diagram")
-- [x] Test schlägt fehl: AttributeError (LLMClient nicht importiert) ✅
+- [x] 2 Tests in tests/unit/test_orchestrator.py hinzugefügt
+- [x] Test 1: Success-Path (LLM → Kroki ✅ → Done)
+- [x] Test 2: Error-Retry (LLM → Kroki ❌ → LLM fix → Kroki ✅)
+- [x] Mocks: LLMClient + KrokiClient (wie in Cycle 1+2)
+- [x] Bereit für Test-Ausführung (erwarte Fehler: KrokiClient nicht importiert)
 
 ## Green
 
