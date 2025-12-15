@@ -105,10 +105,14 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Tests validieren (alle grün ✓)
 
 ### Completed
-- [x] Zyklus 1: Code Review - keine Änderungen nötig ✅
-- [x] Zyklus 2: Built-in override behoben (type → diagram_type)
-- [x] Zyklus 2: Konsistenz mit Orchestrator.execute() hergestellt
-- [x] Alle Tests passed ✅ (CLI: 100% Coverage)
+- [x] CLI Basis Zyklus 1: Code Review - keine Änderungen nötig ✅
+- [x] CLI Basis Zyklus 2: Built-in override behoben (type → diagram_type)
+- [x] CLI Basis Zyklus 2: Konsistenz mit Orchestrator.execute() hergestellt
+- [x] CLI Tests passed ✅ (100% Coverage)
+- [x] **Orchestrator Zyklus 1:** Code Review durchgeführt
+- [x] **Orchestrator Zyklus 1:** diagram_source vor Loop initialisiert (undefined-Risk fix)
+- [x] **Orchestrator Zyklus 1:** Redundante Zuweisung in Loop entfernt
+- [x] Orchestrator Tests passed ✅ (87% Coverage)
 - [x] CLI Basis Zyklus 2 abgeschlossen ✅ (create mit Orchestrator)
 
 ## Key Decisions

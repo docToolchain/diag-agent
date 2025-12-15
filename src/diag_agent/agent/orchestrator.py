@@ -50,6 +50,7 @@ class Orchestrator:
         iterations_used = 0
         start_time = time.time()
         stopped_reason = "success"
+        diagram_source = "@startuml\n' Generated diagram\n@enduml"  # Default value
         
         # Get limits from settings
         max_iterations = self.settings.max_iterations
@@ -70,8 +71,7 @@ class Orchestrator:
             # - Validate with KrokiClient
             # - Analyze design with Analyzer
             # - Build refinement prompt if needed
-            # For now, just simulate work and break after 1 iteration
-            diagram_source = "@startuml\n' Generated diagram\n@enduml"
+            # For now, just break after 1 iteration (MVP)
             break  # Success after first iteration (MVP)
         
         # Check if we hit iteration limit
