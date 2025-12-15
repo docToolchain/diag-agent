@@ -7,6 +7,13 @@
 Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Software-Architektur-Diagrammen mit automatischer Syntax-Validierung und Design-Feedback über Kroki-Integration.
 
 ## Explore
+
+### Phase Entrance Criteria:
+- [ ] Es ist klar, welche Komponente als nächstes implementiert werden soll
+- [ ] Architektur-Dokumentation zu Config Management gelesen
+- [ ] Bestehende Patterns und Konventionen verstanden
+- [ ] Config-Precedence-Rules dokumentiert
+
 ### Tasks
 - [x] Arc42-Dokumentation durchgehen und Key Requirements extrahieren
 - [x] Alle 8 ADRs lesen und Architektur-Entscheidungen verstehen
@@ -35,17 +42,18 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Es ist klar, welche Funktionalität als nächstes implementiert werden soll
 
 ### Tasks
-- [x] **Zyklus 1:** Test für Happy-Path (`test_render_diagram_success`)
-- [x] **Zyklus 2:** Test für HTTP Error-Handling schreiben
-- [x] Test ausführen und Fehlschlag verifizieren (RED)
+- [x] **Config Management:** Tests für Settings-Klasse schreiben
+- [x] Test 1: `test_load_settings_with_defaults` - Defaults ohne ENV
+- [x] Test 2: `test_load_settings_from_env` - ENV vars überschreiben
+- [x] Tests ausführen und Fehlschlag verifizieren (RED)
 
 ### Completed
-- [x] **Zyklus 1 (Happy-Path):** Unit-Test geschrieben und validiert
-- [x] **Zyklus 2 (Error-Handling):** `test_render_diagram_http_error` geschrieben
-- [x] Test schlägt fehl: `ImportError: KrokiRenderError` (erwartet)
-- [x] Test validiert HTTP 500 Error → Custom Exception mit status code + diagram type
+- [x] 2 Unit-Tests in tests/unit/test_settings.py geschrieben
+- [x] Test 1 validiert: 7 Default-Werte (llm_provider, kroki_mode, max_iterations, etc.)
+- [x] Test 2 validiert: ENV override + Type conversion (str→int)
+- [x] Tests schlagen fehl: `ImportError: Settings` (erwartet) ✅
 
-## Green
+## Red
 
 ### Phase Entrance Criteria:
 - [x] Ein spezifischer, fokussierter Test wurde geschrieben
@@ -128,6 +136,22 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - README.md vollständig auf uv umgestellt (kein pip-Fallback mehr)
 - Installation, Quick Start, Development, und Usage Examples zeigen nur noch uv/uvx
 - Qualitätsziel "Ease of Installation" adressiert: uvx ermöglicht Zero-Install-Execution
+
+### Config Management - IN ARBEIT 🔄 (2025-12-15)
+**Komponente**: `src/diag_agent/config/settings.py`
+**Scope (MVP)**: Environment-basierte Config (ENV + .env File)
+**Precedence**: CLI args > ENV vars > config.yaml (CLI + YAML später)
+
+**Config-Kategorien aus .env.example:**
+1. LLM: provider, model, API keys
+2. Kroki: mode, URLs, remote_confirmed
+3. Agent: max_iterations, max_time, validate_design
+4. Output: directory, formats
+5. Logging: log_level
+
+**Erster TDD-Zyklus:** Settings-Klasse mit ENV + .env Support
+- Test: Lesen von ENV-Variablen mit Defaults
+- Implementation: Pydantic Settings oder dataclass + python-dotenv
 
 ### KrokiClient - ABGESCHLOSSEN ✅ (2025-12-15)
 **Status**: 2 TDD-Zyklen komplett (RED→GREEN→REFACTOR)
