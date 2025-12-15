@@ -1,0 +1,2297 @@
+<!doctype html>
+<html lang="de">
+<head>
+    
+    <!-- sourceuri: arc42/arc42.html -->
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <meta content="jbake" name="generator">
+    <meta content="INDEX, FOLLOW" name="ROBOTS">
+
+    <title>image:arc42-logo.png[arc42] Template</title>
+    <meta content="docToolchain" property="og:title">
+    <meta content="build your dev docs the easy way..." property="og:description">
+    <meta content="website" property="og:type">
+    <meta content="docToolchain" property="og:site_name">
+    <meta content="docToolchain" itemprop="name">
+    <meta content="build your dev docs the easy way..." itemprop="description">
+    <meta content="summary" name="twitter:card">
+    <meta content="docToolchain" name="twitter:title">
+    <meta content="build your dev docs the easy way..." name="twitter:description">
+
+    <link as="style"
+        href="../css/main.min.881fe5f7b53609f55ebfb496c7097c3b30b2e8ceb20a54bc6a48350ded67224f.css"
+        rel="preload">
+    <link href="../css/main.min.881fe5f7b53609f55ebfb496c7097c3b30b2e8ceb20a54bc6a48350ded67224f.css"
+        integrity=""
+        rel="stylesheet">
+    <link href="../css/asciidoctor.css" rel="stylesheet">
+    <link href="../css/prettify.css" rel="stylesheet">
+
+    <!-- favicon generated with https://www.favicon-generator.org/ -->
+    <link rel="shortcut icon" href="../favicon.ico">
+    <link rel="apple-touch-icon" sizes="57x57" href="../apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="../apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="../apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="../apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="../apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="../apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="../apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="../apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="../ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <script src="../js/jquery-3.5.1.min.js"></script>
+    <style>
+    div.bg-light {
+        background-color: rgba(127, 180, 224, 0.3) !important;
+    }
+
+    /* for blog posts */
+    span.blogtag {
+        border-radius: 10px;
+        background-color: #30638E;
+        color: white;
+        padding: 5px 10px;
+    }
+
+    span.blogblogtag a {
+        color: white;
+        padding: 0
+    }
+
+    span.blogtag span {
+        margin-left: 10px;
+        border-radius: 10px;
+        background-color: white;
+        color: #30638E;
+    }
+
+    div.td-toc {
+        height: calc(100vh - 5rem) !important;
+    }
+
+    div#toctitle {
+        display: none
+    }
+
+    #td-section-nav {
+        max-height: calc(100vh - 4rem);
+        font-size: smaller;
+        line-height: 1.1;
+    }
+
+    .td-page-meta {
+        font-size: smaller;
+        line-height: 1.1;
+    }
+
+    #td-section-nav ul.td-sidebar-nav__section {
+        padding-left: 0;
+    }
+
+    span.navbar-logo {
+        padding-right: 1.5em;
+    }
+
+    .match {
+        font-size: smaller;
+    }
+
+    .admonitionblock td.icon .fa:before {
+        font-size: xxx-large;
+    }
+    </style>
+
+    <style>
+    div.openblock.primary div.content, div.openblock.secondary div.content {
+        border: 1px solid #7a2518;
+        padding: 5px;
+    }
+
+    div.openblock.primary div.content div.content, div.openblock.secondary div.content div.content {
+        border: 0 solid #7a2518;
+        padding: 0;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .switch {
+        border-width: 1px 1px 0 1px;
+        border-style: solid;
+        border-color: #7a2518;
+        display: inline-block;
+    }
+
+    .switch--item {
+        padding: 2px 10px;
+        background-color: #ffffff;
+        color: #7a2518;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .switch--item:not(:first-child) {
+        border-width: 0 0 0 1px;
+        border-style: solid;
+        border-color: #7a2518;
+    }
+
+    .switch--item.selected {
+        background-color: #7a2519;
+        color: #ffffff;
+    }
+    </style>
+
+    <!-- copy-n-paste.js -->
+    <style>
+        div.listingblock {
+            position: relative;
+        }
+        div.listingblock > span.icon {
+            position: absolute;
+            top: 2px;
+            right: 6px;
+            visibility: hidden;
+            z-index: 2;
+            cursor: pointer;
+        }
+        div.listingblock:hover > span.icon {
+            visibility: visible;
+        }
+        div.listingblock div.content pre {
+            margin: 0;
+        }
+    </style>
+    <style>
+        .td-sidebar-nav__section {
+            padding-left: 9px;
+        }
+        details {
+            margin-left: 10px;
+        }
+        summary {
+            cursor: pointer;
+            padding-left: 10px; /* Erhöhter linker Padding für den Pfeil */
+            list-style: none;
+            position: relative; /* Für absolute Positionierung des Pfeils */
+        }
+        summary::before {
+            content: '>';
+            position: absolute;
+            left: 10px; /* Position des Pfeils */
+            top: 50%;
+            transform: translateY(-50%) translateX(-120%);
+            transition: transform 0.3s;
+        }
+        details[open] > summary::before {
+            transform: translateY(-50%) translateX(-120%) rotate(90deg);
+        }
+    </style>
+</head>
+
+<body onload="prettyPrint()" class="td-section">
+<header>
+	
+<nav class="js-navbar-scroll navbar navbar-expand navbar-dark flex-column flex-md-row td-navbar">
+    <a class="navbar-brand" href="../index.html">
+        <span class="navbar-logo"><img src="../images/doctoolchain-logo-blue.png" alt="docToolchain" width="32px" /></span><span
+            class="font-weight-bold">docToolchain</span>
+    </a>
+    <div class="td-navbar-nav-scroll ml-md-auto" id="main_navbar">
+        <ul class="navbar-nav mt-2 mt-lg-0">
+    <li class="nav-item mr-4 mb-2 mb-lg-0"><!--img src="../images/status.png" alt="status" width="16" height="16" onerror="this.style.display='none'"--></li>
+
+            <li class="nav-item mr-4 mb-2 mb-lg-0">
+                <a class="nav-link " href="../arc42/chapters/01_introduction_and_goals.html"><span>arc42</span></a>
+            </li>
+
+        </ul>
+    </div>
+    <div class="navbar-nav d-none d-lg-block" >
+        <form action="../search.html">
+        <input aria-label="Search this site…" autocomplete="off" class="form-control td-search-input"
+               placeholder=" Search this site…" type="search" name="q">
+        </form>
+    </div>
+</nav>
+
+</header>
+<div class="container-fluid td-outer">
+	<div class="td-main">
+		<div class="row flex-xl-nowrap">
+			<div class="col-12 col-md-3 col-xl-2 td-sidebar d-print-none">
+				<div class="td-sidebar__inner" id="td-sidebar-menu" >
+					
+
+        <form class="td-sidebar__search d-flex align-items-center d-lg-none" action="../search.html">
+
+            <input aria-label="Search this site…" name="q" autocomplete="off" class="form-control td-search-input"
+                   placeholder=" Search this site…" type="search">
+
+
+            <button aria-controls="td-docs-nav" aria-expanded="false"
+                    aria-label="Toggle section navigation" class="btn btn-link td-sidebar__toggle d-md-none p-0 ml-3 fas fa-bars" data-target="#td-section-nav"
+                    data-toggle="collapse" type="button">
+            </button>
+        </form>
+
+        <nav aria-label="Submenu" class="collapse td-sidebar-nav" id="td-section-nav" >
+
+            <ul class="td-sidebar-nav__section">
+                <li class="td-sidebar-nav__section-title">
+                    <span class="align-left pl-0 pr-2 pt-2 active td-sidebar-link td-sidebar-link__section">-</span>
+                </li>
+                <li>
+                  <ul>
+                      <li class="collapse show" id="docs">
+                          
+                        <ul class="td-sidebar-nav__section ul-0">
+<details id="d92e87214a12aa80bb184e0d45bb68161"><summary><span class="label">arc42</span></summary>
+                        <ul class="ul-1">
+                            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child">
+                                <a class="align-left pl-0 pr-2 pt-2 td-sidebar-link td-sidebar-link__section active"
+                                   href="../arc42/arc42.html" title="image:arc42-logo.png[arc42] Template">image:arc42-logo.png[arc42] Template</a>
+                                
+                            </li>
+                        </ul></details>
+                            <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child">
+                                <a class="align-left pl-0 pr-2 pt-2 td-sidebar-link td-sidebar-link__section "
+                                   href="../search.html" title="search">search</a>
+                                
+                            </li>
+                        </ul>
+                      </li>
+                  </ul>
+                <li>
+        </nav>
+
+				</div>
+			</div>
+			<div class="d-none d-xl-block col-xl-2 td-toc d-print-none">
+				<div class="td-page-meta ml-2 pb-1 pt-2 mb-0">
+					
+
+        <a href="##git-repo-url##/arc42/arc42.adoc"
+           target="_blank"><i class="fa fa-edit fa-fw"></i> Improve this doc</a>
+
+
+        <a href="##issue-url##?title=Docs%3A+Feedback+for+%27image%3Aarc42-logo.png%5Barc42%5D+Template%27&body=%0A%0A%5BEnter%20feedback%20here%5D%0A%0A%0A---%0A%23page:%20##git-repo-url##/arc42/arc42.adoc%0A%23branch:%20main" target="_blank"><i
+                class="fab fa-github fa-fw"></i> Create an issue</a>
+
+        
+
+        <hr />
+
+        <div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_template"><span class="image"><img src="../images/arc42-logo.png" alt="arc42"></span> Template</a></li>
+<li><a href="#section-introduction-and-goals">1. Introduction and Goals</a>
+<ul class="sectlevel2">
+<li><a href="#_requirements_overview">1.1. Requirements Overview</a></li>
+<li><a href="#_quality_goals">1.2. Quality Goals</a></li>
+<li><a href="#_stakeholders">1.3. Stakeholders</a></li>
+</ul>
+</li>
+<li><a href="#section-architecture-constraints">2. Architecture Constraints</a>
+<ul class="sectlevel2">
+<li><a href="#_technical_constraints">2.1. Technical Constraints</a></li>
+<li><a href="#_organizational_constraints">2.2. Organizational Constraints</a></li>
+<li><a href="#_conventions">2.3. Conventions</a></li>
+</ul>
+</li>
+<li><a href="#section-context-and-scope">3. Context and Scope</a>
+<ul class="sectlevel2">
+<li><a href="#_business_context">3.1. Business Context</a></li>
+<li><a href="#_technical_context">3.2. Technical Context</a></li>
+</ul>
+</li>
+<li><a href="#section-solution-strategy">4. Solution Strategy</a>
+<ul class="sectlevel2">
+<li><a href="#_core_strategy_autonomous_feedback_loop">4.1. Core Strategy: Autonomous Feedback Loop</a></li>
+<li><a href="#_design_decisions">4.2. Design Decisions</a></li>
+</ul>
+</li>
+<li><a href="#section-building-block-view">5. Building Block View</a>
+<ul class="sectlevel2">
+<li><a href="#_level_1_system_overview">5.1. Level 1: System Overview</a></li>
+<li><a href="#_level_2_agent_core_details">5.2. Level 2: Agent Core Details</a></li>
+</ul>
+</li>
+<li><a href="#section-runtime-view">6. Runtime View</a>
+<ul class="sectlevel2">
+<li><a href="#_scenario_1_cli_diagram_generation_success_path">6.1. Scenario 1: CLI Diagram Generation (Success Path)</a></li>
+<li><a href="#_scenario_2_mcp_tool_invocation_with_streaming">6.2. Scenario 2: MCP Tool Invocation with Streaming</a></li>
+<li><a href="#_scenario_3_first_time_setup_interactive">6.3. Scenario 3: First-Time Setup (Interactive)</a></li>
+</ul>
+</li>
+<li><a href="#section-deployment-view">7. Deployment View</a>
+<ul class="sectlevel2">
+<li><a href="#_deployment_scenario_1_local_development_docker">7.1. Deployment Scenario 1: Local Development (Docker)</a></li>
+<li><a href="#_deployment_scenario_2_cicd_pipeline">7.2. Deployment Scenario 2: CI/CD Pipeline</a></li>
+<li><a href="#_deployment_scenario_3_mcp_server_for_llm_applications">7.3. Deployment Scenario 3: MCP Server for LLM Applications</a></li>
+<li><a href="#_infrastructure_requirements">7.4. Infrastructure Requirements</a></li>
+</ul>
+</li>
+<li><a href="#section-concepts">8. Cross-cutting Concepts</a>
+<ul class="sectlevel2">
+<li><a href="#_configuration_management">8.1. Configuration Management</a></li>
+<li><a href="#_error_handling_strategy">8.2. Error Handling Strategy</a></li>
+<li><a href="#_logging_and_observability">8.3. Logging and Observability</a></li>
+<li><a href="#_security_considerations">8.4. Security Considerations</a></li>
+<li><a href="#_performance_optimization">8.5. Performance Optimization</a></li>
+</ul>
+</li>
+<li><a href="#section-design-decisions">9. Architecture Decisions</a>
+<ul class="sectlevel2">
+<li><a href="#_summary_table">9.1. Summary Table</a></li>
+<li><a href="#_adr_006_docker_bundled_kroki_vs_separate_service">9.2. ADR-006: Docker-Bundled Kroki vs. Separate Service</a></li>
+<li><a href="#_adr_007_source_file_direct_write_v2_feature">9.3. ADR-007: Source File Direct Write (V2 Feature)</a></li>
+</ul>
+</li>
+<li><a href="#section-quality-scenarios">10. Quality Requirements</a>
+<ul class="sectlevel2">
+<li><a href="#_quality_scenarios">10.1. Quality Scenarios</a></li>
+<li><a href="#_quality_tree">10.2. Quality Tree</a></li>
+</ul>
+</li>
+<li><a href="#section-technical-risks">11. Risks and Technical Debts</a>
+<ul class="sectlevel2">
+<li><a href="#_risk_assessment">11.1. Risk Assessment</a></li>
+<li><a href="#_technical_debt">11.2. Technical Debt</a></li>
+</ul>
+</li>
+<li><a href="#section-glossary">12. Glossary</a></li>
+</ul>
+</div>
+
+
+
+
+				</div>
+			</div>
+			<main class="col-12 col-md-9 col-xl-8 pl-md-5" role="main">
+				    <nav aria-label="breadcrumb" class="d-none d-md-block d-print-none">
+        <ol class="breadcrumb spb-1">
+            <!--li aria-current="page" class="breadcrumb-item active">
+                <a href="https://example.docsy.dev/docs/">Documentation</a>
+            </li-->
+
+        </ol>
+    </nav>
+
+
+    <div class="td-content">
+        <p>
+            
+<div class="sect1">
+<h2 id="_template"><span class="image"><img src="../images/arc42-logo.png" alt="arc42"></span> Template</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Unresolved directive in &lt;stdin&gt; - include::chapters/../../../common/styles/arc42-help-style.adoc[]</p>
+</div>
+<div class="paragraph">
+<p><strong>About arc42</strong></p>
+</div>
+<div class="paragraph lead">
+<p>arc42, the template for documentation of software and system architecture.</p>
+</div>
+<div class="paragraph">
+<p>Template Version {revnumber}. {revremark}, {revdate}</p>
+</div>
+<div class="paragraph">
+<p>Created, maintained and &#169; by Dr. Peter Hruschka, Dr. Gernot Starke and contributors.
+See <a href="https://arc42.org" class="bare">https://arc42.org</a>.</p>
+</div>
+<hr>
+<div class="sidebarblock arc42help">
+<div class="content">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This version of the template contains some help and explanations.
+It is used for familiarization with arc42 and the understanding of the concepts.
+For documentation of your own system you use better the <em>plain</em> version.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-introduction-and-goals">1. Introduction and Goals</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_requirements_overview">1.1. Requirements Overview</h3>
+<div class="paragraph">
+<p>diag-agent is an intelligent diagram generation tool that assists LLMs and developers in creating high-quality architecture diagrams. It addresses the common problems of syntax errors and poor layout in LLM-generated diagrams through an autonomous feedback loop.</p>
+</div>
+<div class="sect3">
+<h4 id="_key_features">1.1.1. Key Features</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Autonomous diagram generation</strong> with syntax validation and design feedback</p>
+</li>
+<li>
+<p><strong>Multi-format support</strong> via Kroki integration (PlantUML, C4, BPMN, Mermaid, etc.)</p>
+</li>
+<li>
+<p><strong>Flexible deployment</strong>: CLI tool, MCP server (local/remote), or Docker container</p>
+</li>
+<li>
+<p><strong>Privacy-first</strong>: Local-first approach with optional remote rendering</p>
+</li>
+<li>
+<p><strong>LLM-agnostic</strong>: Works with any LLM via LiteLLM abstraction</p>
+</li>
+<li>
+<p><strong>Context-efficient</strong>: Minimal context consumption through help system and reference URLs</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_quality_goals">1.2. Quality Goals</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 50%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Priority</th>
+<th class="tableblock halign-left valign-top">Quality Goal</th>
+<th class="tableblock halign-left valign-top">Motivation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Context Efficiency</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Minimize token consumption in parent LLM conversations through help system, URL references, and self-contained agent logic</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Ease of Installation</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Developers should install via pip or docker run without complex setup</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Privacy &amp; Security</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No diagram data sent to remote servers without explicit user consent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Autonomy</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Agent iterates independently without requiring parent LLM intervention</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Extensibility</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Support for all Kroki diagram types and easy LLM provider switching</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_stakeholders">1.3. Stakeholders</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Role</th>
+<th class="tableblock halign-left valign-top">Expectation</th>
+<th class="tableblock halign-left valign-top">Concern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Software Architects</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generate C4 and other architecture diagrams quickly</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Diagram quality, AsciiDoc integration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Developers</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Simple CLI tool for documentation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Easy installation, good defaults</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LLM Applications</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Delegate diagram generation without context overhead</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Clear interface, reliable results</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Privacy-conscious Users</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Control over where diagram data is processed</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Local-first options, explicit consent for remote services</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-architecture-constraints">2. Architecture Constraints</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_technical_constraints">2.1. Technical Constraints</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Constraint</th>
+<th class="tableblock halign-left valign-top">Background</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python-based</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reuse existing Kroki integration code</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LiteLLM dependency</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unified interface for multiple LLM providers</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki for rendering</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Industry-standard diagram rendering service supporting 20+ formats</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vision-capable LLM recommended</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Design feedback requires image analysis (fallback: syntax-only validation)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docker optional</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundled Kroki Fat-JAR for fully offline operation</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_organizational_constraints">2.2. Organizational Constraints</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Constraint</th>
+<th class="tableblock halign-left valign-top">Background</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Open Source</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Target developer community with transparent tooling</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Privacy compliance</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GDPR considerations: no automatic remote data transmission</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Self-contained</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Must work without internet connection (local Kroki mode)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_conventions">2.3. Conventions</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Configuration</strong>: Environment variables &gt; .env file &gt; ~/.diag-agent/config.yaml</p>
+</li>
+<li>
+<p><strong>Output formats</strong>: Source (.puml, .mmd) + rendered (PNG, SVG)</p>
+</li>
+<li>
+<p><strong>Error handling</strong>: Interactive prompts for missing config, graceful degradation</p>
+</li>
+<li>
+<p><strong>Documentation</strong>: English, AsciiDoc format</p>
+</li>
+</ul>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-context-and-scope">3. Context and Scope</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_business_context">3.1. Business Context</h3>
+<div class="imageblock">
+<div class="content">
+<img src="../images/business-context.svg" alt="business context" width="752" height="683">
+</div>
+</div>
+<div class="sect3">
+<h4 id="_external_interfaces">3.1.1. External Interfaces</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Interface</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Protocol</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CLI</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Command-line interface for direct user interaction</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bash commands, stdin/stdout</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP Server</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Model Context Protocol server for LLM integration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP/SSE (streaming)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki API</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Diagram rendering service</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP REST (POST /render)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LLM API</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generation and analysis requests</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provider-specific (OpenAI, Anthropic, etc.)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_technical_context">3.2. Technical Context</h3>
+<div class="listingblock">
+<div class="content">
+<pre>Failed to generate image: PlantUML preprocessing failed: [From &lt;input&gt; (line 7) ]
+
+@startuml
+
+
+
+
+...
+... ( skipping 768 lines )
+...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+rectangle "&lt;$person&gt;\n== User/LLM\n\n Requests diagrams" &lt;&lt;person&gt;&gt; as user
+
+  rectangle "== diag-agent\n&lt;size:12&gt;[System]&lt;/size&gt;" &lt;&lt;system_boundary&gt;&gt;&lt;&lt;boundary&gt;&gt; as agent  {
+    Container(cli, "CLI Interface", "Python/Click", "Command parsing and execution")
+^^^^^
+ Syntax Error?
+
+@startuml
+!include &lt;C4/C4_Context&gt;
+
+Person(user, "User/LLM", "Requests diagrams")
+
+System_Boundary(agent, "diag-agent") {
+    Container(cli, "CLI Interface", "Python/Click", "Command parsing and execution")
+    Container(mcp, "MCP Server", "Python/SSE", "Tool exposure for LLMs")
+    Container(core, "Agent Core", "Python", "Iteration logic and orchestration")
+    Container(llm_client, "LLM Client", "LiteLLM", "Multi-provider abstraction")
+    Container(kroki_client, "Kroki Client", "Python/Requests", "Diagram rendering")
+    ContainerDb(config, "Configuration", "YAML/Env", "User preferences and API keys")
+}
+
+System_Ext(llm_api, "LLM API", "Claude, GPT-4, Ollama")
+System_Ext(kroki, "Kroki Service", "Diagram renderer")
+System_Ext(storage, "File System", "Diagram outputs")
+
+Rel(user, cli, "Executes", "bash")
+Rel(user, mcp, "Calls", "HTTP/MCP")
+Rel(cli, core, "Delegates")
+Rel(mcp, core, "Delegates")
+Rel(core, llm_client, "Generates/Analyzes")
+Rel(core, kroki_client, "Renders")
+Rel(llm_client, llm_api, "API calls")
+Rel(kroki_client, kroki, "HTTP POST")
+Rel(core, storage, "Writes outputs")
+Rel(core, config, "Reads settings")
+
+SHOW_LEGEND()
+@enduml</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_technology_stack">3.2.1. Technology Stack</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 50%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Component</th>
+<th class="tableblock halign-left valign-top">Technology</th>
+<th class="tableblock halign-left valign-top">Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Runtime</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python 3.10+</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Existing codebase, rich ecosystem</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LLM Abstraction</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LiteLLM</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unified interface for 100+ models</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CLI Framework</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Click</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Intuitive command structure, good help generation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP Implementation</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FastMCP / MCP SDK</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Standard protocol for LLM tool integration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Diagram Rendering</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Supports 20+ diagram types</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Configuration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">python-dotenv, PyYAML</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Standard config management</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP Client</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Requests / httpx</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki API communication</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Containerization</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docker</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundled Kroki Fat-JAR option</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-solution-strategy">4. Solution Strategy</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_core_strategy_autonomous_feedback_loop">4.1. Core Strategy: Autonomous Feedback Loop</h3>
+<div class="paragraph">
+<p>The agent operates independently from the calling LLM to minimize context consumption:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Generate</strong>: Agent calls LLM to create diagram source code with examples</p>
+</li>
+<li>
+<p><strong>Validate</strong>: Submit to Kroki, capture syntax errors</p>
+</li>
+<li>
+<p><strong>Fix</strong>: If errors, agent provides feedback to LLM for correction</p>
+</li>
+<li>
+<p><strong>Analyze</strong> (if vision available): Render image, LLM evaluates layout/design</p>
+</li>
+<li>
+<p><strong>Iterate</strong>: Repeat steps 2-4 until quality threshold or limits reached</p>
+</li>
+<li>
+<p><strong>Return</strong>: Provide source + rendered outputs (or URL references)</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="../images/feedback-loop.svg" alt="feedback loop" width="1490" height="387">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_design_decisions">4.2. Design Decisions</h3>
+<div class="sect3">
+<h4 id="_adr_001_bash_tool_with_help_system_vs_always_on_mcp">4.2.1. ADR-001: Bash Tool with Help System vs. Always-On MCP</h4>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: LLMs with computer use need diagram generation, but MCP descriptions consume context even when unused.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Primary interface is bash tool with <code>--help</code>. MCP mode is optional and explicitly started.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Context efficient: help text only loaded when needed
+* ✅ Works with any LLM that has bash access
+* ✅ MCP still available for LLMs without bash
+* ⚠️ Two deployment modes to maintain</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_adr_002_agent_self_iteration_vs_parent_llm_control">4.2.2. ADR-002: Agent Self-Iteration vs. Parent LLM Control</h4>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Feedback loop requires multiple LLM calls. Who controls the iteration?</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Agent iterates autonomously with its own LLM client.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Minimal context in parent conversation
+* ✅ Agent can optimize prompts for diagram generation
+* ✅ Parallel processing possible
+* ⚠️ Requires separate LLM API access
+* ⚠️ User sees less of the process (mitigated by progress output)</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_adr_003_local_first_with_opt_in_remote">4.2.3. ADR-003: Local-First with Opt-In Remote</h4>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Privacy concerns with sending diagram data to remote services.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>:
+* Default: Local Kroki (Fat-JAR or user-hosted)
+* kroki.io requires interactive confirmation
+* Confirmation stored in config</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ GDPR compliant by default
+* ✅ Works offline
+* ✅ Users make informed decisions
+* ⚠️ Initial setup more complex (Kroki download)</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_adr_004_url_references_for_rendered_diagrams">4.2.4. ADR-004: URL References for Rendered Diagrams</h4>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted (V2 Feature)</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Base64-encoded images or file paths consume significant context.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: MCP server mode can serve rendered diagrams via HTTP, returning short URLs.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ Minimal context consumption
+* ✅ Diagrams displayable in web interfaces
+* ⚠️ Requires HTTP server (already present in MCP streaming mode)
+* ⚠️ Lifecycle management needed (when to delete?)</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_adr_005_litellm_for_provider_abstraction">4.2.5. ADR-005: LiteLLM for Provider Abstraction</h4>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Need to support multiple LLM providers (Anthropic, OpenAI, local models).</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Use LiteLLM as unified interface.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ 100+ models supported
+* ✅ Consistent API across providers
+* ✅ Easy to add new providers
+* ⚠️ Additional dependency
+* ⚠️ Abstraction may hide provider-specific features</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-building-block-view">5. Building Block View</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_level_1_system_overview">5.1. Level 1: System Overview</h3>
+<div class="imageblock">
+<div class="content">
+<img src="../images/building-blocks-l1.svg" alt="building blocks l1" width="647" height="735">
+</div>
+</div>
+<div class="sect3">
+<h4 id="_component_descriptions">5.1.1. Component Descriptions</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Component</th>
+<th class="tableblock halign-left valign-top">Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CLI Interface</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Parse commands, validate arguments, display help with examples, interactive configuration</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MCP Server</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expose tools via Model Context Protocol, handle streaming responses, serve rendered diagrams</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Agent Core</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Orchestrate feedback loop, manage iteration state, enforce limits, generate progress updates</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki Manager</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Route to appropriate Kroki instance (local/remote), download and start Fat-JAR, health checks</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Config Manager</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Load configuration from env vars, .env files, and YAML, handle precedence, interactive setup</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_level_2_agent_core_details">5.2. Level 2: Agent Core Details</h3>
+<div class="imageblock">
+<div class="content">
+<img src="../images/building-blocks-l2.svg" alt="building blocks l2" width="1252" height="449">
+</div>
+</div>
+<div class="sect3">
+<h4 id="_component_responsibilities">5.2.1. Component Responsibilities</h4>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Orchestrator</strong></dt>
+<dd>
+<p>Main state machine controlling the feedback loop. Decides whether to continue iteration based on validation results and limits.</p>
+</dd>
+<dt class="hdlist1"><strong>LLM Client</strong></dt>
+<dd>
+<p>Wrapper around LiteLLM providing retry logic, error handling, and token counting. Supports both text and vision modes.</p>
+</dd>
+<dt class="hdlist1"><strong>Prompt Builder</strong></dt>
+<dd>
+<p>Constructs prompts with appropriate context:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Diagram description from user</p>
+</li>
+<li>
+<p>Relevant examples for the diagram type</p>
+</li>
+<li>
+<p>Previous errors (if iterating)</p>
+</li>
+<li>
+<p>Design feedback (if available)</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Syntax Validator</strong></dt>
+<dd>
+<p>Submits diagram source to Kroki, parses error messages, determines if errors are fixable.</p>
+</dd>
+<dt class="hdlist1"><strong>Design Analyzer</strong></dt>
+<dd>
+<p>Only active if vision-capable LLM configured:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Renders diagram to PNG</p>
+</li>
+<li>
+<p>Sends to LLM with design evaluation prompt</p>
+</li>
+<li>
+<p>Parses feedback (layout, clarity, C4 compliance, etc.)</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Example Provider</strong></dt>
+<dd>
+<p>Maintains curated examples for each supported diagram type. Examples loaded on-demand to minimize memory usage.</p>
+</dd>
+<dt class="hdlist1"><strong>Iteration Limiter</strong></dt>
+<dd>
+<p>Enforces two limits:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Maximum iterations (default: 5)</p>
+</li>
+<li>
+<p>Maximum time (default: 60 seconds)
+Prevents infinite loops and excessive API costs.</p>
+</li>
+</ul>
+</div>
+</dd>
+<dt class="hdlist1"><strong>Output Writer</strong></dt>
+<dd>
+<p>Handles multiple output scenarios:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Write source files (.puml, .mmd, etc.)</p>
+</li>
+<li>
+<p>Write rendered images (PNG, SVG)</p>
+</li>
+<li>
+<p>Optionally serve via HTTP and return URLs (MCP mode)</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-runtime-view">6. Runtime View</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_scenario_1_cli_diagram_generation_success_path">6.1. Scenario 1: CLI Diagram Generation (Success Path)</h3>
+<div class="imageblock">
+<div class="content">
+<img src="../images/runtime-cli-success.svg" alt="runtime cli success" width="1700" height="1126">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scenario_2_mcp_tool_invocation_with_streaming">6.2. Scenario 2: MCP Tool Invocation with Streaming</h3>
+<div class="imageblock">
+<div class="content">
+<img src="../images/runtime-mcp-streaming.svg" alt="runtime mcp streaming" width="1074" height="744">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scenario_3_first_time_setup_interactive">6.3. Scenario 3: First-Time Setup (Interactive)</h3>
+<div class="imageblock">
+<div class="content">
+<img src="../images/runtime-setup.svg" alt="runtime setup" width="830" height="1156">
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-deployment-view">7. Deployment View</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_deployment_scenario_1_local_development_docker">7.1. Deployment Scenario 1: Local Development (Docker)</h3>
+<div class="imageblock">
+<div class="content">
+<img src="../images/deployment-docker.svg" alt="deployment docker" width="600" height="512">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Docker Command:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="bash">docker run -it \
+  -v $(pwd)/diagrams:/diagrams \
+  -v ~/.diag-agent:/root/.diag-agent \
+  -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
+  diag-agent:latest \
+  create "System context diagram" --type c4</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_deployment_scenario_2_cicd_pipeline">7.2. Deployment Scenario 2: CI/CD Pipeline</h3>
+<div class="imageblock">
+<div class="content">
+<img src="../images/deployment-cicd.svg" alt="deployment cicd" width="363" height="589">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>GitHub Actions Example:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="yaml">- name: Generate Architecture Diagrams
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    DIAG_AGENT_HEADLESS: true
+  run: |
+    pip install diag-agent
+    diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_deployment_scenario_3_mcp_server_for_llm_applications">7.3. Deployment Scenario 3: MCP Server for LLM Applications</h3>
+<div class="imageblock">
+<div class="content">
+<img src="../images/deployment-mcp.svg" alt="deployment mcp" width="394" height="829">
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Startup Command:</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="bash">diag-agent serve \
+  --mcp \
+  --host 0.0.0.0 \
+  --port 8080 \
+  --url-mode \
+  --cors-origins "https://my-llm-app.com"</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_infrastructure_requirements">7.4. Infrastructure Requirements</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 20%;">
+<col style="width: 20%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Component</th>
+<th class="tableblock halign-left valign-top">Resource Requirements</th>
+<th class="tableblock halign-left valign-top">Scaling</th>
+<th class="tableblock halign-left valign-top">Availability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">diag-agent (CLI)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Minimal (single invocation)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">diag-agent (MCP)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">512MB RAM, 1 CPU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Horizontal (stateless)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">99.9% (load balanced)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kroki Fat-JAR</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1GB RAM, 2 CPU</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Single instance sufficient</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">99% (restart on failure)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LLM API</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">External service</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provider SLA</p></td>
+</tr>
+</tbody>
+</table>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-concepts">8. Cross-cutting Concepts</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_configuration_management">8.1. Configuration Management</h3>
+<div class="sect3">
+<h4 id="_configuration_precedence">8.1.1. Configuration Precedence</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Environment Variables</strong> (highest priority)</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>DIAG_AGENT_LLM_PROVIDER</code></p>
+</li>
+<li>
+<p><code>DIAG_AGENT_LLM_MODEL</code></p>
+</li>
+<li>
+<p><code>ANTHROPIC_API_KEY</code>, <code>OPENAI_API_KEY</code>, etc.</p>
+</li>
+<li>
+<p><code>DIAG_AGENT_KROKI_URL</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>.env File</strong> (project-specific)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Located in current directory</p>
+</li>
+<li>
+<p>Same variable names as environment</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Config File</strong> (lowest priority)</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>~/.diag-agent/config.yaml</code></p>
+</li>
+<li>
+<p>Structured format for complex settings</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_example_configuration">8.1.2. Example Configuration</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="yaml">llm:
+  provider: anthropic
+  model: claude-sonnet-4
+  api_key: ${ANTHROPIC_API_KEY}  # Reference env var
+  max_tokens: 4096
+  temperature: 0.3
+  vision_enabled: true
+
+kroki:
+  mode: local  # local, remote, auto
+  local_url: http://localhost:8000
+  remote_url: https://kroki.io
+  remote_confirmed: false  # Requires interactive confirmation
+  jar_path: ~/.diag-agent/kroki-server.jar
+
+agent:
+  max_iterations: 5
+  max_time_seconds: 60
+  validate_syntax: true
+  validate_design: true  # Only if vision_enabled
+
+output:
+  default_directory: ./diagrams
+  formats: [source, png, svg]
+  url_mode: false  # Return URLs instead of file paths
+
+examples:
+  cache_enabled: true
+  custom_examples_dir: ~/.diag-agent/examples</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_error_handling_strategy">8.2. Error Handling Strategy</h3>
+<div class="sect3">
+<h4 id="_error_categories">8.2.1. Error Categories</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Category</th>
+<th class="tableblock halign-left valign-top">Handling</th>
+<th class="tableblock halign-left valign-top">User Experience</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Configuration Errors</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Interactive prompt to fix</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"API key missing. Enter now or set ANTHROPIC_API_KEY"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Network Errors</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Retry with exponential backoff</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Progress indicator with retry count</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Syntax Errors</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Feed back to LLM for fixing</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"Fixing syntax error (attempt 2/5)&#8230;&#8203;"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Design Issues</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Feed back to LLM for refinement</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"Improving layout based on analysis&#8230;&#8203;"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Limit Exceeded</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Return best attempt so far</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"⚠ Time limit reached. Returning current version."</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>LLM API Errors</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fail fast with clear message</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"LLM API error: Rate limit exceeded. Try again in 60s."</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Kroki Unavailable</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Offer alternatives</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">"Kroki not available. Download Fat-JAR or enable kroki.io?"</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_graceful_degradation">8.2.2. Graceful Degradation</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>No vision model</strong>: Skip design analysis, validate syntax only</p>
+</li>
+<li>
+<p><strong>Kroki timeout</strong>: Return source code only</p>
+</li>
+<li>
+<p><strong>Iteration limit</strong>: Return last valid version</p>
+</li>
+<li>
+<p><strong>Network issues</strong>: Fall back to cached examples</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_logging_and_observability">8.3. Logging and Observability</h3>
+<div class="sect3">
+<h4 id="_log_levels">8.3.1. Log Levels</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>DEBUG</strong>: LLM prompts, API requests/responses, iteration details</p>
+</li>
+<li>
+<p><strong>INFO</strong>: Progress updates, validation results, file writes</p>
+</li>
+<li>
+<p><strong>WARNING</strong>: Degraded functionality, retries, approaching limits</p>
+</li>
+<li>
+<p><strong>ERROR</strong>: Failures requiring user intervention</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_progress_updates">8.3.2. Progress Updates</h4>
+<div class="paragraph">
+<p>In interactive mode (CLI) and MCP streaming:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code>🔄 Generating diagram...
+✓ Generated initial source (350 tokens)
+🔍 Validating syntax...
+✓ Syntax valid
+📊 Analyzing design...
+⚠ Layout could be improved
+🔄 Refining design (iteration 2/5)...
+✓ Design approved
+💾 Writing outputs...
+✓ Created: diagram.puml, diagram.png, diagram.svg</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_security_considerations">8.4. Security Considerations</h3>
+<div class="sect3">
+<h4 id="_api_key_management">8.4.1. API Key Management</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Never log API keys</p>
+</li>
+<li>
+<p>Support key rotation via environment variables</p>
+</li>
+<li>
+<p>Validate keys before saving to config</p>
+</li>
+<li>
+<p>Warn if keys in config file (suggest env vars instead)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_diagram_content_privacy">8.4.2. Diagram Content Privacy</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Default</strong>: All processing local (Kroki Fat-JAR)</p>
+</li>
+<li>
+<p><strong>Remote Kroki</strong>: Explicit opt-in with privacy notice:
+<code>`
+⚠️  Using kroki.io will send diagram content to a remote server.
+This may include sensitive architecture information.
+Continue? [y/N]
+</code>`</p>
+</li>
+<li>
+<p><strong>Audit</strong>: Log when remote services are used</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_mcp_server_security">8.4.3. MCP Server Security</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Bind to localhost by default</p>
+</li>
+<li>
+<p>Optional authentication for remote access</p>
+</li>
+<li>
+<p>Rate limiting on tool calls</p>
+</li>
+<li>
+<p>Sanitize user inputs before LLM prompts</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_performance_optimization">8.5. Performance Optimization</h3>
+<div class="sect3">
+<h4 id="_context_efficiency_techniques">8.5.1. Context Efficiency Techniques</h4>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><strong>Lazy Example Loading</strong>: Only load examples for requested diagram type</p>
+</li>
+<li>
+<p><strong>URL References</strong>: Return URLs instead of base64 images in MCP mode</p>
+</li>
+<li>
+<p><strong>Streaming</strong>: Progress updates don&#8217;t wait for completion</p>
+</li>
+<li>
+<p><strong>Minimal Help</strong>: <code>--help</code> shows only essential info, <code>--help-full</code> for examples</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_caching_strategy">8.5.2. Caching Strategy</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Example Diagrams</strong>: In-memory cache, keyed by diagram type</p>
+</li>
+<li>
+<p><strong>Kroki Health</strong>: Cache status for 30 seconds</p>
+</li>
+<li>
+<p><strong>LLM Responses</strong>: No caching (always fresh generation)</p>
+</li>
+</ul>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-design-decisions">9. Architecture Decisions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section consolidates all Architecture Decision Records. See section 4 (Solution Strategy) for detailed ADRs 001-005.</p>
+</div>
+<div class="sect2">
+<h3 id="_summary_table">9.1. Summary Table</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 50%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ADR</th>
+<th class="tableblock halign-left valign-top">Decision</th>
+<th class="tableblock halign-left valign-top">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ADR-001</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bash Tool with Help System vs. Always-On MCP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✅ Accepted</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ADR-002</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Agent Self-Iteration vs. Parent LLM Control</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✅ Accepted</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ADR-003</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Local-First with Opt-In Remote</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✅ Accepted</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ADR-004</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL References for Rendered Diagrams</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✅ Accepted (V2)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ADR-005</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LiteLLM for Provider Abstraction</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✅ Accepted</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ADR-006</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docker-Bundled Kroki vs. Separate Service</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">✅ Accepted</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ADR-007</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Source File Direct Write</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">📋 Planned (V2)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_adr_006_docker_bundled_kroki_vs_separate_service">9.2. ADR-006: Docker-Bundled Kroki vs. Separate Service</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Accepted</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Users want simple installation. Kroki Fat-JAR is ~80MB. Should it be included in Docker image?</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Include Kroki Fat-JAR in Docker image by default. Provide slim variant without it.</p>
+</div>
+<div class="paragraph">
+<p><strong>Consequences</strong>:
+* ✅ One-command deployment: <code>docker run diag-agent</code>
+* ✅ Works offline immediately
+* ⚠️ Larger image size (~300MB vs ~50MB slim)
+* ⚠️ Longer build times</p>
+</div>
+<div class="paragraph">
+<p><strong>Alternatives Considered</strong>:
+* Multi-stage build with optional Fat-JAR (chosen approach)
+* Always download on first run (slower, requires internet)
+* Separate kroki container via docker-compose (more complex)</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adr_007_source_file_direct_write_v2_feature">9.3. ADR-007: Source File Direct Write (V2 Feature)</h3>
+<div class="paragraph">
+<p><strong>Status</strong>: Planned for V2</p>
+</div>
+<div class="paragraph">
+<p><strong>Context</strong>: Users want agent to directly update .adoc files with generated diagrams.</p>
+</div>
+<div class="paragraph">
+<p><strong>Decision</strong>: Add <code>--write-to</code> flag that allows specifying target file and location within file.</p>
+</div>
+<div class="paragraph">
+<p><strong>Implementation Ideas</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="bash">diag-agent create "Component diagram" \
+  --type c4 \
+  --write-to architecture.adoc \
+  --section "Level 2: Components" \
+  --replace-marker "&lt;!-- DIAGRAM: components --&gt;"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Open Questions</strong>:
+* How to handle concurrent edits?
+* Should agent create section if missing?
+* Support for multiple diagram formats in one file?</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-quality-scenarios">10. Quality Requirements</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_quality_scenarios">10.1. Quality Scenarios</h3>
+<div class="sect3">
+<h4 id="_scenario_1_context_efficiency">10.1.1. Scenario 1: Context Efficiency</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Aspect</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Scenario</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Architect asks LLM to generate C4 diagram in claude.ai</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Claude with computer use enabled, existing conversation with 50k tokens</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User: "Create a C4 context diagram for our API gateway"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Response</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Claude calls <code>diag-agent create --help</code>, then executes command</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Measure</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Total context consumed &lt; 2k tokens (help text + command + file path response)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Target</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95% of diagram requests use &lt; 3k tokens in parent conversation</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_scenario_2_installation_time">10.1.2. Scenario 2: Installation Time</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Aspect</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Scenario</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Developer installs diag-agent for first time</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Fresh Ubuntu system, Python 3.10 installed, internet available</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Developer runs: <code>pip install diag-agent &amp;&amp; diag-agent create "test"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Response</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Interactive setup guides through configuration, downloads Kroki if needed</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Measure</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt; 3 minutes from pip install to first generated diagram</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Target</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">90% of users generate first diagram within 5 minutes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_scenario_3_syntax_error_recovery">10.1.3. Scenario 3: Syntax Error Recovery</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Aspect</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Scenario</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LLM generates PlantUML with syntax error</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Agent with Claude Sonnet 4, local Kroki available</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Invalid PlantUML: <code>participent User</code> (typo)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Response</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Agent detects error, feeds back to LLM, receives corrected version</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Measure</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">95% of common syntax errors fixed within 2 iterations</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Target</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt; 10 seconds per iteration</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_scenario_4_privacy_compliance">10.1.4. Scenario 4: Privacy Compliance</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Aspect</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Scenario</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User generates diagram containing internal API details</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Default configuration, no remote services configured</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>diag-agent create "Internal microservices architecture"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Response</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">All processing happens locally (LLM API + local Kroki)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Measure</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Zero diagram data sent to kroki.io without explicit consent</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Target</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">100% compliance with default settings</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_quality_tree">10.2. Quality Tree</h3>
+<div class="imageblock">
+<div class="content">
+<img src="../images/quality-tree.svg" alt="quality tree" width="621" height="1035">
+</div>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-technical-risks">11. Risks and Technical Debts</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_risk_assessment">11.1. Risk Assessment</h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 14.2857%;">
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 14.2857%;">
+<col style="width: 28.5715%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Risk</th>
+<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Probability</th>
+<th class="tableblock halign-left valign-top">Impact</th>
+<th class="tableblock halign-left valign-top">Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>LLM API Costs</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Iterative refinement may consume significant API credits</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Set conservative default limits (5 iterations, 60s timeout), expose costs in docs</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Vision Model Unavailability</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Not all users have access to vision-capable models</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Low</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Graceful fallback to syntax-only validation, clear messaging</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Kroki Service Instability</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Local Kroki may crash or become unresponsive</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Low</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Health checks, auto-restart, clear error messages, fallback to source-only output</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Prompt Injection</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Malicious diagram descriptions could manipulate agent behavior</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Sanitize inputs, limit LLM capabilities in agent context, review prompts</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Context Window Limits</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Large diagrams + examples may exceed model context</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Low</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Truncate examples intelligently, split large diagrams, clear error messages</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Example Maintenance</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Examples may become outdated with new Kroki versions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Medium</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Low</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Version examples with Kroki compatibility info, community contributions</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Docker Image Size</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bundled Kroki increases image to ~300MB</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">High</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Low</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Provide slim variant, document trade-offs, optimize layers</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_technical_debt">11.2. Technical Debt</h3>
+<div class="sect3">
+<h4 id="_accepted_debt">11.2.1. Accepted Debt</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 40%;">
+<col style="width: 40%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Item</th>
+<th class="tableblock halign-left valign-top">Reason</th>
+<th class="tableblock halign-left valign-top">Payback Plan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Two deployment modes</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">MVP needs both CLI and MCP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Refactor to shared core in v1.1</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>In-memory state only</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Simpler for MVP</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Add persistent state for long-running MCP servers in V2</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Limited diagram type testing</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Focus on C4 and PlantUML initially</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Expand test coverage iteratively</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>No diagram versioning</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Not in initial requirements</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Add in V2 if users request</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_debt_to_avoid">11.2.2. Debt to Avoid</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Tight coupling to LLM provider</strong>: Use LiteLLM abstraction consistently</p>
+</li>
+<li>
+<p><strong>Hard-coded prompts</strong>: Externalize to templates for easy iteration</p>
+</li>
+<li>
+<p><strong>No integration tests</strong>: CI must include end-to-end tests with real Kroki</p>
+</li>
+<li>
+<p><strong>Ignoring token costs</strong>: Instrument and log API usage from day one</p>
+</li>
+</ul>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="section-glossary">12. Glossary</h2>
+<div class="sectionbody">
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Term</th>
+<th class="tableblock halign-left valign-top">Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Agent</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Autonomous component that iterates independently using its own LLM client</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>C4 Model</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Context, Containers, Components, Code - hierarchical architecture diagram approach</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Context Efficiency</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Minimizing token consumption in parent LLM conversations</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Feedback Loop</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Iterative process: generate → validate → analyze → refine</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Headless Mode</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Non-interactive operation suitable for CI/CD pipelines</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Kroki</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unified API for creating diagrams from textual descriptions (PlantUML, Mermaid, etc.)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Kroki Fat-JAR</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Self-contained Java archive (~80MB) running complete Kroki service locally</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>LiteLLM</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Python library providing unified interface to 100+ LLM providers</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>MCP (Model Context Protocol)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Standard protocol for exposing tools to LLMs via HTTP/SSE</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Vision Model</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">LLM capable of analyzing images (e.g., Claude Sonnet with vision, GPT-4V)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>PlantUML</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Text-based diagram syntax, particularly popular for UML and architecture diagrams</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Syntax Validation</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Checking if diagram source code is valid for the target renderer</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Design Analysis</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vision-based evaluation of diagram layout, clarity, and conventions</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>URL Reference</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Returning short URL instead of file path or base64 data to save context</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Remote Confirmation</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Interactive consent before sending data to remote services</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>SSE (Server-Sent Events)</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">HTTP protocol for server-to-client streaming, used in MCP</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Iteration Limit</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Maximum number of refinement cycles before returning current result</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Example Provider</strong></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Component managing curated sample diagrams for each type</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+        </p>
+
+        <style>
+.feedback--answer {
+    display: inline-block;
+}
+
+.feedback--answer-no {
+    margin-left: 1em;
+}
+
+.feedback--response {
+    display: none;
+    margin-top: 1em;
+}
+
+.feedback--response__visible {
+    display: block;
+}
+</style>
+
+<div class="d-print-none">
+    <h2 class="feedback--title">Feedback</h2>
+    <p class="feedback--question">Was this page helpful?</p>
+    <button class="feedback--answer feedback--answer-yes">Yes</button>
+    <button class="feedback--answer feedback--answer-no">No</button>
+    <p class="feedback--response feedback--response-yes">
+        Glad to hear it! Please <a href="##issue-url##?title=Docs%3A+Feedback+for+%27image%3Aarc42-logo.png%5Barc42%5D+Template%27%20%F0%9F%91%8D&body=%0A%0A%5BEnter%20feedback%20here%5D%0A%0A%0A---%0A%23page:arc42/arc42.adoc">tell us
+    how we can improve</a>.
+    </p>
+    <p class="feedback--response feedback--response-no">
+        Sorry to hear that. Please <a href="##issue-url##?title=Docs%3A+Feedback+for+%27image%3Aarc42-logo.png%5Barc42%5D+Template%27%20%F0%9F%91%8E&body=%0A%0A%5BEnter%20feedback%20here%5D%0A%0A%0A---%0A%23page:arc42/arc42.adoc">tell
+    us how we can improve</a>.
+    </p>
+</div>
+<script>
+    const yesButton = document.querySelector('.feedback--answer-yes');
+    const noButton = document.querySelector('.feedback--answer-no');
+    const yesResponse = document.querySelector('.feedback--response-yes');
+    const noResponse = document.querySelector('.feedback--response-no');
+    const disableButtons = () => {
+        yesButton.disabled = true;
+        noButton.disabled = true;
+    };
+    const sendFeedback = (value) => {
+        if (typeof ga !== 'function') return;
+        const args = {
+            command: 'send',
+            hitType: 'event',
+            category: 'Helpful',
+            action: 'click',
+            label: window.location.pathname,
+            value: value
+        };
+        ga(args.command, args.hitType, args.category, args.action, args.label, args.value);
+    };
+    yesButton.addEventListener('click', () => {
+        yesResponse.classList.add('feedback--response__visible');
+        disableButtons();
+        sendFeedback(1);
+    });
+    noButton.addEventListener('click', () => {
+        noResponse.classList.add('feedback--response__visible');
+        disableButtons();
+        sendFeedback(0);
+    });
+</script>
+
+
+        <br>
+
+        <!--div class="text-muted mt-5 pt-3 border-top">Last modified July 3, 2019: <a
+                href="https://github.com/google/docsy-example/commit/d6aa89c8b24089d7e6741030864eff209465e896">Added
+            links to user guide repo (d6aa89c)</a>
+        </div-->
+    </div>
+
+
+			</main>
+
+		</div>
+	</div>
+
+
+	
+    <!--footer class="footer mt-auto py-3 bg-light">
+        <div class="container">
+            <span class="text-muted">&copy; 2020 | based on <a href="https://arc42.org">arc42 7.0</a> | mixed with <a href="http://getbootstrap.com/">Bootstrap v5.0.0-beta</a> | Baked with <a href="http://jbake.org">JBake v2.6.7</a></span>
+        </div>
+    </footer-->
+
+    <footer class="bg-dark py-5 row d-print-none">
+        <div class="container-fluid mx-sm-5">
+            <div class="row">
+                <div class="col-6 col-sm-4 text-xs-center order-sm-2">
+
+
+                    <ul class="list-inline mb-0">
+                        
+                        <li aria-label="User mailing list" class="list-inline-item mx-2 h3" data-original-title="User mailing list" data-placement="top"
+                            data-toggle="tooltip" title="">
+                            <a class="text-white" href="mailto:##footer-email##" rel="noopener noreferrer"
+                               target="_blank">
+                                <i class="fa fa-envelope"></i>
+                            </a>
+                        </li>
+                        
+                        
+                        <li aria-label="Twitter" class="list-inline-item mx-2 h3" data-original-title="Twitter" data-placement="top"
+                            data-toggle="tooltip" title="">
+                            <a class="text-white" href="##twitter-url##" rel="noopener noreferrer"
+                               target="_blank">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </li>
+                        
+                        
+                        <li aria-label="Stack Overflow" class="list-inline-item mx-2 h3" data-original-title="Stack Overflow" data-placement="top"
+                            data-toggle="tooltip" title="">
+                            <a class="text-white" href="##Stackoverflow-url##" rel="noopener noreferrer"
+                               target="_blank">
+                                <i class="fab fa-stack-overflow"></i>
+                            </a>
+                        </li>
+                        
+                    </ul>
+
+
+                </div>
+                <div class="col-6 col-sm-4 text-right text-xs-center order-sm-3">
+
+
+                    <ul class="list-inline mb-0">
+
+                        
+                        <li aria-label="GitHub" class="list-inline-item mx-2 h3" data-original-title="GitHub" data-placement="top"
+                            data-toggle="tooltip" title="">
+                            <a class="text-white" href="##Github-url##" rel="noopener noreferrer"
+                               target="_blank">
+                                <i class="fab fa-github"></i>
+                            </a>
+                        </li>
+                        
+
+                        
+                        <li aria-label="Slack" class="list-inline-item mx-2 h3" data-original-title="Slack" data-placement="top"
+                            data-toggle="tooltip" title="">
+                            <a class="text-white" href="##Slack-url##" rel="noopener noreferrer"
+                               target="_blank">
+                                <i class="fab fa-slack"></i>
+                            </a>
+                        </li>
+                        
+
+
+                    </ul>
+
+
+                </div>
+                <div class="col-12 col-sm-4 text-center py-2 order-sm-2">
+
+                        <small class="text-white">built with <a href="https://doctoolchain.org">docToolchain</a> and <a href="https://jbake.org">jBake</a> <br /> theme: <a href="https://www.docsy.dev/">docsy</a></small>
+
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/popper.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+
+
+    <script src="../js/main.min.b5fc1b29d2465835844254bd4d804738eaf24c0cec53009b4c6899989be55a47.js"></script>
+    <script src="../js/blocks.js" ></script>
+    <script src="../js/prettify.js"></script>
+    <script src="../js/copy-n-paste.js"></script>
+    <script src="../js/submenucollapse.js"></script>
+
+
+</body>
+</html>
