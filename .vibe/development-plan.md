@@ -75,15 +75,15 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Die Lösung adressiert das eigentliche Problem
 
 ### Tasks
-- [x] Code Review durchführen
-- [x] Redundanten Content-Type Header entfernen (httpx setzt automatisch)
-- [x] Timeout als Klassenkonstante extrahieren (DEFAULT_TIMEOUT = 30.0)
-- [x] Tests nach Refactoring ausführen (grün ✓)
+- [x] **Zyklus 1:** Content-Type Header entfernt, DEFAULT_TIMEOUT extrahiert
+- [x] **Zyklus 2:** Code Review nach Error-Handling Implementation
+- [x] Tests validieren (alle grün ✓)
 
 ### Completed
-- [x] Refactored KrokiClient: DEFAULT_TIMEOUT Konstante eingeführt
-- [x] Redundanten Content-Type Header entfernt (httpx json= setzt automatisch)
-- [x] Tests validiert: 100% Coverage, alle grün
+- [x] **Zyklus 1:** DEFAULT_TIMEOUT Konstante + Header-Cleanup
+- [x] **Zyklus 2:** Code Review - keine weiteren Refactorings nötig
+- [x] Code-Qualität: Clean, keine Duplikation, klare Namen
+- [x] Beide TDD-Zyklen abgeschlossen ✅ (100% Coverage)
 
 ## Key Decisions
 
@@ -129,8 +129,15 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - Installation, Quick Start, Development, und Usage Examples zeigen nur noch uv/uvx
 - Qualitätsziel "Ease of Installation" adressiert: uvx ermöglicht Zero-Install-Execution
 
+### KrokiClient - ABGESCHLOSSEN ✅ (2025-12-15)
+**Status**: 2 TDD-Zyklen komplett (RED→GREEN→REFACTOR)
+- ✅ Happy-Path: render_diagram() mit HTTP POST
+- ✅ Error-Handling: KrokiRenderError mit Context
+- ✅ 100% Test Coverage
+- ✅ Production-ready: Clean Code, keine TODOs
+
 ### MVP-Strategie: Bottom-Up mit Kroki Client
-**Erste Komponente: Kroki Client** (`src/diag_agent/kroki/client.py`)
+**Erste Komponente: Kroki Client** (`src/diag_agent/kroki/client.py`) ✅
 - Klare Schnittstelle: HTTP POST → Kroki → PNG/SVG Response
 - Keine komplexen Abhängigkeiten
 - Gut testbar (Unit + Integration mit Mock/Real Kroki)
