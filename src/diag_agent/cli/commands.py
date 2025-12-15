@@ -24,6 +24,7 @@ def cli():
 @click.argument("description")
 @click.option(
     "--type",
+    "diagram_type",
     default="plantuml",
     help="Diagram type (plantuml, c4plantuml, mermaid, etc.)"
 )
@@ -38,7 +39,7 @@ def cli():
     default="png,svg,source",
     help="Output formats (comma-separated: png, svg, pdf, source)"
 )
-def create(description: str, type: str, output: str, output_format: str):
+def create(description: str, diagram_type: str, output: str, output_format: str):
     """Create a diagram from natural language description.
     
     DESCRIPTION is a natural language description of the diagram you want to create.
@@ -58,7 +59,7 @@ def create(description: str, type: str, output: str, output_format: str):
     # Execute diagram generation
     result = orchestrator.execute(
         description=description,
-        diagram_type=type,
+        diagram_type=diagram_type,
         output_dir=output,
         output_formats=output_format
     )

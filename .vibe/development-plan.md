@@ -100,12 +100,17 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Docstrings vollständig mit Examples ✓
 - [x] Context-Efficiency validiert: Help output < 500 tokens ✓
 - [x] Keine Refactorings nötig - Code ist clean
+- [x] **CLI Basis (Zyklus 2):** Code Review durchführen
+- [x] Built-in override identifiziert: `type` Parameter
+- [x] Refactoring: `type` → `diagram_type` (konsistent mit Orchestrator)
+- [x] Tests validieren (alle grün ✓)
 
 ### Completed
-- [x] Code Review abgeschlossen
-- [x] Keine Refactoring-Opportunities identifiziert
-- [x] Version hardcoded (0.1.0) ist acceptable für MVP
-- [x] CLI Basis Zyklus 1 abgeschlossen ✅ (--help funktioniert, 71% Coverage)
+- [x] Zyklus 1: Code Review - keine Änderungen nötig ✅
+- [x] Zyklus 2: Built-in override behoben (type → diagram_type)
+- [x] Zyklus 2: Konsistenz mit Orchestrator.execute() hergestellt
+- [x] Alle Tests passed ✅ (CLI: 100% Coverage)
+- [x] CLI Basis Zyklus 2 abgeschlossen ✅ (create mit Orchestrator)
 
 ## Key Decisions
 
