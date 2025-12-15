@@ -88,9 +88,11 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - **ADR-005**: LiteLLM für Provider-Abstraction → 100+ Modelle unterstützt
 - **ADR-006**: Docker mit gebundeltem Kroki (Fat-JAR) → Einfache Installation
 - **ADR-008**: Click als CLI Framework → Rich UX, LLM-kompatibel
+- **ADR-009**: uv/uvx als Package Management (ACCEPTED) → 5-10x schneller, modern (PEP 723)
 
 ### Tech Stack
 - **Python**: 3.10+ (bestehende Expertise)
+- **Package Management**: uv/uvx (PEP 723, einzige empfohlene Methode)
 - **CLI**: Click (intuitive commands, gute Help-Ausgabe)
 - **LLM**: LiteLLM (Provider-agnostisch)
 - **MCP**: FastMCP (Standard-Protokoll)
@@ -101,7 +103,7 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 
 ### Qualitätsziele (Priorität)
 1. **Context Efficiency**: < 3k tokens pro Diagramm-Request
-2. **Ease of Installation**: < 5 Min bis zum ersten Diagramm
+2. **Ease of Installation**: < 2 Min bis zum ersten Diagramm (mit uvx)
 3. **Privacy & Security**: Local-First, kein Remote ohne Consent
 4. **Autonomy**: Agent iteriert ohne Parent-LLM Intervention
 5. **Extensibility**: Alle Kroki-Typen, einfacher Provider-Wechsel
@@ -113,6 +115,12 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - **Erster Test**: `test_render_diagram_success()` - PlantUML → PNG
 
 ## Notes
+
+### ADR-009 Accepted (2025-12-15)
+**Decision**: Vollständige Migration zu uv/uvx als einziges Package Management Tool
+- README.md vollständig auf uv umgestellt (kein pip-Fallback mehr)
+- Installation, Quick Start, Development, und Usage Examples zeigen nur noch uv/uvx
+- Qualitätsziel "Ease of Installation" adressiert: uvx ermöglicht Zero-Install-Execution
 
 ### MVP-Strategie: Bottom-Up mit Kroki Client
 **Erste Komponente: Kroki Client** (`src/diag_agent/kroki/client.py`)

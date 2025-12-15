@@ -43,6 +43,7 @@ doctoolchain-*/
 *.iml
 *.iws
 .vscode/
+.serena/
 *.swp
 *.swo
 *~

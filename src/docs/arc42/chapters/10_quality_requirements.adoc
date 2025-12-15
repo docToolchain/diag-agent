@@ -97,13 +97,13 @@ Related Quality Goals: xref:#quality-goals[2 (Ease of Installation)]
 |Fresh Ubuntu system, Python 3.10 installed, internet available
 
 |**Stimulus**
-|Developer runs: `pip install diag-agent && diag-agent create "test"`
+|Developer runs: `uvx diag-agent create "test"` (no installation needed)
 
 |**Response**
 |Interactive setup guides through configuration, downloads Kroki if needed
 
 |**Measure**
-|< 3 minutes from pip install to first generated diagram
+|< 2 minutes from first command to generated diagram (with uvx)
 
 |**Target**
 |90% of users generate first diagram within 5 minutes

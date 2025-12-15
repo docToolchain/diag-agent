@@ -1,0 +1,63 @@
+=== ADR-009: uv/uvx for Package Management
+
+**Status**: Accepted
+
+**Context**: 
+Python 3.12 introduced `uv` as the new, faster package manager (PEP 723). 
+The project currently uses `pip` for installation, but `uv` offers significant 
+performance improvements and a better developer experience. The question is whether 
+to adopt `uv`/`uvx` as the primary package management solution.
+
+**Decision**: 
+Adopt `uv`/`uvx` as the **preferred** package management solution alongside `pip`, 
+with `uvx` being the recommended method for CI/CD and one-off executions. 
+`pip` remains supported for backward compatibility and developer familiarity.
+
+**Consequences**:
+
+* ✅ **Faster installations**: uv is 5-10x faster than pip
+* ✅ **Better CI/CD experience**: uvx allows running without installation
+* ✅ **Modern tooling**: Aligns with Python's future direction (PEP 723)
+* ✅ **Backward compatible**: pip still works for developers who prefer it
+* ⚠️ **Learning curve**: Some users may need to learn uv commands
+* ⚠️ **Tool availability**: uv must be installed separately (though easy via pip)
+
+**Rationale**:
+
+The primary goal is to improve the "Ease of Installation" quality requirement 
+(xref:../chapters/10_quality_requirements.adoc#scenario-installation[Scenario 2]).
+
+* **For CI/CD**: uvx eliminates the need to install the package, reducing setup time 
+  from "install + run" to just "run"
+* **For developers**: uv provides faster dependency resolution and installation
+* **For users**: Both methods work, with uv being the recommended approach
+
+**Usage Examples**:
+
+[cols="1,2",options="header"]
+|===
+|Use Case |Recommended Command
+|CI/CD Pipeline |`uvx diag-agent create-batch --input requirements.txt --output diagrams/`
+|Quick local test |`uvx diag-agent --help`
+|Development install |`uv pip install -e ".[dev]"` or `pip install -e ".[dev]"`
+|Production install |`uv pip install diag-agent` or `pip install diag-agent`
+|===
+
+**Alternatives Considered**:
+
+* **pip only (baseline)**: Simple, but slower and less modern
+* **uv only**: Too disruptive for existing users
+* **uv/uvx alongside pip (chosen)**: Best of both worlds - modern for new users, 
+  familiar for existing ones
+
+**Migration Path**:
+
+1. Update documentation to recommend uv/uvx
+2. Keep pip support in all examples
+3. Add uv installation instructions in README
+4. Update CI/CD templates to use uvx
+5. Monitor adoption and feedback
+
+**Related Quality Goals**:
+* xref:../chapters/10_quality_requirements.adoc#quality-goals[2 Ease of Installation]
+* xref:../chapters/10_quality_requirements.adoc#quality-goals[5 Extensibility]

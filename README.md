@@ -14,7 +14,14 @@ An LLM Agent for creating software architecture diagrams with autonomous syntax 
 ## Installation
 
 ```bash
-pip install diag-agent
+# Install uv (if not already installed)
+pip install uv
+
+# Install diag-agent
+uv pip install diag-agent
+
+# Or use uvx for one-off executions (no installation needed)
+uvx diag-agent --help
 ```
 
 ## Quick Start
@@ -23,9 +30,22 @@ pip install diag-agent
 # Configure API key
 export ANTHROPIC_API_KEY=your_key_here
 
-# Generate a diagram
+# Generate a diagram (using uvx - no installation needed)
+uvx diag-agent create "C4 context diagram for API gateway"
+
+# Or if you installed with 'uv pip install'
 diag-agent create "C4 context diagram for API gateway"
 ```
+
+## Usage Examples
+
+| Use Case | Command |
+|----------|---------|
+| Quick test (no install) | `uvx diag-agent --help` |
+| One-off diagram generation | `uvx diag-agent create "architecture diagram"` |
+| Batch processing | `uvx diag-agent create-batch --input requirements.txt` |
+| Development install | `uv pip install -e ".[dev]"` |
+| Production install | `uv pip install diag-agent` |
 
 ## Project Structure
 
@@ -35,7 +55,7 @@ See [Architecture Documentation](src/docs/arc42/arc42.adoc) for detailed informa
 
 ```bash
 # Install dependencies
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 
 # Run tests
 pytest

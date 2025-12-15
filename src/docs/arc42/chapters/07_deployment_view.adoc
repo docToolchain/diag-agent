@@ -86,7 +86,18 @@ Rel(diag_agent, docs, "Generates diagrams")
     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     DIAG_AGENT_HEADLESS: true
   run: |
-    pip install diag-agent
+    uvx diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams
+----
+
+**Alternative (with uv installation):**
+[source,yaml]
+----
+- name: Generate Architecture Diagrams
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    DIAG_AGENT_HEADLESS: true
+  run: |
+    uv pip install diag-agent
     diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams
 ----
 
