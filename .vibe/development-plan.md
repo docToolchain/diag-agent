@@ -88,15 +88,17 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Die Lösung adressiert das eigentliche Problem
 
 ### Tasks
-- [x] **Zyklus 1:** Content-Type Header entfernt, DEFAULT_TIMEOUT extrahiert
-- [x] **Zyklus 2:** Code Review nach Error-Handling Implementation
+- [x] **Config Management:** Code Review durchführen
+- [x] Robustness-Issue identifiziert: int() ohne Error-Handling
+- [x] Test für ungültige Integer-Werte schreiben
+- [x] Helper-Methode _get_int_env() extrahieren
 - [x] Tests validieren (alle grün ✓)
 
 ### Completed
-- [x] **Zyklus 1:** DEFAULT_TIMEOUT Konstante + Header-Cleanup
-- [x] **Zyklus 2:** Code Review - keine weiteren Refactorings nötig
-- [x] Code-Qualität: Clean, keine Duplikation, klare Namen
-- [x] Beide TDD-Zyklen abgeschlossen ✅ (100% Coverage)
+- [x] Test `test_invalid_integer_value_uses_default` hinzugefügt
+- [x] Helper-Methode `_get_int_env()` für sichere Type Conversion
+- [x] Graceful fallback zu defaults bei ValueError
+- [x] Config Management TDD-Zyklus abgeschlossen ✅ (100% Coverage, 3 Tests)
 
 ## Key Decisions
 
@@ -142,21 +144,17 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - Installation, Quick Start, Development, und Usage Examples zeigen nur noch uv/uvx
 - Qualitätsziel "Ease of Installation" adressiert: uvx ermöglicht Zero-Install-Execution
 
-### Config Management - IN ARBEIT 🔄 (2025-12-15)
-**Komponente**: `src/diag_agent/config/settings.py`
-**Scope (MVP)**: Environment-basierte Config (ENV + .env File)
-**Precedence**: CLI args > ENV vars > config.yaml (CLI + YAML später)
+### Config Management - ABGESCHLOSSEN ✅ (2025-12-15)
+**Status**: 1 TDD-Zyklus komplett (RED→GREEN→REFACTOR)
+- ✅ Settings-Klasse mit ENV + .env Support
+- ✅ Graceful Error-Handling für ungültige Integer-Werte
+- ✅ 3 Tests, 100% Coverage
+- ✅ Production-ready: python-dotenv, type-safe
 
-**Config-Kategorien aus .env.example:**
-1. LLM: provider, model, API keys
-2. Kroki: mode, URLs, remote_confirmed
-3. Agent: max_iterations, max_time, validate_design
-4. Output: directory, formats
-5. Logging: log_level
-
-**Erster TDD-Zyklus:** Settings-Klasse mit ENV + .env Support
-- Test: Lesen von ENV-Variablen mit Defaults
-- Implementation: Pydantic Settings oder dataclass + python-dotenv
+**Implementiert:**
+- 7 Config-Optionen (LLM, Kroki, Agent, Logging)
+- ENV var precedence: ENV > .env > defaults
+- Helper-Methode `_get_int_env()` für robuste Type Conversion
 
 ### KrokiClient - ABGESCHLOSSEN ✅ (2025-12-15)
 **Status**: 2 TDD-Zyklen komplett (RED→GREEN→REFACTOR)

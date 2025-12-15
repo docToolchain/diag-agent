@@ -51,8 +51,29 @@ class Settings:
         )
         
         # Agent Configuration
-        self.max_iterations = int(os.getenv("DIAG_AGENT_MAX_ITERATIONS", "5"))
-        self.max_time_seconds = int(os.getenv("DIAG_AGENT_MAX_TIME_SECONDS", "60"))
+        self.max_iterations = self._get_int_env("DIAG_AGENT_MAX_ITERATIONS", 5)
+        self.max_time_seconds = self._get_int_env("DIAG_AGENT_MAX_TIME_SECONDS", 60)
         
         # Logging
         self.log_level = os.getenv("DIAG_AGENT_LOG_LEVEL", "INFO")
+
+    @staticmethod
+    def _get_int_env(key: str, default: int) -> int:
+        """Get integer value from environment variable with fallback to default.
+        
+        Args:
+            key: Environment variable name
+            default: Default value if ENV var not set or invalid
+            
+        Returns:
+            Integer value from ENV or default if conversion fails
+        """
+        value = os.getenv(key)
+        if value is None:
+            return default
+        
+        try:
+            return int(value)
+        except ValueError:
+            # Invalid integer value, fall back to default
+            return default

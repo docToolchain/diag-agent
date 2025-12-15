@@ -60,3 +60,23 @@ class TestSettings:
         assert settings.kroki_mode == "remote"
         assert settings.max_iterations == 10  # Type conversion: str → int
         assert settings.log_level == "DEBUG"
+
+    def test_invalid_integer_value_uses_default(self):
+        """Test that invalid integer values fall back to defaults gracefully.
+
+        Validates that:
+        - Invalid string values for integer settings don't crash
+        - Settings class falls back to default value on conversion error
+        - Clear error message is logged (optional)
+        """
+        from diag_agent.config.settings import Settings
+
+        # Arrange - set invalid integer value
+        test_env = {
+            "DIAG_AGENT_MAX_ITERATIONS": "not_a_number",
+        }
+
+        # Act & Assert - should use default (5) instead of crashing
+        with patch.dict(os.environ, test_env, clear=True):
+            settings = Settings()
+            assert settings.max_iterations == 5  # Default value
