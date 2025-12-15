@@ -414,7 +414,20 @@
     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     DIAG_AGENT_HEADLESS: true
   run: |
-    pip install diag-agent
+    uvx diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Alternative (with uv installation):</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="yaml">- name: Generate Architecture Diagrams
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    DIAG_AGENT_HEADLESS: true
+  run: |
+    uv pip install diag-agent
     diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams</code></pre>
 </div>
 </div>

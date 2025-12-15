@@ -1055,7 +1055,20 @@ Prevents infinite loops and excessive API costs.</p>
     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     DIAG_AGENT_HEADLESS: true
   run: |
-    pip install diag-agent
+    uvx diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Alternative (with uv installation):</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="yaml">- name: Generate Architecture Diagrams
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    DIAG_AGENT_HEADLESS: true
+  run: |
+    uv pip install diag-agent
     diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams</code></pre>
 </div>
 </div>
@@ -2235,7 +2248,7 @@ Continue? [y/N]
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Developer runs: <code>pip install diag-agent &amp;&amp; diag-agent create "test"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Developer runs: <code>uvx diag-agent create "test"</code> (no installation needed)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Response</strong></p></td>
@@ -2243,7 +2256,7 @@ Continue? [y/N]
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Measure</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt; 3 minutes from pip install to first generated diagram</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">&lt; 2 minutes from first command to generated diagram (with uvx)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Target</strong></p></td>

@@ -2,14 +2,14 @@
 <html lang="de">
 <head>
     
-    <!-- sourceuri: arc42/chapters/10_quality_requirements.html -->
+    <!-- sourceuri: arc42/adr/ADR-009-uv-for-package-management.html -->
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 
     <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
     <meta content="jbake" name="generator">
     <meta content="INDEX, FOLLOW" name="ROBOTS">
 
-    <title>Quality Requirements</title>
+    <title>ADR-009: uv/uvx for Package Management</title>
     <meta content="docToolchain" property="og:title">
     <meta content="build your dev docs the easy way..." property="og:description">
     <meta content="website" property="og:type">
@@ -213,7 +213,7 @@
     <li class="nav-item mr-4 mb-2 mb-lg-0"><!--img src="../../images/status.png" alt="status" width="16" height="16" onerror="this.style.display='none'"--></li>
 
             <li class="nav-item mr-4 mb-2 mb-lg-0">
-                <a class="nav-link active" href="../../arc42/chapters/01_introduction_and_goals.html"><span>arc42</span></a>
+                <a class="nav-link " href="../../arc42/chapters/01_introduction_and_goals.html"><span>arc42</span></a>
             </li>
 
         </ul>
@@ -303,7 +303,7 @@
                                 
                             </li>
                             <li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child">
-                                <a class="align-left pl-0 pr-2 pt-2 td-sidebar-link td-sidebar-link__section active"
+                                <a class="align-left pl-0 pr-2 pt-2 td-sidebar-link td-sidebar-link__section "
                                    href="../../arc42/chapters/10_quality_requirements.html" title="Quality Requirements">Quality Requirements</a>
                                 
                             </li>
@@ -329,11 +329,11 @@
 				<div class="td-page-meta ml-2 pb-1 pt-2 mb-0">
 					
 
-        <a href="##git-repo-url##/arc42/chapters/10_quality_requirements.adoc"
+        <a href="##git-repo-url##/arc42/adr/ADR-009-uv-for-package-management.adoc"
            target="_blank"><i class="fa fa-edit fa-fw"></i> Improve this doc</a>
 
 
-        <a href="##issue-url##?title=Docs%3A+Feedback+for+%27Quality+Requirements%27&body=%0A%0A%5BEnter%20feedback%20here%5D%0A%0A%0A---%0A%23page:%20##git-repo-url##/arc42/chapters/10_quality_requirements.adoc%0A%23branch:%20main" target="_blank"><i
+        <a href="##issue-url##?title=Docs%3A+Feedback+for+%27ADR-009%3A+uv%2Fuvx+for+Package+Management%27&body=%0A%0A%5BEnter%20feedback%20here%5D%0A%0A%0A---%0A%23page:%20##git-repo-url##/arc42/adr/ADR-009-uv-for-package-management.adoc%0A%23branch:%20main" target="_blank"><i
                 class="fab fa-github fa-fw"></i> Create an issue</a>
 
         
@@ -342,14 +342,8 @@
 
         <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#section-quality-scenarios">Quality Requirements</a>
 <ul class="sectlevel2">
-<li><a href="#quality-goals">Quality Goals</a></li>
-<li><a href="#_quality_scenarios">Quality Scenarios</a></li>
-<li><a href="#_quality_tree">Quality Tree</a></li>
-</ul>
-</li>
+<li><a href="#_adr_009_uvuvx_for_package_management">ADR-009: uv/uvx for Package Management</a></li>
 </ul>
 </div>
 
@@ -372,254 +366,146 @@
     <div class="td-content">
         <p>
             
-<div class="sect1">
-<h2 id="section-quality-scenarios">Quality Requirements</h2>
-<div class="sectionbody">
 <div class="sect2">
-<h3 id="quality-goals">Quality Goals</h3>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 28.5714%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 28.5715%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Priority</th>
-<th class="tableblock halign-left valign-top">Quality Goal</th>
-<th class="tableblock halign-left valign-top">Motivation</th>
-<th class="tableblock halign-left valign-top">Relevante Szenarien</th>
-<th class="tableblock halign-left valign-top">Unterstützende ADRs</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Context Efficiency</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Minimize token consumption in parent LLM conversations through help system, URL references, and self-contained agent logic</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-context-efficiency">S1</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-001-bash-tool-vs-mcp.html">ADR-001</a>, <a href="../adr/ADR-002-agent-self-iteration.html">ADR-002</a>, <a href="../adr/ADR-004-url-references.html">ADR-004</a>, <a href="../adr/ADR-008-click-cli.html">ADR-008</a></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Ease of Installation</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Developers should install via pip or docker run without complex setup</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-installation">S2</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-006-docker-bundled-kroki.html">ADR-006</a></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Privacy &amp; Security</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">No diagram data sent to remote servers without explicit user consent</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-privacy">S4</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-003-local-first-remote.html">ADR-003</a>, <a href="../adr/ADR-006-docker-bundled-kroki.html">ADR-006</a></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Autonomy</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Agent iterates independently without requiring parent LLM intervention</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#scenario-context-efficiency">S1</a></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-002-agent-self-iteration.html">ADR-002</a>, <a href="../adr/ADR-007-source-file-write.html">ADR-007</a></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Extensibility</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Support for all Kroki diagram types and easy LLM provider switching</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Future scenario (TBD)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="../adr/ADR-005-litetllm-abstraction.html">ADR-005</a></p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect2">
-<h3 id="_quality_scenarios">Quality Scenarios</h3>
-<div class="sect3">
-<h4 id="scenario-context-efficiency">Scenario 1: Context Efficiency</h4>
+<h3 id="_adr_009_uvuvx_for_package_management">ADR-009: uv/uvx for Package Management</h3>
 <div class="paragraph">
-<p>Related Quality Goals: <a href="#quality-goals">1 (Context Efficiency), 4 (Autonomy)</a></p>
+<p><strong>Status</strong>: Accepted</p>
 </div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Aspect</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Scenario</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Architect asks LLM to generate C4 diagram in claude.ai</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Claude with computer use enabled, existing conversation with 50k tokens</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">User: "Create a C4 context diagram for our API gateway"</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Response</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Claude calls <code>diag-agent create --help</code>, then executes command</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Measure</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Total context consumed &lt; 2k tokens (help text + command + file path response)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Target</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">95% of diagram requests use &lt; 3k tokens in parent conversation</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="scenario-installation">Scenario 2: Installation Time</h4>
 <div class="paragraph">
-<p>Related Quality Goals: <a href="#quality-goals">2 (Ease of Installation)</a></p>
+<p><strong>Context</strong>:
+Python 3.12 introduced <code>uv</code> as the new, faster package manager (PEP 723).
+The project currently uses <code>pip</code> for installation, but <code>uv</code> offers significant
+performance improvements and a better developer experience. The question is whether
+to adopt <code>uv</code>/<code>uvx</code> as the primary package management solution.</p>
 </div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Aspect</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Scenario</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Developer installs diag-agent for first time</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Fresh Ubuntu system, Python 3.10 installed, internet available</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Developer runs: <code>uvx diag-agent create "test"</code> (no installation needed)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Response</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Interactive setup guides through configuration, downloads Kroki if needed</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Measure</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt; 2 minutes from first command to generated diagram (with uvx)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Target</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">90% of users generate first diagram within 5 minutes</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="scenario-syntax">Scenario 3: Syntax Error Recovery</h4>
 <div class="paragraph">
-<p>Related Quality Goals: <a href="#quality-goals">1 (Context Efficiency)</a></p>
+<p><strong>Decision</strong>:
+Adopt <code>uv</code>/<code>uvx</code> as the <strong>preferred</strong> package management solution alongside <code>pip</code>,
+with <code>uvx</code> being the recommended method for CI/CD and one-off executions.
+<code>pip</code> remains supported for backward compatibility and developer familiarity.</p>
 </div>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Aspect</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Scenario</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">LLM generates PlantUML with syntax error</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Agent with Claude Sonnet 4, local Kroki available</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Invalid PlantUML: <code>participent User</code> (typo)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Response</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Agent detects error, feeds back to LLM, receives corrected version</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Measure</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">95% of common syntax errors fixed within 2 iterations</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Target</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">&lt; 10 seconds per iteration</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect3">
-<h4 id="scenario-privacy">Scenario 4: Privacy Compliance</h4>
 <div class="paragraph">
-<p>Related Quality Goals: <a href="#quality-goals">3 (Privacy &amp; Security)</a></p>
+<p><strong>Consequences</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>✅ <strong>Faster installations</strong>: uv is 5-10x faster than pip</p>
+</li>
+<li>
+<p>✅ <strong>Better CI/CD experience</strong>: uvx allows running without installation</p>
+</li>
+<li>
+<p>✅ <strong>Modern tooling</strong>: Aligns with Python&#8217;s future direction (PEP 723)</p>
+</li>
+<li>
+<p>✅ <strong>Backward compatible</strong>: pip still works for developers who prefer it</p>
+</li>
+<li>
+<p>⚠️ <strong>Learning curve</strong>: Some users may need to learn uv commands</p>
+</li>
+<li>
+<p>⚠️ <strong>Tool availability</strong>: uv must be installed separately (though easy via pip)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Rationale</strong>:</p>
+</div>
+<div class="paragraph">
+<p>The primary goal is to improve the "Ease of Installation" quality requirement
+(<a href="../chapters/10_quality_requirements.html#scenario-installation">Scenario 2</a>).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>For CI/CD</strong>: uvx eliminates the need to install the package, reducing setup time
+from "install + run" to just "run"</p>
+</li>
+<li>
+<p><strong>For developers</strong>: uv provides faster dependency resolution and installation</p>
+</li>
+<li>
+<p><strong>For users</strong>: Both methods work, with uv being the recommended approach</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Usage Examples</strong>:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 25%;">
-<col style="width: 75%;">
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Aspect</th>
-<th class="tableblock halign-left valign-top">Description</th>
+<th class="tableblock halign-left valign-top">Use Case</th>
+<th class="tableblock halign-left valign-top">Recommended Command</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Scenario</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">User generates diagram containing internal API details</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI/CD Pipeline</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>uvx diag-agent create-batch --input requirements.txt --output diagrams/</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Environment</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Default configuration, no remote services configured</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Quick local test</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>uvx diag-agent --help</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>diag-agent create "Internal microservices architecture"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Development install</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>uv pip install -e ".[dev]"</code> or <code>pip install -e ".[dev]"</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Response</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">All processing happens locally (LLM API + local Kroki)</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Measure</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Zero diagram data sent to kroki.io without explicit consent</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Target</strong></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">100% compliance with default settings</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Production install</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>uv pip install diag-agent</code> or <code>pip install diag-agent</code></p></td>
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p><strong>Alternatives Considered</strong>:</p>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>pip only (baseline)</strong>: Simple, but slower and less modern</p>
+</li>
+<li>
+<p><strong>uv only</strong>: Too disruptive for existing users</p>
+</li>
+<li>
+<p><strong>uv/uvx alongside pip (chosen)</strong>: Best of both worlds - modern for new users,
+familiar for existing ones</p>
+</li>
+</ul>
 </div>
-<div class="sect2">
-<h3 id="_quality_tree">Quality Tree</h3>
-<div class="imageblock">
-<div class="content">
-<img src="../../images/quality-tree.svg" alt="quality tree" width="621" height="1035">
+<div class="paragraph">
+<p><strong>Migration Path</strong>:</p>
 </div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Update documentation to recommend uv/uvx</p>
+</li>
+<li>
+<p>Keep pip support in all examples</p>
+</li>
+<li>
+<p>Add uv installation instructions in README</p>
+</li>
+<li>
+<p>Update CI/CD templates to use uvx</p>
+</li>
+<li>
+<p>Monitor adoption and feedback</p>
+</li>
+</ol>
 </div>
-</div>
+<div class="paragraph">
+<p><strong>Related Quality Goals</strong>:
+* <a href="../chapters/10_quality_requirements.html#quality-goals">2 Ease of Installation</a>
+* <a href="../chapters/10_quality_requirements.html#quality-goals">5 Extensibility</a></p>
 </div>
 </div>
         </p>
@@ -649,11 +535,11 @@
     <button class="feedback--answer feedback--answer-yes">Yes</button>
     <button class="feedback--answer feedback--answer-no">No</button>
     <p class="feedback--response feedback--response-yes">
-        Glad to hear it! Please <a href="##issue-url##?title=Docs%3A+Feedback+for+%27Quality+Requirements%27%20%F0%9F%91%8D&body=%0A%0A%5BEnter%20feedback%20here%5D%0A%0A%0A---%0A%23page:arc42/chapters/10_quality_requirements.adoc">tell us
+        Glad to hear it! Please <a href="##issue-url##?title=Docs%3A+Feedback+for+%27ADR-009%3A+uv%2Fuvx+for+Package+Management%27%20%F0%9F%91%8D&body=%0A%0A%5BEnter%20feedback%20here%5D%0A%0A%0A---%0A%23page:arc42/adr/ADR-009-uv-for-package-management.adoc">tell us
     how we can improve</a>.
     </p>
     <p class="feedback--response feedback--response-no">
-        Sorry to hear that. Please <a href="##issue-url##?title=Docs%3A+Feedback+for+%27Quality+Requirements%27%20%F0%9F%91%8E&body=%0A%0A%5BEnter%20feedback%20here%5D%0A%0A%0A---%0A%23page:arc42/chapters/10_quality_requirements.adoc">tell
+        Sorry to hear that. Please <a href="##issue-url##?title=Docs%3A+Feedback+for+%27ADR-009%3A+uv%2Fuvx+for+Package+Management%27%20%F0%9F%91%8E&body=%0A%0A%5BEnter%20feedback%20here%5D%0A%0A%0A---%0A%23page:arc42/adr/ADR-009-uv-for-package-management.adoc">tell
     us how we can improve</a>.
     </p>
 </div>
