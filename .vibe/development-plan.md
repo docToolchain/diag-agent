@@ -43,12 +43,17 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Test 1: `test_cli_help_output` - Validiert Click CLI, exit code 0, "create" command sichtbar
 - [x] Test validiert Context-Efficiency: Help < 2000 chars (< 500 tokens)
 - [x] Tests ausführen und Fehlschlag verifizieren (RED)
+- [x] **CLI Basis (Zyklus 2):** Test für `create` command mit Orchestrator
+- [x] Test 2: `test_create_command_calls_orchestrator` - Mock Orchestrator + Settings
+- [x] Test validiert: Orchestrator.execute() aufgerufen mit description
+- [x] Tests ausführen und Fehlschlag verifizieren (RED)
 
 ### Completed
-- [x] Test in tests/unit/test_cli.py geschrieben
-- [x] Test validiert: exit_code=0, "create" in output, "diagram" in output
-- [x] Context-Efficiency-Check: < 2000 chars
-- [x] Test schlägt fehl: `ImportError: cannot import name 'cli'` (erwartet) ✅
+- [x] Zyklus 1: Test test_cli_help_output (--help) ✅
+- [x] Zyklus 2: Test test_create_command_calls_orchestrator geschrieben
+- [x] Test mockt Orchestrator + Settings (noch nicht implementiert)
+- [x] Test validiert: CLI ruft Orchestrator.execute() mit description auf
+- [x] Test schlägt fehl: `AttributeError: no attribute 'Orchestrator'` (erwartet) ✅
 
 ## Green
 
