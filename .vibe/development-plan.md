@@ -9,47 +9,48 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 ## Explore
 
 ### Phase Entrance Criteria:
-- [x] Vorherige Komponenten sind abgeschlossen (KrokiClient, Config, CLI, Orchestrator Cycle 1)
-- [x] ADR-005 (LiteLLM Abstraction) vorhanden
-- [x] Building Block View Level 2 dokumentiert (LLM Client Responsibilities)
-- [x] Runtime View verstanden (generate + vision_analyze)
+- [x] LLM Client Cycle 1 abgeschlossen (generate mit LiteLLM)
+- [x] Orchestrator Cycle 1 vorhanden (Iteration-Loop mit Limits)
+- [x] Runtime View Scenario 1 dokumentiert (Orch → LLM → Validator)
+- [x] Bestehende Tests verstanden (max_iterations, max_time)
 
 ### Tasks
-- [x] ADR-005 lesen: LiteLLM als unified interface für 100+ Modelle
-- [x] Building Block View L2 analysieren: LLM Client Komponente + Verantwortlichkeiten
-- [x] Runtime View studieren: generate(prompt) für Diagramm-Generierung
-- [x] KrokiClient-Pattern analysieren: Custom Exception + Client-Klasse Struktur
-- [x] Settings-Integration prüfen: llm_provider + llm_model bereits vorhanden ✓
-- [x] Dependencies identifizieren: litellm package, Settings
-- [x] MVP-Scope definieren: Text-Generierung (keine Vision), Error-Handling
+- [x] Aktuellen Orchestrator-Code analysieren: Hardcoded diagram_source
+- [x] Runtime View studieren: Orch → LLM.generate(prompt) → PlantUML source
+- [x] LLMClient-Interface verstehen: generate(prompt) → str
+- [x] Bestehende Tests prüfen: Mock-basiert, können erweitert werden
+- [x] MVP-Scope definieren: LLMClient-Integration, simple Prompt-Konstruktion
+- [x] Dependencies: LLMClient ✓, KrokiClient ✓ (noch nicht genutzt)
 
 ### Completed
-- [x] ADR-005: LiteLLM für Provider-Abstraction (100+ Modelle, unified API)
-- [x] Building Block View L2: LLM Client = wrapper mit retry + error handling + token counting
-- [x] Runtime View: generate(prompt) → source, vision_analyze(png) für später
-- [x] KrokiClient als Pattern: Custom Exception + Client-Klasse + httpx
-- [x] Settings bereits vorhanden: llm_provider="anthropic", llm_model="claude-sonnet-4"
-- [x] MVP-Strategie: Start mit Text-Generierung (LiteLLM completion()), Vision später
+- [x] Orchestrator TODO-Kommentar: "Call LLMClient to generate diagram source"
+- [x] Runtime View: Orch → Prompt Builder → LLM.generate() → source
+- [x] LLMClient-API: generate(prompt: str) → str (bereits fertig ✓)
+- [x] Bestehende Tests: 2 Tests für Iteration-Limits, beide grün
+- [x] MVP-Strategie: Simple Prompt (f"Generate {type}: {description}"), LLMClient-Call
+- [x] Validation-Loop verschoben auf Cycle 3 (KrokiClient-Integration)
 
 ## Red
 
 ### Phase Entrance Criteria:
 - [x] Exploration ist abgeschlossen und Anforderungen sind dokumentiert
 - [x] Architektur-Entscheidungen aus arc42-Dokumentation sind verstanden
-- [x] Bestehende Patterns und Konventionen sind erfasst (KrokiClient)
+- [x] Bestehende Patterns und Konventionen sind erfasst
 - [x] Es ist klar, welche Funktionalität als nächstes implementiert werden soll
 
 ### Tasks
-- [x] **LLM Client (Zyklus 1):** Test für Text-Generierung schreiben
-- [x] Test 1: `test_generate_diagram_source_success` - Happy-Path mit LiteLLM Mock
-- [x] Test validiert: Settings-Integration, litellm.completion() Call, Response-Extraktion
+- [x] **Orchestrator (Zyklus 2):** Test für LLMClient-Integration schreiben
+- [x] Test: `test_orchestrator_uses_llm_client_for_generation`
+- [x] Test validiert: LLMClient.generate() Call mit Prompt (description + type)
+- [x] Test validiert: Result enthält LLM-Output (nicht hardcoded)
 - [x] Test ausführen und Fehlschlag verifizieren (RED)
 
 ### Completed
-- [x] Test in tests/unit/test_llm_client.py geschrieben
-- [x] Test validiert: LLMClient(settings).generate(prompt) → diagram_source
-- [x] LiteLLM Mock: completion() mit model="anthropic/claude-sonnet-4"
-- [x] Test schlägt fehl: ImportError (LLMClient existiert noch nicht) ✅
+- [x] Test in tests/unit/test_orchestrator.py hinzugefügt
+- [x] Test validiert: Orchestrator → LLMClient.generate(prompt)
+- [x] Test validiert: Prompt enthält description + diagram_type
+- [x] Test validiert: diagram_source vom LLM (nicht "' Generated diagram")
+- [x] Test schlägt fehl: AttributeError (LLMClient nicht importiert) ✅
 
 ## Green
 
@@ -60,20 +61,22 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Test-Typ (Unit/Integration) wurde mit User abgestimmt
 
 ### Tasks
-- [x] **LLM Client (Zyklus 1):** LLMClient-Klasse implementieren
-- [x] LLMGenerationError Exception erstellen
-- [x] LLMClient.__init__(settings) für Settings-Integration
-- [x] generate(prompt) mit litellm.completion() Call
-- [x] Model-String: f"{provider}/{model}"
-- [x] Error-Handling: Exception → LLMGenerationError
-- [x] Test ausführen und grün machen
+- [x] **Orchestrator (Zyklus 2):** LLMClient-Integration implementieren
+- [x] LLMClient import auf Modul-Ebene hinzufügen
+- [x] LLMClient im __init__ instantiieren
+- [x] Prompt bauen: f"Generate a {diagram_type} diagram: {description}"
+- [x] llm_client.generate(prompt) aufrufen
+- [x] diagram_source vom LLM verwenden (nicht hardcoded)
+- [x] Alte Tests anpassen: LLMClient mocken
+- [x] Alle Tests ausführen und grün machen
 
 ### Completed
-- [x] LLMGenerationError in src/diag_agent/llm/client.py ✅
-- [x] LLMClient(settings) mit generate(prompt) → str ✅
-- [x] LiteLLM integration: completion(model, messages) ✅
-- [x] Model-String: "anthropic/claude-sonnet-4" ✅
-- [x] Test passed! ✅ (86% Coverage für LLM Client)
+- [x] LLMClient importiert in orchestrator.py ✅
+- [x] self.llm_client = LLMClient(settings) in __init__ ✅
+- [x] Simple Prompt: f"Generate a {diagram_type} diagram: {description}" ✅
+- [x] diagram_source = self.llm_client.generate(prompt) ✅
+- [x] Alte Tests gefixt: LLMClient-Mock hinzugefügt ✅
+- [x] 3 Tests passed! ✅ (89% Coverage für Orchestrator)
 
 ## Refactor
 
@@ -84,19 +87,19 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Die Lösung adressiert das eigentliche Problem
 
 ### Tasks
-- [x] **LLM Client (Zyklus 1):** Code Review durchführen
+- [x] **Orchestrator (Zyklus 2):** Code Review durchführen
 - [x] Docstrings vollständig ✓
-- [x] Type hints geprüft: `settings: Any` okay für MVP ✓
-- [x] Exception-Handling validiert: catch-all + re-raise korrekt ✓
+- [x] Type hints geprüft: LLMClient integration korrekt ✓
+- [x] Prompt-Konstruktion validiert: Simple MVP-Format okay ✓
 - [x] Pattern-Konsistenz: Analog zu KrokiClient ✓
 - [x] Keine Refactorings nötig - Code ist clean
 
 ### Completed
 - [x] Code Review durchgeführt: Keine Änderungen nötig ✅
-- [x] Pattern konsistent mit KrokiClient (Custom Exception + Client-Klasse)
+- [x] Pattern konsistent (Dependency Injection, Settings-based config)
 - [x] Docstrings vollständig, Type hints angemessen
-- [x] Tests passed ✅ (86% Coverage für LLM Client)
-- [x] LLM Client Zyklus 1 abgeschlossen ✅ (generate mit LiteLLM)
+- [x] Tests passed ✅ (89% Coverage für Orchestrator)
+- [x] Orchestrator Zyklus 2 abgeschlossen ✅ (LLMClient-Integration)
 
 ## Key Decisions
 
@@ -198,17 +201,20 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - Settings für Provider/Model statt hardcoded values
 
 ### Orchestrator - ABGESCHLOSSEN ✅ (2025-12-15)
-**Status**: 1 TDD-Zyklus komplett (RED→GREEN→REFACTOR)
+**Status**: 2 TDD-Zyklen komplett (RED→GREEN→REFACTOR)
 - ✅ Zyklus 1: Iteration-Loop mit max_iterations + max_time_seconds
-- ✅ 2 Tests, 87% Coverage
+- ✅ Zyklus 2: LLMClient-Integration für echte Generierung
+- ✅ 3 Tests, 89% Coverage
 - ✅ stopped_reason Logic (max_iterations | max_time | success)
-- ⏳ Zyklus 2 (später): LLMClient-Integration für echte Generierung
 
 **Implementiert:**
 - Iteration-Loop mit while iterations_used < max_iterations
 - Zeit-Tracking mit time.time() (start + elapsed)
 - Limits aus Settings (max_iterations=5, max_time_seconds=60)
 - Metadata: iterations_used, elapsed_seconds, stopped_reason
+- LLMClient-Integration: self.llm_client = LLMClient(settings)
+- Simple Prompt-Konstruktion: f"Generate a {diagram_type} diagram: {description}"
+- LLM-Aufruf: diagram_source = self.llm_client.generate(prompt)
 
 ### KrokiClient - ABGESCHLOSSEN ✅ (2025-12-15)
 **Status**: 2 TDD-Zyklen komplett (RED→GREEN→REFACTOR)

@@ -6,6 +6,8 @@ Coordinates the feedback loop between LLM, Kroki validation, and design analysis
 from typing import Dict, Any
 import time
 
+from diag_agent.llm.client import LLMClient
+
 
 class Orchestrator:
     """Orchestrates the diagram generation process with autonomous feedback loop.
@@ -24,6 +26,8 @@ class Orchestrator:
             settings: Application settings (Settings instance)
         """
         self.settings = settings
+        # Initialize LLM client for diagram generation
+        self.llm_client = LLMClient(settings)
     
     def execute(
         self,
@@ -50,7 +54,7 @@ class Orchestrator:
         iterations_used = 0
         start_time = time.time()
         stopped_reason = "success"
-        diagram_source = "@startuml\n' Generated diagram\n@enduml"  # Default value
+        diagram_source = ""  # Will be set by LLM
         
         # Get limits from settings
         max_iterations = self.settings.max_iterations
@@ -66,8 +70,13 @@ class Orchestrator:
                 stopped_reason = "max_time"
                 break
             
+            # Build prompt for diagram generation
+            prompt = f"Generate a {diagram_type} diagram: {description}"
+            
+            # Call LLM to generate diagram source
+            diagram_source = self.llm_client.generate(prompt)
+            
             # TODO: In later TDD cycles:
-            # - Call LLMClient to generate diagram source
             # - Validate with KrokiClient
             # - Analyze design with Analyzer
             # - Build refinement prompt if needed

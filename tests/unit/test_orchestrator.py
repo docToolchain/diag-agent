@@ -25,15 +25,20 @@ class TestOrchestrator:
         mock_settings.max_iterations = 2
         mock_settings.max_time_seconds = 60
 
-        orchestrator = Orchestrator(mock_settings)
+        # Mock LLMClient
+        mock_llm_client = Mock()
+        mock_llm_client.generate.return_value = "@startuml\nTest\n@enduml"
 
-        # Act
-        result = orchestrator.execute(
-            description="Test diagram",
-            diagram_type="plantuml",
-            output_dir="./test_output",
-            output_formats="png"
-        )
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client):
+            orchestrator = Orchestrator(mock_settings)
+
+            # Act
+            result = orchestrator.execute(
+                description="Test diagram",
+                diagram_type="plantuml",
+                output_dir="./test_output",
+                output_formats="png"
+            )
 
         # Assert
         assert "diagram_source" in result, "Missing diagram_source in result"
@@ -58,15 +63,20 @@ class TestOrchestrator:
         mock_settings.max_iterations = 100  # High number
         mock_settings.max_time_seconds = 1  # Very short timeout
 
-        orchestrator = Orchestrator(mock_settings)
+        # Mock LLMClient
+        mock_llm_client = Mock()
+        mock_llm_client.generate.return_value = "@startuml\nTest\n@enduml"
 
-        # Act
-        start_time = time.time()
-        result = orchestrator.execute(
-            description="Test diagram",
-            diagram_type="plantuml"
-        )
-        elapsed = time.time() - start_time
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client):
+            orchestrator = Orchestrator(mock_settings)
+
+            # Act
+            start_time = time.time()
+            result = orchestrator.execute(
+                description="Test diagram",
+                diagram_type="plantuml"
+            )
+            elapsed = time.time() - start_time
 
         # Assert
         assert "elapsed_seconds" in result, "Missing elapsed_seconds metadata"
@@ -75,3 +85,52 @@ class TestOrchestrator:
         assert "stopped_reason" in result, "Missing stopped_reason metadata"
         assert result["stopped_reason"] in ["max_iterations", "max_time", "success"], \
             f"Invalid stopped_reason: {result.get('stopped_reason')}"
+
+    def test_orchestrator_uses_llm_client_for_generation(self):
+        """Test orchestrator calls LLMClient.generate() for diagram generation.
+
+        Validates that:
+        - Orchestrator instantiates LLMClient with Settings
+        - Calls llm_client.generate() with prompt containing description + type
+        - Returns LLM-generated diagram source (not hardcoded value)
+        - Prompt is properly constructed with diagram type and description
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+
+        # Mock LLMClient
+        mock_llm_client = Mock()
+        mock_llm_client.generate.return_value = "@startuml\nAlice -> Bob: Auth Request\n@enduml"
+
+        description = "User authentication flow"
+        diagram_type = "plantuml"
+
+        # Patch BEFORE creating Orchestrator (LLMClient is instantiated in __init__)
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client):
+            orchestrator = Orchestrator(mock_settings)
+            
+            # Act
+            result = orchestrator.execute(
+                description=description,
+                diagram_type=diagram_type
+            )
+
+        # Assert
+        # Verify LLMClient.generate() was called
+        mock_llm_client.generate.assert_called_once()
+        
+        # Verify prompt contains description and diagram type
+        call_args = mock_llm_client.generate.call_args
+        prompt = call_args[0][0]  # First positional argument
+        assert description in prompt, f"Description not in prompt: {prompt}"
+        assert diagram_type in prompt, f"Diagram type not in prompt: {prompt}"
+        
+        # Verify result contains LLM-generated source (not hardcoded)
+        assert result["diagram_source"] == "@startuml\nAlice -> Bob: Auth Request\n@enduml"
+        assert "' Generated diagram" not in result["diagram_source"], \
+            "Should use LLM output, not hardcoded placeholder"
