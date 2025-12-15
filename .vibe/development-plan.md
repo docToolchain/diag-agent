@@ -68,16 +68,21 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 ## Refactor
 
 ### Phase Entrance Criteria:
-- [ ] Der Test ist grün (PASS)
-- [ ] Implementation ist vollständig und funktionsfähig
-- [ ] Keine Hacks oder Shortcuts (hardcoded values, etc.)
-- [ ] Die Lösung adressiert das eigentliche Problem
+- [x] Der Test ist grün (PASS)
+- [x] Implementation ist vollständig und funktionsfähig
+- [x] Keine Hacks oder Shortcuts (hardcoded values, etc.)
+- [x] Die Lösung adressiert das eigentliche Problem
 
 ### Tasks
-- [ ] *To be added when this phase becomes active*
+- [x] Code Review durchführen
+- [x] Redundanten Content-Type Header entfernen (httpx setzt automatisch)
+- [x] Timeout als Klassenkonstante extrahieren (DEFAULT_TIMEOUT = 30.0)
+- [x] Tests nach Refactoring ausführen (grün ✓)
 
 ### Completed
-*None yet*
+- [x] Refactored KrokiClient: DEFAULT_TIMEOUT Konstante eingeführt
+- [x] Redundanten Content-Type Header entfernt (httpx json= setzt automatisch)
+- [x] Tests validiert: 100% Coverage, alle grün
 
 ## Key Decisions
 

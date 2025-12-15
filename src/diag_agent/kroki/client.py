@@ -14,6 +14,8 @@ class KrokiClient:
     and output formats (PNG, SVG, PDF).
     """
 
+    DEFAULT_TIMEOUT = 30.0  # seconds
+
     def __init__(self, kroki_url: str) -> None:
         """Initialize Kroki client.
 
@@ -49,8 +51,7 @@ class KrokiClient:
         response = httpx.post(
             endpoint,
             json={"diagram_source": diagram_source},
-            headers={"Content-Type": "application/json"},
-            timeout=30.0
+            timeout=self.DEFAULT_TIMEOUT
         )
 
         # Raise exception if request failed
