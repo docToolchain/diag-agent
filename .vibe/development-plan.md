@@ -35,14 +35,15 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Es ist klar, welche Funktionalität als nächstes implementiert werden soll
 
 ### Tasks
-- [x] Test für Kroki Client schreiben: `test_render_diagram_success()` (Happy-Path)
+- [x] **Zyklus 1:** Test für Happy-Path (`test_render_diagram_success`)
+- [x] **Zyklus 2:** Test für HTTP Error-Handling schreiben
 - [x] Test ausführen und Fehlschlag verifizieren (RED)
-- [x] Test-Entscheidungen dokumentieren
 
 ### Completed
-- [x] Unit-Test geschrieben (mit HTTP-Mock, httpx)
-- [x] Test validiert: Diagram-Source → Kroki HTTP POST → PNG-Response
-- [x] Test schlägt fehl: `ImportError: KrokiClient` nicht gefunden (erwartet)
+- [x] **Zyklus 1 (Happy-Path):** Unit-Test geschrieben und validiert
+- [x] **Zyklus 2 (Error-Handling):** `test_render_diagram_http_error` geschrieben
+- [x] Test schlägt fehl: `ImportError: KrokiRenderError` (erwartet)
+- [x] Test validiert HTTP 500 Error → Custom Exception mit status code + diagram type
 
 ## Green
 
@@ -115,9 +116,10 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 
 ### Test-Strategie (RED-Phase)
 - **Test-Typ**: Unit-Test mit HTTP-Mock (pytest + unittest.mock)
-- **Fokus**: Happy-Path zuerst, Error-Cases in separaten Tests
-- **Design**: Generisches Interface für alle Kroki-Diagram-Typen
-- **Erster Test**: `test_render_diagram_success()` - PlantUML → PNG
+- **TDD-Zyklen**:
+  - Zyklus 1: Happy-Path (`test_render_diagram_success`) - PlantUML → PNG
+  - Zyklus 2: Error-Handling (`test_render_diagram_http_error`) - HTTP 500 → KrokiRenderError
+- **Design**: Generisches Interface + Custom Exception für klare Error-Messages
 
 ## Notes
 

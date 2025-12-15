@@ -54,3 +54,45 @@ class TestKrokiClient:
             request_data = call_args[1].get("json") or call_args[1].get("data")
             assert request_data is not None
             assert request_data.get("diagram_source") == diagram_source
+
+    def test_render_diagram_http_error(self):
+        """Test diagram rendering fails gracefully on HTTP errors.
+
+        Validates that:
+        - Kroki HTTP errors (500, 404, etc.) are caught
+        - Custom KrokiRenderError is raised with clear message
+        - Error message includes status code and diagram type
+        """
+        from diag_agent.kroki.client import KrokiClient, KrokiRenderError
+
+        # Arrange
+        kroki_url = "http://localhost:8000"
+        diagram_source = "@startuml\nAlice -> Bob\n@enduml"
+        diagram_type = "plantuml"
+        output_format = "png"
+
+        # Mock HTTP error response (500 Internal Server Error)
+        with patch("httpx.post") as mock_post:
+            mock_response = Mock()
+            mock_response.status_code = 500
+            mock_response.text = "Internal Server Error"
+            mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+                "500 Server Error",
+                request=Mock(),
+                response=mock_response
+            )
+            mock_post.return_value = mock_response
+
+            # Act & Assert
+            client = KrokiClient(kroki_url)
+            with pytest.raises(KrokiRenderError) as exc_info:
+                client.render_diagram(
+                    diagram_source=diagram_source,
+                    diagram_type=diagram_type,
+                    output_format=output_format
+                )
+
+            # Verify error message contains useful context
+            error_msg = str(exc_info.value)
+            assert "500" in error_msg  # Status code
+            assert diagram_type in error_msg  # Diagram type for debugging
