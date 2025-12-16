@@ -96,14 +96,18 @@ Related Quality Goals: xref:#quality-goals[2 (Ease of Installation)]
 |**Environment**
 |Fresh Ubuntu system, Python 3.10 installed, internet available
 
-|**Stimulus**
+|**Stimulus** (v0.1.0)
+|Developer runs: `git clone && cd diag-agent && uv pip install . && diag-agent create "test"`
+
+|**Stimulus** (future PyPI)
 |Developer runs: `uvx diag-agent create "test"` (no installation needed)
 
 |**Response**
 |Interactive setup guides through configuration, downloads Kroki if needed
 
 |**Measure**
-|< 2 minutes from first command to generated diagram (with uvx)
+|< 5 minutes from first command to generated diagram (current: git clone + install)
+< 2 minutes with uvx (future: when published to PyPI)
 
 |**Target**
 |90% of users generate first diagram within 5 minutes

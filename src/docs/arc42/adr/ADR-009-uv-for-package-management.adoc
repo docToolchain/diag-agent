@@ -2,10 +2,15 @@
 
 **Status**: Accepted
 
-**Context**: 
-Python 3.12 introduced `uv` as the new, faster package manager (PEP 723). 
-The project currently uses `pip` for installation, but `uv` offers significant 
-performance improvements and a better developer experience. The question is whether 
+**Current Distribution Status**:
+NOTE: diag-agent is currently distributed as **source code only** via Git repository.
+PyPI publication is planned for future releases but not yet implemented.
+Until then, installation requires cloning the repository.
+
+**Context**:
+Python 3.12 introduced `uv` as the new, faster package manager (PEP 723).
+The project currently uses `pip` for installation, but `uv` offers significant
+performance improvements and a better developer experience. The question is whether
 to adopt `uv`/`uvx` as the primary package management solution.
 
 **Decision**: 
@@ -32,11 +37,22 @@ The primary goal is to improve the "Ease of Installation" quality requirement
 * **For developers**: uv provides faster dependency resolution and installation
 * **For users**: Both methods work, with uv being the recommended approach
 
-**Usage Examples**:
+**Usage Examples** (current - source distribution):
 
 [cols="1,2",options="header"]
 |===
-|Use Case |Recommended Command
+|Use Case |Current Command (v0.1.0)
+|CI/CD Pipeline |`git clone && cd diag-agent && uv pip install . && diag-agent create-batch ...`
+|Development install |`git clone && cd diag-agent && uv pip install -e ".[dev]"`
+|Production install |`git clone && cd diag-agent && uv pip install .`
+|Docker deployment |`git clone && cd diag-agent && docker build -t diag-agent .`
+|===
+
+**Future Usage Examples** (when published to PyPI):
+
+[cols="1,2",options="header"]
+|===
+|Use Case |Planned Command (future)
 |CI/CD Pipeline |`uvx diag-agent create-batch --input requirements.txt --output diagrams/`
 |Quick local test |`uvx diag-agent --help`
 |Development install |`uv pip install -e ".[dev]"` or `pip install -e ".[dev]"`
