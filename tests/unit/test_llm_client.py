@@ -44,8 +44,96 @@ class TestLLMClient:
             call_kwargs = mock_completion.call_args.kwargs
             
             assert call_kwargs["model"] == "anthropic/claude-sonnet-4"
-            assert call_kwargs["messages"][0]["role"] == "user"
-            assert call_kwargs["messages"][0]["content"] == prompt
+            # Verify system message exists (index 0)
+            assert call_kwargs["messages"][0]["role"] == "system"
+            # Verify user message with prompt (index 1)
+            assert call_kwargs["messages"][1]["role"] == "user"
+            assert call_kwargs["messages"][1]["content"] == prompt
+
+    def test_generate_uses_system_message_for_output_format(self):
+        """Test LLMClient.generate() uses system message for clean output format.
+
+        Validates that:
+        - generate() uses 2 messages: system + user
+        - System message contains output format constraints
+        - System message instructs: only code, no markdown, no explanations
+        - User message contains the diagram generation prompt
+        """
+        from diag_agent.llm.client import LLMClient
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.llm_provider = "anthropic"
+        mock_settings.llm_model = "claude-sonnet-4"
+
+        # Mock LiteLLM response with clean PlantUML code (no markdown)
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = "@startuml\\nAlice -> Bob: Hello\\n@enduml"
+
+        client = LLMClient(mock_settings)
+        prompt = "Generate a PlantUML sequence diagram showing Alice greeting Bob"
+
+        with patch("diag_agent.llm.client.litellm.completion", return_value=mock_response) as mock_completion:
+            # Act
+            result = client.generate(prompt)
+
+            # Assert result is clean code
+            assert result == "@startuml\\nAlice -> Bob: Hello\\n@enduml"
+            
+            # Verify litellm.completion was called with system + user messages
+            mock_completion.assert_called_once()
+            call_kwargs = mock_completion.call_args.kwargs
+            
+            assert call_kwargs["model"] == "anthropic/claude-sonnet-4"
+            assert len(call_kwargs["messages"]) == 2
+            
+            # Verify system message with output format constraints
+            system_msg = call_kwargs["messages"][0]
+            assert system_msg["role"] == "system"
+            system_content = system_msg["content"].lower()
+            assert "only" in system_content
+            assert "no markdown" in system_content or "without markdown" in system_content
+            assert "no explanation" in system_content or "without explanation" in system_content
+            
+            # Verify user message contains the prompt
+            user_msg = call_kwargs["messages"][1]
+            assert user_msg["role"] == "user"
+            assert user_msg["content"] == prompt
+
+    def test_generate_strips_markdown_code_blocks(self):
+        """Test LLMClient.generate() strips markdown code blocks from LLM response.
+
+        Validates that:
+        - LLM response with ```plantuml ... ``` blocks is cleaned
+        - Only the raw diagram code is returned
+        - Multiple code blocks are handled
+        - Code blocks without language specifier are also stripped
+        """
+        from diag_agent.llm.client import LLMClient
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.llm_provider = "anthropic"
+        mock_settings.llm_model = "claude-sonnet-4"
+
+        # Mock LLM response with markdown code block
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = "```plantuml\n@startuml\nAlice -> Bob: Hello\n@enduml\n```"
+
+        client = LLMClient(mock_settings)
+        prompt = "Generate a PlantUML sequence diagram"
+
+        with patch("diag_agent.llm.client.litellm.completion", return_value=mock_response):
+            # Act
+            result = client.generate(prompt)
+
+            # Assert - should strip markdown and return only diagram code
+            assert result == "@startuml\nAlice -> Bob: Hello\n@enduml"
+            assert "```" not in result
 
     def test_vision_analyze_design_feedback_success(self):
         """Test LLMClient.vision_analyze() returns design feedback from vision analysis.

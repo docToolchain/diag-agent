@@ -908,5 +908,148 @@ diag-agent/
 └── .env.example
 ```
 
+## Explore (LLMClient Cycle 2: Prompt Optimization)
+
+### Phase Entrance Criteria:
+- [x] E2E test successful (diagram generated)
+- [x] Problem identified: LLM returns markdown code blocks + explanations
+- [x] Quality goal violated: Context Efficiency (unnecessary tokens)
+- [x] User confirmed to optimize prompt pattern
+
+### Tasks
+- [ ] **LLMClient (Cycle 2):** Analyze current prompt pattern
+- [ ] Current behavior: LLM wraps diagram in ```plantuml ... ``` + adds explanation
+- [ ] Kroki tolerance analyzed: Works but suboptimal (extra parsing overhead)
+- [ ] Token waste quantified: ~200 extra tokens per diagram
+- [ ] Best practices research: Prompt patterns for code-only output
+- [ ] MVP-Scope: Clean diagram code output (no markdown, no explanation)
+- [ ] Test strategy: E2E test validating output format
+
+### Completed
+- [x] Problem verstanden ✓
+  - Current prompt: "Generate a {diagram_type} diagram: {description}"
+  - No output format constraints → LLM adds markdown + explanations
+  - Example waste: 485 chars total, ~200 chars markdown/explanation overhead
+  - Violates Context Efficiency quality goal
+- [x] Prompt-Pattern best practices recherchiert ✓
+  - Best Practice 2025: Explicit output format constraints
+  - Pattern: "Return only the {diagram_type} code. No markdown formatting. No explanations."
+  - LiteLLM supports system messages for persistent instructions
+  - Sources: [Prompt Engineering Guide](https://www.promptingguide.ai/prompts/coding), [Lakera Guide 2025](https://www.lakera.ai/blog/prompt-engineering-guide)
+- [x] MVP-Scope definiert ✓
+  - **Cycle 2 Focus**: Add system message to LLMClient.generate()
+  - System message: Clear output format instructions
+  - User message: Unchanged (diagram description)
+  - Expected result: Clean diagram code (no ```, no explanations)
+  - **Deferred**: Prompt templates, dynamic prompting
+- [x] Test-Strategie klar ✓
+  - **Approach**: Integration test (not full E2E - too slow for TDD)
+  - Mock LiteLLM but validate prompt structure
+  - Assert: messages array has system + user messages
+  - Assert: system message contains output format constraints
+  - Alternative: E2E validation test (after GREEN phase)
+
+## Red (LLMClient Cycle 2: Prompt Optimization)
+
+### Phase Entrance Criteria:
+- [x] EXPLORE abgeschlossen - Problem und Lösung klar
+- [x] MVP-Scope definiert: System message mit output constraints
+- [x] Test-Strategie klar: Unit-Test für prompt structure
+
+### Tasks
+- [ ] **LLMClient (Cycle 2):** Test für System Message schreiben
+- [ ] Test: test_generate_uses_system_message_for_output_format
+- [ ] Mock LiteLLM completion()
+- [ ] Assert: messages array hat 2 Einträge (system + user)
+- [ ] Assert: system message enthält "only", "no markdown", "no explanation"
+- [ ] Test ausführen und Fehlschlag verifizieren (RED)
+
+### Completed
+- [x] Test geschrieben ✓
+  - test_generate_uses_system_message_for_output_format in test_llm_client.py
+  - Validates: 2 messages (system + user), system constraints, user prompt
+- [x] Test schlägt erwartungsgemäß fehl ✓
+  - Error: assert 1 == 2 (only 1 message, expected 2)
+  - Current: Only user message
+  - Expected: System message + user message
+  - RED phase confirmed ✅
+
+## Green (LLMClient Cycle 2: Prompt Optimization)
+
+### Phase Entrance Criteria:
+- [x] RED-Phase abgeschlossen - Test schlägt fehl
+- [x] Test schlägt aus dem richtigen Grund fehl (missing system message)
+- [x] Implementation klar: Add system message to generate()
+
+### Tasks
+- [ ] **LLMClient (Cycle 2):** System message implementieren
+- [ ] System message mit output format constraints formulieren
+- [ ] messages array: [{"role": "system", ...}, {"role": "user", ...}]
+- [ ] System content: "Return only the diagram code. No markdown formatting. No explanations."
+- [ ] Alte Tests prüfen (sollten weiter grün sein)
+- [ ] Neuer Test grün machen
+
+### Completed
+- [x] System message implementiert ✓
+  - Added system message to LLMClient.generate()
+  - Content: "Return only the diagram code. No markdown formatting. No explanations."
+  - messages array: [{"role": "system", ...}, {"role": "user", ...}]
+- [x] Alte Tests gefixt ✓
+  - test_generate_diagram_source_success updated for new message structure
+  - All integration preserved (Orchestrator tests still green)
+- [x] Alle 4 LLMClient tests grün ✓
+- [x] Alle 11 Orchestrator tests grün ✓
+- [x] Coverage: LLMClient 92%, Orchestrator 95% ✓
+
+## Refactor (LLMClient Cycle 2: Prompt Optimization)
+
+### Phase Entrance Criteria:
+- [x] Alle Tests grün (4 LLMClient + 11 Orchestrator)
+- [x] System message implementiert
+- [x] Implementation vollständig und funktionsfähig
+
+### Tasks
+- [x] **LLMClient (Cycle 2):** E2E-Validation durchführen
+- [x] E2E-Test mit echtem LLM durchgeführt
+- [x] Ergebnis analysiert: 37% Token-Savings (485 → 304 chars)
+- [x] Problem: Markdown-Blöcke (```) noch vorhanden
+- [x] Entscheidung: Post-Processing implementieren (robust)
+- [ ] Test für Markdown-Stripping schreiben (RED)
+- [ ] Post-Processing implementieren: Strip ``` blocks
+- [ ] E2E-Test validieren: Clean output
+
+### Completed
+- [x] Test für Markdown-Stripping geschrieben (RED) ✓
+  - test_generate_strips_markdown_code_blocks
+  - Validates: ```plantuml ... ``` → clean code
+- [x] Post-Processing implementiert (GREEN) ✓
+  - _strip_markdown_code_blocks() helper method
+  - Regex pattern: ^```[\w]*\n(.*?)\n```$
+  - Strips code blocks with/without language specifier
+  - Applied in generate() after LLM response
+- [x] Alle 5 LLMClient tests grün ✓
+- [x] Alle 11 Orchestrator tests grün ✓ (integration preserved)
+- [x] E2E-Test validiert ✓
+  - Clean output: 196 chars (no ```, no explanations)
+  - **Total savings: 60% (485 → 196 chars)**
+  - PNG/SVG generated correctly
+- [x] Coverage: LLMClient 94%, Orchestrator 95% ✓
+- [x] Cycle 2 abgeschlossen ✓ (Prompt Optimization)
+
+## Open Backlog Items
+
+### Documentation (Later)
+- [ ] **README.md Update**: Vollständige Installation, Quick Start, Examples
+- [ ] **User Manual**: Detaillierte Nutzungsanleitung (Features, Configuration, Workflows)
+- [ ] **Tutorial**: Step-by-step Guide für erste Diagramme (PlantUML, Mermaid, C4)
+
+### Features
+- [ ] **MCP Server**: FastMCP implementation für Tool-Integration
+- [ ] **Kroki Manager**: Local deployment mit Fat-JAR (ADR-003: Local-First)
+- [ ] **LLMClient Extensions**: Retry-Logic, Token-Counting, Streaming
+- [ ] **CLI Extensions**: Weitere Commands (validate, analyze, convert), Interactive mode
+- [ ] **Testing**: Integration Tests, E2E Tests, Performance Tests
+- [ ] **Utilities**: Structured Logging, Prompt-Template-Management
+
 ---
 *This plan is maintained by the LLM. Tool responses provide guidance on which section to focus on and what tasks to work on.*

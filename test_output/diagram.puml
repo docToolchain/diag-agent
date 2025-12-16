@@ -1,12 +1,10 @@
-```plantuml
 @startuml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+actor User
+participant System
+database Database
+
+User -> System: Login request
+System -> Database: Validate credentials
+Database --> System: Confirmation
+System --> User: Success
 @enduml
-```
-
-This PlantUML code creates a simple sequence diagram where:
-- Alice sends an "Authentication Request" to Bob (solid arrow)
-- Bob sends back an "Authentication Response" to Alice (dashed arrow)
-
-You can copy this code and paste it into any PlantUML renderer to visualize the diagram.
