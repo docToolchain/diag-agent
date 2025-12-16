@@ -19,35 +19,30 @@
 - **Python**: 3.10 or higher
 - **Docker**: Optional, required only for local Kroki server
 - **LLM API Key**: Anthropic (Claude), OpenAI, or other LiteLLM-supported provider
+- **uv package manager**: [Install uv](https://docs.astral.sh/uv/)
 
-### Installation Methods
+### Installation from Source
 
-#### Using uv (Recommended)
+diag-agent is distributed as source code and must be installed locally.
+
+#### Clone Repository
 
 ```bash
-# Install uv package manager
-pip install uv
-
-# Install diag-agent
-uv pip install diag-agent
-
-# Install with MCP server support
-uv pip install diag-agent[mcp]
-
-# Development installation
-uv pip install -e ".[dev,mcp]"
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
 ```
 
-#### Using uvx (No Installation)
-
-For one-off usage without installation:
+#### Install Locally
 
 ```bash
-# Run directly without installing
-uvx diag-agent create "User authentication flow"
+# Standard installation
+uv pip install .
 
-# Check version
-uvx diag-agent --version
+# Install with MCP server support
+uv pip install ".[mcp]"
+
+# Development installation (editable mode)
+uv pip install -e ".[dev,mcp]"
 ```
 
 ### Verify Installation
@@ -55,6 +50,16 @@ uvx diag-agent --version
 ```bash
 diag-agent --version
 diag-agent --help
+```
+
+### Docker Installation
+
+```bash
+# Build Docker image locally
+docker build -t diag-agent .
+
+# Verify
+docker run --rm diag-agent --help
 ```
 
 ---
@@ -273,7 +278,9 @@ The Model Context Protocol enables LLM applications to connect to external tools
 1. **Install diag-agent with MCP support:**
 
 ```bash
-uv pip install diag-agent[mcp]
+# In the cloned repository
+cd diag-agent
+uv pip install ".[mcp]"
 ```
 
 2. **Configure Claude Desktop:**
@@ -752,11 +759,10 @@ For the full list, see [Kroki Documentation](https://kroki.io/#support).
 
 **Solution**:
 ```bash
-# Install diag-agent
-uv pip install diag-agent
-
-# Or use uvx for one-off execution
-uvx diag-agent create "diagram description"
+# Clone and install diag-agent
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
+uv pip install .
 ```
 
 ---
@@ -833,7 +839,8 @@ diag-agent create "simple user login flow"
 **Solution**:
 ```bash
 # Install diag-agent with MCP support
-uv pip install diag-agent[mcp]
+cd diag-agent  # Navigate to cloned repository
+uv pip install ".[mcp]"
 ```
 
 ---

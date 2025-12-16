@@ -4,9 +4,22 @@ This hands-on tutorial walks you through using diag-agent to generate various ty
 
 ## Prerequisites
 
-- diag-agent installed (see [User Guide - Installation](user-guide.md#installation))
-- LLM API key configured (Anthropic, OpenAI, etc.)
-- Optional: Docker installed for local Kroki server
+Before starting the tutorial, ensure you have:
+
+1. **Cloned the repository**:
+   ```bash
+   git clone https://github.com/docToolchain/diag-agent.git
+   cd diag-agent
+   ```
+
+2. **Installed diag-agent**:
+   ```bash
+   uv pip install .
+   ```
+
+3. **LLM API key configured** (Anthropic, OpenAI, etc.)
+
+4. **Optional**: Docker installed for local Kroki server
 
 ---
 
@@ -228,7 +241,9 @@ Use diag-agent as an MCP server with Claude Desktop or other MCP clients.
 ### Step 1: Install MCP Support
 
 ```bash
-uv pip install diag-agent[mcp]
+# In the cloned repository
+cd diag-agent
+uv pip install ".[mcp]"
 ```
 
 ### Step 2: Configure Claude Desktop
@@ -411,14 +426,11 @@ diag-agent create "diagram"
 
 Run diag-agent in Docker containers for portability and isolation.
 
-### Step 1: Pull or Build Image
+### Step 1: Build Docker Image
 
 ```bash
-# Option 1: Pull pre-built image (when published)
-docker pull ghcr.io/yourusername/diag-agent:latest
-
-# Option 2: Build locally
-git clone https://github.com/yourusername/diag-agent.git
+# Clone repository and build image
+git clone https://github.com/docToolchain/diag-agent.git
 cd diag-agent
 docker build -t diag-agent .
 ```

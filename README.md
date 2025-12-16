@@ -16,22 +16,27 @@ An LLM Agent for creating software architecture diagrams with autonomous syntax 
 ### CLI Usage
 
 ```bash
+# Clone the repository
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
+
+# Install locally
+uv pip install .
+
 # Configure API key
 export ANTHROPIC_API_KEY=your_key_here
 
-# Generate a diagram (using uvx - no installation needed)
-uvx diag-agent create "C4 context diagram for API gateway"
-
-# Or install and use directly
-uv pip install diag-agent
-diag-agent create "User authentication flow"
+# Generate a diagram
+diag-agent create "C4 context diagram for API gateway"
 ```
 
 ### MCP Server (for Claude Desktop)
 
 ```bash
-# Install with MCP support
-uv pip install diag-agent[mcp]
+# Clone and install with MCP support
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
+uv pip install ".[mcp]"
 
 # Add to Claude Desktop config (~/.config/Claude/claude_desktop_config.json)
 {
@@ -54,11 +59,16 @@ Then in Claude Desktop:
 ### Docker
 
 ```bash
-# Run with Docker (no installation needed)
+# Clone repository and build Docker image
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
+docker build -t diag-agent .
+
+# Run with Docker
 docker run --rm \
   -e ANTHROPIC_API_KEY=your_key_here \
   -v $(pwd)/diagrams:/diagrams \
-  ghcr.io/yourusername/diag-agent:latest \
+  diag-agent \
   create "User authentication flow"
 
 # Or use Docker Compose for full stack (CLI + Kroki)
@@ -111,37 +121,33 @@ See [Tutorial - Diagram Types](src/docs/tutorial.md) for practical examples.
 - **Python 3.10+** (for native installation)
 - **Docker** (optional, for containerized deployment or local Kroki server)
 - **LLM API key** (Anthropic, OpenAI, or other)
+- **uv package manager** - [Install uv](https://docs.astral.sh/uv/)
 
-### Install via uv (Recommended)
+### Local Installation (Recommended)
 
 ```bash
-# Install uv package manager
-pip install uv
+# Clone repository
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
 
-# Install diag-agent
-uv pip install diag-agent
+# Install locally
+uv pip install .
 
-# Install with MCP server support
-uv pip install diag-agent[mcp]
+# Or install with MCP server support
+uv pip install ".[mcp]"
 
-# Development installation
+# Or install for development (editable mode)
 uv pip install -e ".[dev,mcp]"
-```
-
-### No-Install Usage with uvx
-
-```bash
-# Run directly without installing
-uvx diag-agent create "architecture diagram"
 ```
 
 ### Docker Installation
 
 ```bash
-# Pull image (when published)
-docker pull ghcr.io/yourusername/diag-agent:latest
+# Clone repository
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
 
-# Or build locally
+# Build image locally
 docker build -t diag-agent .
 
 # Run
