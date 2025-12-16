@@ -300,10 +300,11 @@ Respond with ONLY the subtype name (one word, lowercase). If unsure, respond wit
             
             # Validate syntax with Kroki
             try:
-                png_bytes = self.kroki_client.render_diagram(
+                # Use SVG for validation (universally supported by all diagram types)
+                validation_bytes = self.kroki_client.render_diagram(
                     diagram_source=diagram_source,
                     diagram_type=diagram_type,
-                    output_format="png"
+                    output_format="svg"
                 )
                 # Validation successful - diagram is syntactically valid
                 validation_error = None
@@ -312,24 +313,37 @@ Respond with ONLY the subtype name (one word, lowercase). If unsure, respond wit
                 # Design validation (if enabled)
                 if self.settings.validate_design:
                     logger.info("Design Analysis: ANALYZING")
-                    # Analyze design with vision-capable LLM
-                    design_criteria_prompt = "Analyze this diagram for layout quality, readability, and spacing. If the design is good, respond with 'approved'. Otherwise, provide specific improvement suggestions."
-                    feedback = self.llm_client.vision_analyze(png_bytes, design_criteria_prompt)
-                    
-                    # Check if design is approved
-                    if "approved" in feedback.lower():
-                        # Design approved - done!
+                    # Try to render as PNG for vision analysis (required by Vision API)
+                    try:
+                        png_bytes = self.kroki_client.render_diagram(
+                            diagram_source=diagram_source,
+                            diagram_type=diagram_type,
+                            output_format="png"
+                        )
+                        # Analyze design with vision-capable LLM
+                        design_criteria_prompt = "Analyze this diagram for layout quality, readability, and spacing. If the design is good, respond with 'approved'. Otherwise, provide specific improvement suggestions."
+                        feedback = self.llm_client.vision_analyze(png_bytes, design_criteria_prompt)
+                        
+                        # Check if design is approved
+                        if "approved" in feedback.lower():
+                            # Design approved - done!
+                            design_feedback = None
+                            logger.info("Design Feedback: APPROVED")
+                            logger.info(f"Iteration {iterations_used}/{max_iterations} - COMPLETE (design approved)")
+                            break
+                        else:
+                            # Design needs improvement - save feedback for refinement
+                            design_feedback = feedback
+                            logger.info("Design Feedback:")
+                            logger.info(f"  {feedback}")
+                            logger.info(f"Iteration {iterations_used}/{max_iterations} - COMPLETE (design improvement needed)")
+                            # Continue to next iteration
+                    except KrokiRenderError:
+                        # PNG not supported by this diagram type - skip design validation
+                        logger.info("Design Analysis: SKIPPED (diagram type does not support PNG format required by Vision API)")
                         design_feedback = None
-                        logger.info("Design Feedback: APPROVED")
-                        logger.info(f"Iteration {iterations_used}/{max_iterations} - COMPLETE (design approved)")
+                        logger.info(f"Iteration {iterations_used}/{max_iterations} - COMPLETE (syntax valid, design validation skipped)")
                         break
-                    else:
-                        # Design needs improvement - save feedback for refinement
-                        design_feedback = feedback
-                        logger.info("Design Feedback:")
-                        logger.info(f"  {feedback}")
-                        logger.info(f"Iteration {iterations_used}/{max_iterations} - COMPLETE (design improvement needed)")
-                        # Continue to next iteration
                 else:
                     # Design validation disabled - done after syntax check
                     logger.info(f"Iteration {iterations_used}/{max_iterations} - COMPLETE (syntax valid)")
