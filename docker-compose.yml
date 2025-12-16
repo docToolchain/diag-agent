@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # ===========================================================================
+  # Kroki Server - Diagram Rendering Engine
+  # ===========================================================================
+  kroki:
+    image: yuzutech/kroki:latest
+    container_name: kroki
+    ports:
+      - "8000:8000"
+    environment:
+      - KROKI_SAFE_MODE=secure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - diag-network
+
+  # ===========================================================================
+  # diag-agent CLI - Diagram Generation Agent
+  # ===========================================================================
+  diag-agent-cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: diag-agent-cli
+    environment:
+      # LLM Configuration
+      - LLM_PROVIDER=${LLM_PROVIDER:-anthropic}
+      - LLM_MODEL=${LLM_MODEL:-claude-sonnet-4}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      
+      # Kroki Configuration
+      - KROKI_URL=http://kroki:8000
+      
+      # Agent Configuration
+      - MAX_ITERATIONS=${MAX_ITERATIONS:-10}
+      - MAX_EXECUTION_TIME=${MAX_EXECUTION_TIME:-300}
+      - ENABLE_DESIGN_FEEDBACK=${ENABLE_DESIGN_FEEDBACK:-true}
+    volumes:
+      - ./diagrams:/diagrams
+    depends_on:
+      kroki:
+        condition: service_healthy
+    networks:
+      - diag-network
+    # CLI runs on demand, not as long-running service
+    profiles:
+      - cli
+
+  # ===========================================================================
+  # diag-agent MCP Server - Model Context Protocol Server
+  # ===========================================================================
+  diag-agent-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: diag-agent-mcp
+    command: ["python", "-m", "diag_agent.mcp.server"]
+    environment:
+      # LLM Configuration
+      - LLM_PROVIDER=${LLM_PROVIDER:-anthropic}
+      - LLM_MODEL=${LLM_MODEL:-claude-sonnet-4}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      
+      # Kroki Configuration
+      - KROKI_URL=http://kroki:8000
+      
+      # Agent Configuration
+      - MAX_ITERATIONS=${MAX_ITERATIONS:-10}
+      - MAX_EXECUTION_TIME=${MAX_EXECUTION_TIME:-300}
+      - ENABLE_DESIGN_FEEDBACK=${ENABLE_DESIGN_FEEDBACK:-true}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./diagrams:/diagrams
+    depends_on:
+      kroki:
+        condition: service_healthy
+    networks:
+      - diag-network
+    restart: unless-stopped
+    # MCP server runs as long-running service
+    profiles:
+      - mcp
+
+networks:
+  diag-network:
+    driver: bridge
+
+volumes:
+  diagrams:
+    driver: local
+
+# =============================================================================
+# Usage Examples
+# =============================================================================
+#
+# 1. Start Kroki only (for local CLI usage):
+#    docker-compose up -d kroki
+#
+# 2. Run CLI command:
+#    docker-compose run --rm diag-agent-cli create "architecture diagram"
+#
+# 3. Start MCP Server with Kroki:
+#    docker-compose --profile mcp up -d
+#
+# 4. Stop all services:
+#    docker-compose down
+#
+# 5. View logs:
+#    docker-compose logs -f kroki
+#    docker-compose logs -f diag-agent-mcp
+#
+# 6. Remove all data:
+#    docker-compose down -v

@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation build
+docs/_build/
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+
+# Environment
+.env
+.env.local
+*.env
+
+# Outputs
+diagrams/
+*.png
+*.svg
+*.pdf
+*.puml
+*.bpmn
+*.mmd
+
+# Misc
+*.log
+.DS_Store
+test_output/
+.vibe/
+
+# Keep these
+!README.md
+!src/
+!pyproject.toml
+!tests/
