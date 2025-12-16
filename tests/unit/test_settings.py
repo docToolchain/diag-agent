@@ -80,3 +80,74 @@ class TestSettings:
         with patch.dict(os.environ, test_env, clear=True):
             settings = Settings()
             assert settings.max_iterations == 5  # Default value
+
+    def test_kroki_url_returns_local_when_mode_local(self):
+        """Test kroki_url property returns local URL when mode is 'local'.
+
+        Validates that:
+        - kroki_url property exists
+        - When kroki_mode='local', returns kroki_local_url
+        - Default mode is 'local'
+        """
+        from diag_agent.config.settings import Settings
+
+        # Arrange - set mode=local explicitly
+        test_env = {
+            "DIAG_AGENT_KROKI_MODE": "local",
+            "DIAG_AGENT_KROKI_LOCAL_URL": "http://localhost:8000",
+            "DIAG_AGENT_KROKI_REMOTE_URL": "https://kroki.io",
+        }
+
+        # Act
+        with patch.dict(os.environ, test_env, clear=True):
+            settings = Settings()
+
+        # Assert
+        assert settings.kroki_url == "http://localhost:8000"
+
+    def test_kroki_url_returns_remote_when_mode_remote(self):
+        """Test kroki_url property returns remote URL when mode is 'remote'.
+
+        Validates that:
+        - When kroki_mode='remote', returns kroki_remote_url
+        - Remote URL is loaded from ENV correctly
+        """
+        from diag_agent.config.settings import Settings
+
+        # Arrange - set mode=remote
+        test_env = {
+            "DIAG_AGENT_KROKI_MODE": "remote",
+            "DIAG_AGENT_KROKI_LOCAL_URL": "http://localhost:8000",
+            "DIAG_AGENT_KROKI_REMOTE_URL": "https://kroki.io",
+        }
+
+        # Act
+        with patch.dict(os.environ, test_env, clear=True):
+            settings = Settings()
+
+        # Assert
+        assert settings.kroki_url == "https://kroki.io"
+
+    def test_kroki_url_defaults_to_local_on_invalid_mode(self):
+        """Test kroki_url property defaults to local URL on invalid mode.
+
+        Validates that:
+        - Invalid mode values (not 'local' or 'remote') fall back to local
+        - No crashes on unexpected mode values
+        - Graceful degradation
+        """
+        from diag_agent.config.settings import Settings
+
+        # Arrange - set invalid mode
+        test_env = {
+            "DIAG_AGENT_KROKI_MODE": "invalid_mode",
+            "DIAG_AGENT_KROKI_LOCAL_URL": "http://localhost:8000",
+            "DIAG_AGENT_KROKI_REMOTE_URL": "https://kroki.io",
+        }
+
+        # Act
+        with patch.dict(os.environ, test_env, clear=True):
+            settings = Settings()
+
+        # Assert - should fall back to local
+        assert settings.kroki_url == "http://localhost:8000"

@@ -329,6 +329,25 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] MVP: mode=local → local_url, mode=remote → remote_url ✓
 - [x] auto-Mode deferred (YAGNI für E2E-Test) ✓
 
+## Red (Settings Cycle 1: Kroki Mode Support)
+
+### Phase Entrance Criteria:
+- [x] EXPLORE abgeschlossen - Solution Design klar
+- [x] Test-Strategie klar: Unit-Tests mit ENV mocks
+
+### Tasks
+- [x] **Settings (Zyklus 1):** Tests für kroki_url Property schreiben
+- [x] Test 1: mode=local → returns kroki_local_url
+- [x] Test 2: mode=remote → returns kroki_remote_url
+- [x] Test 3: invalid mode → fallback to local_url
+- [x] Tests in test_settings.py hinzugefügt
+- [x] Tests ausführen und Fehlschlag verifizieren (RED)
+
+### Completed
+- [x] 3 Tests in tests/unit/test_settings.py hinzugefügt ✅
+- [x] Test Pattern: patch.dict(os.environ) wie existing tests ✅
+- [x] Alle 3 Tests schlagen fehl (erwarteter Fehler: AttributeError kroki_url) ✅
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
