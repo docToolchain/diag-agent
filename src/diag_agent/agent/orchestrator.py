@@ -31,7 +31,7 @@ class Orchestrator:
         # Initialize LLM client for diagram generation
         self.llm_client = LLMClient(settings)
         # Initialize Kroki client for syntax validation
-        self.kroki_client = KrokiClient(settings.kroki_local_url)
+        self.kroki_client = KrokiClient(settings.kroki_url)
     
     def execute(
         self,

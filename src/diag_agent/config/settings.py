@@ -26,6 +26,7 @@ class Settings:
     # Kroki Configuration
     kroki_mode: str
     kroki_local_url: str
+    kroki_remote_url: str
     
     # Agent Configuration
     max_iterations: int
@@ -46,8 +47,12 @@ class Settings:
         # Kroki Configuration
         self.kroki_mode = os.getenv("DIAG_AGENT_KROKI_MODE", "local")
         self.kroki_local_url = os.getenv(
-            "DIAG_AGENT_KROKI_LOCAL_URL", 
+            "DIAG_AGENT_KROKI_LOCAL_URL",
             "http://localhost:8000"
+        )
+        self.kroki_remote_url = os.getenv(
+            "DIAG_AGENT_KROKI_REMOTE_URL",
+            "https://kroki.io"
         )
         
         # Agent Configuration
@@ -56,6 +61,21 @@ class Settings:
         
         # Logging
         self.log_level = os.getenv("DIAG_AGENT_LOG_LEVEL", "INFO")
+
+    @property
+    def kroki_url(self) -> str:
+        """Get Kroki URL based on configured mode.
+
+        Returns local or remote URL depending on kroki_mode setting.
+        Falls back to local URL if mode is invalid.
+
+        Returns:
+            Kroki service URL (local or remote based on mode)
+        """
+        if self.kroki_mode == "remote":
+            return self.kroki_remote_url
+        # Default to local (mode=="local" or invalid mode)
+        return self.kroki_local_url
 
     @staticmethod
     def _get_int_env(key: str, default: int) -> int:

@@ -348,6 +348,30 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Test Pattern: patch.dict(os.environ) wie existing tests ✅
 - [x] Alle 3 Tests schlagen fehl (erwarteter Fehler: AttributeError kroki_url) ✅
 
+## Green (Settings Cycle 1: Kroki Mode Support)
+
+### Phase Entrance Criteria:
+- [x] RED-Phase abgeschlossen - Tests schlagen fehl
+- [x] Tests schlagen aus dem richtigen Grund fehl (AttributeError)
+- [x] Implementation klar: kroki_remote_url + kroki_url @property
+
+### Tasks
+- [x] **Settings (Zyklus 1):** kroki_url Property implementieren
+- [x] Settings.py: kroki_remote_url Attribut hinzufügen
+- [x] __init__: kroki_remote_url aus ENV laden (DIAG_AGENT_KROKI_REMOTE_URL)
+- [x] kroki_url @property implementieren: mode-basierte URL-Selektion
+- [x] Orchestrator.py updaten: settings.kroki_url statt settings.kroki_local_url
+- [x] Test-Fix: load_dotenv() mocken in test_load_settings_with_defaults
+- [x] Alle Tests ausführen und grün machen
+
+### Completed
+- [x] kroki_remote_url Attribut + ENV loading ✅
+- [x] kroki_url @property: remote → remote_url, local/invalid → local_url ✅
+- [x] Orchestrator: KrokiClient(settings.kroki_url) ✅
+- [x] Test-Fix: load_dotenv() gemockt ✅
+- [x] Alle 6 Settings-Tests GRÜN! ✅ (100% Coverage)
+- [x] Alle 8 Orchestrator-Tests GRÜN! ✅ (95% Coverage)
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)

@@ -18,8 +18,9 @@ class TestSettings:
         """
         from diag_agent.config.settings import Settings
 
-        # Act - create Settings without any ENV vars set
-        with patch.dict(os.environ, {}, clear=True):
+        # Act - create Settings without any ENV vars set (mock load_dotenv to skip .env file)
+        with patch.dict(os.environ, {}, clear=True), \
+             patch("diag_agent.config.settings.load_dotenv"):
             settings = Settings()
 
         # Assert - verify defaults from .env.example
