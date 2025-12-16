@@ -257,6 +257,28 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Mock: HTTP 200, Content-Type: text/plain, error text im body ✅
 - [x] Test schlägt fehl (erwarteter Fehler: DID NOT RAISE KrokiRenderError) ✅
 
+## Green (KrokiClient Cycle 3: Content-Type Validation)
+
+### Phase Entrance Criteria:
+- [x] RED-Phase abgeschlossen - Test schlägt fehl
+- [x] Test schlägt aus dem richtigen Grund fehl (DID NOT RAISE)
+- [x] Implementation klar: Content-Type Check nach raise_for_status()
+
+### Tasks
+- [x] **KrokiClient (Zyklus 3):** Content-Type Validation implementieren
+- [x] Content-Type Check nach raise_for_status() hinzufügen
+- [x] response.headers.get('Content-Type', '') auslesen
+- [x] Bei 'text/plain' → KrokiRenderError mit response.text
+- [x] Alten Test fixen: mock_response.headers hinzufügen
+- [x] Alle Tests ausführen und grün machen
+
+### Completed
+- [x] Content-Type Check nach raise_for_status() implementiert ✅
+- [x] Bei text/plain: KrokiRenderError mit error message ✅
+- [x] test_render_diagram_success gefixt (headers Mock hinzugefügt) ✅
+- [x] Alle 3 KrokiClient-Tests GRÜN! ✅ (100% Coverage)
+- [x] Alle 8 Orchestrator-Tests GRÜN! ✅ (95% Coverage)
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)

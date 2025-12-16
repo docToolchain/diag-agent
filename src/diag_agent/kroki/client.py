@@ -66,6 +66,14 @@ class KrokiClient:
             # Raise exception if request failed
             response.raise_for_status()
 
+            # Check Content-Type for error responses (Kroki returns text/plain on errors)
+            content_type = response.headers.get('Content-Type', '')
+            if 'text/plain' in content_type:
+                error_message = response.text
+                raise KrokiRenderError(
+                    f"Kroki rendering failed for diagram type '{diagram_type}': {error_message}"
+                )
+
             return response.content
 
         except httpx.HTTPStatusError as e:

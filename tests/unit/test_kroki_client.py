@@ -29,6 +29,7 @@ class TestKrokiClient:
         with patch("httpx.post") as mock_post:
             mock_response = Mock()
             mock_response.status_code = 200
+            mock_response.headers = {"Content-Type": "image/png"}
             mock_response.content = expected_png_bytes
             mock_post.return_value = mock_response
 
