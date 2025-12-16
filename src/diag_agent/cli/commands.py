@@ -60,20 +60,26 @@ def create(description: str, diagram_type: str, output: str, output_format: str)
     # Create orchestrator
     orchestrator = Orchestrator(settings)
     
-    # Execute diagram generation
+    # Progress callback for console output
+    def progress_callback(message: str):
+        click.echo(f"\\r{message}", nl=False)  # Overwrite previous line
+    
+    # Execute diagram generation with progress updates
     result = orchestrator.execute(
         description=description,
         diagram_type=diagram_type,
         output_dir=output,
-        output_formats=output_format
+        output_formats=output_format,
+        progress_callback=progress_callback
     )
     
-    # Display result
-    click.echo(f"✓ Diagram generated: {result['output_path']}")
+    # Clear progress line and show final result
+    click.echo(f"\\r✓ Diagram generated: {result['output_path']}")
     click.echo(f"  Source: {len(result['diagram_source'])} characters")
     click.echo(f"  Iterations: {result['iterations_used']}")
     click.echo(f"  Time: {result['elapsed_seconds']:.1f}s")
     click.echo(f"  Stopped: {result['stopped_reason']}")
+    click.echo(f"  See generation.log for details")
 
 
 # ============================================================================

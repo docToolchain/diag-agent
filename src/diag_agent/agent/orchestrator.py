@@ -5,6 +5,7 @@ Coordinates the feedback loop between LLM, Kroki validation, and design analysis
 
 from typing import Dict, Any
 import time
+import logging
 from pathlib import Path
 
 from diag_agent.llm.client import LLMClient
@@ -93,12 +94,43 @@ class Orchestrator:
         # Default fallback (shouldn't reach here)
         return settings.kroki_local_url
     
+    def _setup_file_logger(self, log_file: Path) -> logging.Logger:
+        """Setup file logger for generation.log.
+        
+        Args:
+            log_file: Path to log file
+            
+        Returns:
+            Configured logger instance
+        """
+        logger = logging.getLogger(__name__)
+        logger.setLevel(logging.INFO)
+        # Remove existing handlers to avoid duplicates
+        logger.handlers = []
+        file_handler = logging.FileHandler(log_file, mode='w')
+        file_handler.setFormatter(
+            logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        )
+        logger.addHandler(file_handler)
+        return logger
+    
+    def _cleanup_logger(self, logger: logging.Logger) -> None:
+        """Cleanup logger file handlers.
+        
+        Args:
+            logger: Logger instance to cleanup
+        """
+        for handler in logger.handlers:
+            handler.close()
+        logger.handlers = []
+
     def execute(
         self,
         description: str,
         diagram_type: str = "plantuml",
         output_dir: str = "./diagrams",
-        output_formats: str = "png,svg,source"
+        output_formats: str = "png,svg,source",
+        progress_callback: Any = None
     ) -> Dict[str, Any]:
         """Execute diagram generation workflow with iteration limits.
         
@@ -107,6 +139,7 @@ class Orchestrator:
             diagram_type: Type of diagram (plantuml, c4plantuml, mermaid, etc.)
             output_dir: Output directory for generated files
             output_formats: Comma-separated output formats
+            progress_callback: Optional callback(message: str) for progress updates
             
         Returns:
             Dict with diagram_source, output_path, and metadata:
@@ -114,6 +147,14 @@ class Orchestrator:
             - elapsed_seconds: Total time elapsed
             - stopped_reason: Why iteration stopped (max_iterations | max_time | success)
         """
+        # Setup logging to file
+        output_path_obj = Path(output_dir)
+        output_path_obj.mkdir(parents=True, exist_ok=True)
+        log_file = output_path_obj / "generation.log"
+        
+        # Configure logger
+        logger = self._setup_file_logger(log_file)
+        
         # Track iteration state
         iterations_used = 0
         start_time = time.time()
@@ -130,25 +171,40 @@ class Orchestrator:
         while iterations_used < max_iterations:
             iterations_used += 1
             
+            # Progress callback for CLI
+            if progress_callback:
+                progress_callback(f"Generating diagram... [Iteration {iterations_used}/{max_iterations}]")
+            
+            # Log iteration start
+            logger.info(f"Iteration {iterations_used}/{max_iterations} - START")
+            
             # Check time limit
             elapsed = time.time() - start_time
             if elapsed >= max_time_seconds:
                 stopped_reason = "max_time"
+                logger.info(f"Stopping: max_time ({max_time_seconds}s) reached")
                 break
             
             # Build prompt for diagram generation
             if validation_error:
                 # Refinement prompt with syntax error details
-                prompt = f"Fix the following {diagram_type} diagram. Previous attempt had this error: {validation_error}\n\nOriginal request: {description}\n\nPrevious source:\n{diagram_source}"
+                prompt = f"Fix the following {diagram_type} diagram. Previous attempt had this error: {validation_error}\\n\\nOriginal request: {description}\\n\\nPrevious source:\\n{diagram_source}"
+                logger.info(f"LLM Prompt (syntax fix):")
+                logger.info(f"  {prompt}")
             elif design_feedback:
                 # Refinement prompt with design feedback
-                prompt = f"Improve the following {diagram_type} diagram based on this design feedback: {design_feedback}\n\nOriginal request: {description}\n\nPrevious source:\n{diagram_source}"
+                prompt = f"Improve the following {diagram_type} diagram based on this design feedback: {design_feedback}\\n\\nOriginal request: {description}\\n\\nPrevious source:\\n{diagram_source}"
+                logger.info(f"LLM Prompt (design refinement):")
+                logger.info(f"  {prompt}")
             else:
                 # Initial prompt
                 prompt = f"Generate a {diagram_type} diagram: {description}"
+                logger.info(f"LLM Prompt (initial):")
+                logger.info(f"  {prompt}")
             
             # Call LLM to generate diagram source
             diagram_source = self.llm_client.generate(prompt)
+            logger.info(f"LLM Response: {len(diagram_source)} characters")
             
             # Validate syntax with Kroki
             try:
@@ -159,9 +215,11 @@ class Orchestrator:
                 )
                 # Validation successful - diagram is syntactically valid
                 validation_error = None
+                logger.info("Kroki Validation: SUCCESS")
                 
                 # Design validation (if enabled)
                 if self.settings.validate_design:
+                    logger.info("Design Analysis: ANALYZING")
                     # Analyze design with vision-capable LLM
                     design_criteria_prompt = "Analyze this diagram for layout quality, readability, and spacing. If the design is good, respond with 'approved'. Otherwise, provide specific improvement suggestions."
                     feedback = self.llm_client.vision_analyze(png_bytes, design_criteria_prompt)
@@ -170,30 +228,37 @@ class Orchestrator:
                     if "approved" in feedback.lower():
                         # Design approved - done!
                         design_feedback = None
+                        logger.info("Design Feedback: APPROVED")
+                        logger.info(f"Iteration {iterations_used}/{max_iterations} - COMPLETE (design approved)")
                         break
                     else:
                         # Design needs improvement - save feedback for refinement
                         design_feedback = feedback
+                        logger.info("Design Feedback:")
+                        logger.info(f"  {feedback}")
+                        logger.info(f"Iteration {iterations_used}/{max_iterations} - COMPLETE (design improvement needed)")
                         # Continue to next iteration
                 else:
                     # Design validation disabled - done after syntax check
+                    logger.info(f"Iteration {iterations_used}/{max_iterations} - COMPLETE (syntax valid)")
                     break
                     
             except KrokiRenderError as e:
                 # Validation failed - save error for refinement prompt
                 validation_error = str(e)
+                logger.info("Kroki Validation: ERROR")
+                logger.info(f"  {validation_error}")
+                logger.info(f"Iteration {iterations_used}/{max_iterations} - COMPLETE (validation error)")
                 # Continue to next iteration for retry
         
         # Check if we hit iteration limit
         if iterations_used >= max_iterations and stopped_reason == "success":
             stopped_reason = "max_iterations"
+            logger.info(f"Stopping: max_iterations ({max_iterations}) reached")
         
         # Calculate final elapsed time
         elapsed_seconds = time.time() - start_time
-        
-        # Write output files
-        output_path_obj = Path(output_dir)
-        output_path_obj.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Final result: {iterations_used} iterations, {elapsed_seconds:.1f}s, stopped_reason={stopped_reason}")
         
         # Parse output formats (comma-separated)
         formats = [fmt.strip() for fmt in output_formats.split(",")]
@@ -219,6 +284,9 @@ class Orchestrator:
             if primary_output_path is None:
                 primary_output_path = str(file_path)
         
+        # Cleanup logger
+        self._cleanup_logger(logger)
+        
         return {
             "diagram_source": diagram_source,
             "output_path": primary_output_path,
@@ -226,7 +294,7 @@ class Orchestrator:
             "elapsed_seconds": elapsed_seconds,
             "stopped_reason": stopped_reason
         }
-    
+
     def _get_source_extension(self, diagram_type: str) -> str:
         """Get file extension for source format based on diagram type.
         
