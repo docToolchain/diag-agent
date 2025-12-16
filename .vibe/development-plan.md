@@ -397,6 +397,75 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Settings Zyklus 1 abgeschlossen ✅ (Kroki Mode Support)
 - [x] Bug gefixt: DIAG_AGENT_KROKI_MODE=remote funktioniert jetzt ✅
 
+## Explore (Design Analyzer Cycle 1: Vision-based Feedback)
+
+### Phase Entrance Criteria:
+- [x] Core features complete (Settings, KrokiClient, Orchestrator, LLMClient)
+- [x] E2E test successful (syntax validation working)
+- [x] Documentation reviewed (Runtime View, Building Block View, Concepts)
+- [x] User requested design feedback feature ("ja")
+
+### Tasks
+- [ ] **Design Analyzer (Zyklus 1):** Vision-based feedback loop requirements analysieren
+- [ ] Runtime View Scenario 1 verstehen: Orch → Analyzer → LLM vision
+- [ ] Building Block View L2: Design Analyzer verantwortlichkeiten
+- [ ] Concepts: validate_design config + graceful degradation verstehen
+- [ ] LiteLLM Vision API research: Wie vision_analyze() implementieren
+- [ ] MVP-Scope definieren: Welche Design-Kriterien evaluieren
+- [ ] Test-Strategie: Unit-Tests für Analyzer + LLMClient vision_analyze()
+
+### Completed
+- [x] EXPLORE Phase abgeschlossen ✓
+- [x] Design Analyzer requirements verstanden ✓
+- [x] LiteLLM Vision API pattern recherchiert ✓
+- [x] MVP-Scope definiert: LLMClient.vision_analyze() ✓
+- [x] Test-Strategie klar: 2 Unit-Tests (success + error) ✓
+- [x] Runtime View (Scenario 1) studiert ✓
+  - Orch → Analyzer.analyze_design(png)
+  - Analyzer → LLM.vision_analyze(png, criteria)
+  - LLM returns design feedback (e.g., "Layout cramped, suggest vertical")
+  - Feedback flows to Orchestrator → refinement prompt
+- [x] Building Block View L2 (lines 116-120) ✓
+  - Component: "Design Analyzer", "Vision-based feedback"
+  - Only active if vision-capable LLM configured
+  - Renders diagram to PNG → sends to LLM with evaluation prompt
+  - Parses feedback (layout, clarity, C4 compliance, etc.)
+- [x] Concepts (08_concepts.adoc) ✓
+  - Config: llm.vision_enabled: true (line 48)
+  - Config: agent.validate_design: true (line 61) - "Only if vision_enabled"
+  - Graceful degradation (line 112): "No vision model: Skip design analysis"
+  - Error handling (lines 93-95): Design Issues → feed back to LLM
+  - Progress messages (lines 136-139): "📊 Analyzing design...", "⚠ Layout could be improved"
+- [x] Solution Strategy (04_solution_strategy.adoc, line 30) ✓
+  - Step 4: "Analyze (if vision available): Render image, LLM evaluates layout/design"
+  - Feedback loop includes design refinement (step 5)
+- [x] Current codebase status ✓
+  - LLMClient: Only generate() implemented (text-only, no vision)
+  - analyzer.py: Empty file (placeholder)
+  - Settings: No validate_design or vision_enabled yet
+  - .env.example line 19: DIAG_AGENT_VALIDATE_DESIGN=true (not loaded)
+- [x] LiteLLM Vision API research ✓
+  - API Pattern: Same completion() but messages.content is array
+  - Text + Image: [{"type": "text", "text": "..."}, {"type": "image_url", "image_url": {"url": "..."}}]
+  - Image formats: URL or base64 data URL ("data:image/png;base64,...")
+  - Claude support: claude-3-7-sonnet-latest supports vision
+  - Documentation: https://docs.litellm.ai/docs/completion/vision
+- [x] MVP-Scope definition ✓
+  - **Cycle 1 Focus**: LLMClient.vision_analyze() method
+  - Input: PNG bytes (from Kroki), analysis prompt
+  - Output: Design feedback string (or "approved")
+  - Base64 encoding: Convert bytes → data URL
+  - Design criteria (MVP): Layout quality, readability, spacing
+  - Error handling: LLMGenerationError (reuse existing exception)
+  - **Deferred**: Settings.validate_design, DesignAnalyzer component, Orchestrator integration
+- [x] Test-Strategie definition ✓
+  - **Test 1**: vision_analyze() with mock LiteLLM (success case)
+  - Mock: litellm.completion returns design feedback message
+  - Assert: Correct base64 encoding, proper message structure
+  - **Test 2**: vision_analyze() error handling (API failure)
+  - Mock: litellm.completion raises exception
+  - Assert: Raises LLMGenerationError with context
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
