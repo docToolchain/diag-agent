@@ -4,6 +4,9 @@ venv/
 ENV/
 env/
 
+# Environment variables with secrets
+.env
+
 # Python test / coverage
 .coverage
 .pytest_cache/
