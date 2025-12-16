@@ -306,6 +306,29 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Bug gefixt: HTTP 200 + text/plain wird jetzt erkannt ✅
 - [x] kroki-demo.py gelöscht ✅ (alle Learnings extrahiert)
 
+## Explore (Settings Cycle 1: Kroki Mode Support)
+
+### Phase Entrance Criteria:
+- [x] E2E-Test erfolgreich mit Workaround (KROKI_LOCAL_URL=https://kroki.io)
+- [x] Bug identifiziert: kroki_mode wird geladen aber ignoriert
+- [x] Orchestrator nutzt immer kroki_local_url, egal was mode ist
+
+### Tasks
+- [x] **Settings (Zyklus 1):** Kroki Mode Bug analysieren
+- [x] Aktueller Code: Orchestrator nutzt settings.kroki_local_url (Zeile 34)
+- [x] Settings laden: kroki_mode, kroki_local_url (kein kroki_remote_url!)
+- [x] .env.example definiert: DIAG_AGENT_KROKI_REMOTE_URL (wird nicht gelesen)
+- [x] Bug-Root-Cause: Settings lesen kroki_remote_url nicht aus ENV
+- [x] MVP-Scope definieren: kroki_url Property mit mode-basierter URL-Selektion
+
+### Completed
+- [x] Bug analysiert: kroki_mode und kroki_remote_url nicht implementiert ✓
+- [x] Orchestrator.py:34 nutzt immer kroki_local_url ✓
+- [x] Settings.py:48-51 laden nur kroki_local_url ✓
+- [x] Solution Design: kroki_url @property basierend auf mode ✓
+- [x] MVP: mode=local → local_url, mode=remote → remote_url ✓
+- [x] auto-Mode deferred (YAGNI für E2E-Test) ✓
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
