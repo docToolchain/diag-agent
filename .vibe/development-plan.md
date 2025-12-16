@@ -214,6 +214,30 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Orchestrator Zyklus 4 abgeschlossen ✅ (File Output komplett)
 - [x] MVP Core 100% komplett! ✅
 
+## Explore (KrokiClient Cycle 3: Content-Type Validation)
+
+### Phase Entrance Criteria:
+- [x] MVP Core komplett (Orchestrator File Output funktioniert)
+- [x] Code Review von kroki-demo.py durchgeführt
+- [x] Bug identifiziert: Content-Type nicht geprüft
+- [x] Problem verstanden: Kroki gibt HTTP 200 + text/plain bei Syntax-Error
+
+### Tasks
+- [x] **KrokiClient (Zyklus 3):** Content-Type Validation analysieren
+- [x] kroki-demo.py Pattern studieren: text/plain Check
+- [x] Aktueller KrokiClient Code reviewen: Nur HTTP-Status geprüft
+- [x] Bug dokumentieren: HTTP 200 + text/plain bei Syntax-Error nicht erkannt
+- [x] MVP-Scope definieren: Content-Type Check nach raise_for_status()
+- [x] Error-Message Strategy: response.text bei text/plain nutzen
+- [x] Relevante vs irrelevante Patterns aus kroki-demo.py trennen
+
+### Completed
+- [x] kroki-demo.py analyzed ✓
+- [x] Critical Bug: text/plain nicht geprüft (Kroki gibt HTTP 200 bei Error) ✓
+- [x] Irrelevant für uns: URL-Encoding (zlib+base64), SVG-Type-Forcing ✓
+- [x] Relevant: Content-Type Check, response.text für Error-Message ✓
+- [x] Implementation Plan: Check nach raise_for_status(), raise wenn text/plain ✓
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
