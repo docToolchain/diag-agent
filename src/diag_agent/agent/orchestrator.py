@@ -195,6 +195,20 @@ Respond with ONLY the subtype name (one word, lowercase). If unsure, respond wit
         # No examples available
         return None
 
+    def _append_example_to_prompt(self, prompt: str, example_content: str) -> str:
+        """Append example content to a prompt if available.
+        
+        Args:
+            prompt: Base prompt text
+            example_content: Example content to append (or None)
+            
+        Returns:
+            Prompt with example appended, or original prompt if no example
+        """
+        if example_content:
+            return f"{prompt}\n\nReference example:\n{example_content}"
+        return prompt
+
     def execute(
         self,
         description: str,
@@ -264,25 +278,19 @@ Respond with ONLY the subtype name (one word, lowercase). If unsure, respond wit
             if validation_error:
                 # Refinement prompt with syntax error details
                 prompt = f"Fix the following {diagram_type} diagram. Previous attempt had this error: {validation_error}\\n\\nOriginal request: {description}\\n\\nPrevious source:\\n{diagram_source}"
-                # Add example if available
-                if example_content:
-                    prompt += f"\\n\\nReference example:\\n{example_content}"
+                prompt = self._append_example_to_prompt(prompt, example_content)
                 logger.info(f"LLM Prompt (syntax fix):")
                 logger.info(f"  {prompt}")
             elif design_feedback:
                 # Refinement prompt with design feedback
                 prompt = f"Improve the following {diagram_type} diagram based on this design feedback: {design_feedback}\\n\\nOriginal request: {description}\\n\\nPrevious source:\\n{diagram_source}"
-                # Add example if available
-                if example_content:
-                    prompt += f"\\n\\nReference example:\\n{example_content}"
+                prompt = self._append_example_to_prompt(prompt, example_content)
                 logger.info(f"LLM Prompt (design refinement):")
                 logger.info(f"  {prompt}")
             else:
                 # Initial prompt
                 prompt = f"Generate a {diagram_type} diagram: {description}"
-                # Add example if available
-                if example_content:
-                    prompt += f"\\n\\nReference example:\\n{example_content}"
+                prompt = self._append_example_to_prompt(prompt, example_content)
                 logger.info(f"LLM Prompt (initial):")
                 logger.info(f"  {prompt}")
             
