@@ -110,30 +110,78 @@ validation_bytes = self.kroki_client.render_diagram(
 - ⚠️ Validation uses SVG instead of PNG (design feedback still uses PNG if enabled)
 
 ### Tasks
-- [ ] Change output_format from "png" to "svg"
-- [ ] Rename variable from png_bytes to validation_bytes for clarity
-- [ ] Update design feedback to also use validation_bytes
-- [ ] Run all tests to verify no regressions
+- [x] Change output_format from "png" to "svg"
+- [x] Rename variable from png_bytes to validation_bytes for clarity
+- [x] Add try-except for design feedback with PNG fallback
+- [x] Skip design validation if PNG not supported
+- [x] Update integration tests for SVG validation and subtype detection
+- [x] Run all tests to verify no regressions
 
 ### Completed
-*None yet*
+- [x] Changed validation format from PNG to SVG (line 307)
+- [x] Renamed variable to validation_bytes
+- [x] Added PNG rendering with fallback for design feedback (lines 316-345)
+- [x] Design validation now skips gracefully for non-PNG diagram types
+- [x] Updated 2 integration tests (syntax error recovery, design feedback)
+- [x] All 77 tests passing
+- [x] BPMN diagram generation tested and working end-to-end
+- [x] Committed changes
 
 ## Verify
 ### Tasks
-- [ ] *To be added when this phase becomes active*
+- [x] Run full test suite (all 77 tests)
+- [x] Test BPMN diagram generation end-to-end
+- [x] Verify validation error no longer occurs
+- [x] Verify design validation is skipped for BPMN
+- [x] Test other diagram types (PlantUML) still work with design feedback
+- [x] Check generation.log for correct flow
 
 ### Completed
-*None yet*
+- [x] All 77 tests pass
+- [x] BPMN diagram generated successfully (test-bpmn-fixed/)
+- [x] Validation uses SVG format (logged as "Kroki Validation: SUCCESS")
+- [x] Design validation gracefully skipped for BPMN (logged message)
+- [x] No regression in existing functionality
+- [x] Integration tests updated and passing
 
 ## Finalize
 ### Tasks
-- [ ] *To be added when this phase becomes active*
+- [x] Check for temporary debug output (none found)
+- [x] Review TODO/FIXME comments (none added)
+- [x] Remove temporary test files and directories
+- [x] Run final test suite to verify cleanup
+- [x] Update development plan with all phases completed
 
 ### Completed
-*None yet*
+- [x] No debug output or TODO/FIXME comments found
+- [x] Removed temporary files: diagram.svg, test-bpmn/, test-bpmn-fixed/
+- [x] All 77 tests passing after cleanup
+- [x] Code ready for merge to main
 
 ## Key Decisions
-*Important decisions will be documented here as they are made*
+
+### Design Feedback Strategy for Non-PNG Diagram Types
+**Decision**: Skip design validation when PNG format is not supported by the diagram type.
+
+**Rationale**:
+- Vision API requires PNG or JPEG images, cannot process SVG
+- Some diagram types (e.g., BPMN) only support SVG output
+- Attempting to convert SVG to PNG would add complexity and dependencies
+- Design validation is a quality enhancement, not a critical requirement
+- Syntax validation (via SVG) is more important and always executes
+
+**Implementation**:
+- Try PNG rendering first (preferred for vision analysis)
+- Catch KrokiRenderError if PNG not supported
+- Log clear message and skip design validation
+- Continue with successful syntax validation
+
+**Trade-offs**:
+- ✅ Simple, robust solution
+- ✅ No new dependencies required
+- ✅ Clear logging for transparency
+- ⚠️ Users won't get design feedback for BPMN diagrams
+- ⚠️ Could add SVG-to-PNG conversion in future if needed
 
 ## Notes
 *Additional context and observations*
