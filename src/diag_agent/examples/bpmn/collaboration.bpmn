@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="definitions"
+             targetNamespace="http://bpmn.io/schema/bpmn">
+
+  <collaboration id="Collaboration_1">
+    <participant id="Participant_Customer" name="Customer" processRef="Process_Customer" />
+    <participant id="Participant_Vendor" name="Vendor" processRef="Process_Vendor" />
+
+    <messageFlow id="MessageFlow_1" sourceRef="Task_Order" targetRef="StartEvent_Vendor" name="Order" />
+    <messageFlow id="MessageFlow_2" sourceRef="Task_Ship" targetRef="Task_Receive" name="Delivery" />
+  </collaboration>
+
+  <process id="Process_Customer" isExecutable="false">
+    <startEvent id="StartEvent_Customer" name="Need Product">
+      <outgoing>Flow_C1</outgoing>
+    </startEvent>
+    <task id="Task_Order" name="Place Order">
+      <incoming>Flow_C1</incoming>
+      <outgoing>Flow_C2</outgoing>
+    </task>
+    <task id="Task_Receive" name="Receive Product">
+      <incoming>Flow_C2</incoming>
+      <outgoing>Flow_C3</outgoing>
+    </task>
+    <endEvent id="EndEvent_Customer" name="Done">
+      <incoming>Flow_C3</incoming>
+    </endEvent>
+
+    <sequenceFlow id="Flow_C1" sourceRef="StartEvent_Customer" targetRef="Task_Order" />
+    <sequenceFlow id="Flow_C2" sourceRef="Task_Order" targetRef="Task_Receive" />
+    <sequenceFlow id="Flow_C3" sourceRef="Task_Receive" targetRef="EndEvent_Customer" />
+  </process>
+
+  <process id="Process_Vendor" isExecutable="false">
+    <startEvent id="StartEvent_Vendor" name="Order Received">
+      <outgoing>Flow_V1</outgoing>
+    </startEvent>
+    <task id="Task_Prepare" name="Prepare Order">
+      <incoming>Flow_V1</incoming>
+      <outgoing>Flow_V2</outgoing>
+    </task>
+    <task id="Task_Ship" name="Ship Product">
+      <incoming>Flow_V2</incoming>
+      <outgoing>Flow_V3</outgoing>
+    </task>
+    <endEvent id="EndEvent_Vendor" name="Completed">
+      <incoming>Flow_V3</incoming>
+    </endEvent>
+
+    <sequenceFlow id="Flow_V1" sourceRef="StartEvent_Vendor" targetRef="Task_Prepare" />
+    <sequenceFlow id="Flow_V2" sourceRef="Task_Prepare" targetRef="Task_Ship" />
+    <sequenceFlow id="Flow_V3" sourceRef="Task_Ship" targetRef="EndEvent_Vendor" />
+  </process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="Participant_Customer_di" bpmnElement="Participant_Customer" isHorizontal="true">
+        <dc:Bounds x="120" y="80" width="600" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_Vendor_di" bpmnElement="Participant_Vendor" isHorizontal="true">
+        <dc:Bounds x="120" y="280" width="600" height="150" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,28 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title Component Diagram for API Application
+
+Container(spa, "Single Page Application", "JavaScript and Angular", "Provides all of the Internet banking functionality to customers via their web browser.")
+Container(mobile_app, "Mobile App", "Xamarin", "Provides a limited subset of the Internet banking functionality to customers via their mobile device.")
+ContainerDb(db, "Database", "Oracle Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+System_Ext(mainframe, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+
+Container_Boundary(api, "API Application") {
+    Component(signin, "Sign In Controller", "Spring MVC Rest Controller", "Allows users to sign in to the Internet Banking System.")
+    Component(accounts, "Accounts Summary Controller", "Spring MVC Rest Controller", "Provides customers with a summary of their bank accounts.")
+    Component(security, "Security Component", "Spring Bean", "Provides functionality related to signing in, changing passwords, etc.")
+    Component(mbsfacade, "Mainframe Banking System Facade", "Spring Bean", "A facade onto the mainframe banking system.")
+}
+
+Rel(spa, signin, "Makes API calls to", "JSON/HTTPS")
+Rel(spa, accounts, "Makes API calls to", "JSON/HTTPS")
+
+Rel(mobile_app, signin, "Makes API calls to", "JSON/HTTPS")
+Rel(mobile_app, accounts, "Makes API calls to", "JSON/HTTPS")
+
+Rel(signin, security, "Uses")
+Rel(accounts, mbsfacade, "Uses")
+Rel(security, db, "Read & write to", "JDBC")
+Rel(mbsfacade, mainframe, "Makes API calls to", "XML/HTTPS")
+@enduml

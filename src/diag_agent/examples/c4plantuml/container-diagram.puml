@@ -1,0 +1,32 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Container Diagram for Internet Banking System
+
+Person(customer, "Personal Banking Customer", "A customer of the bank, with personal bank accounts.")
+
+System_Boundary(c1, "Internet Banking System") {
+    Container(web_app, "Web Application", "Java and Spring MVC", "Delivers the static content and the Internet banking single page application.")
+    Container(spa, "Single Page Application", "JavaScript and Angular", "Provides all of the Internet banking functionality to customers via their web browser.")
+    Container(mobile_app, "Mobile App", "Xamarin", "Provides a limited subset of the Internet banking functionality to customers via their mobile device.")
+    ContainerDb(database, "Database", "Oracle Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+    Container(backend_api, "API Application", "Java and Spring MVC", "Provides Internet banking functionality via a JSON/HTTPS API.")
+}
+
+System_Ext(mail_system, "E-mail system", "The internal Microsoft Exchange e-mail system.")
+System_Ext(mainframe, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+
+Rel(customer, web_app, "Visits bigbank.com/ib using", "HTTPS")
+Rel(customer, spa, "Views account balances, and makes payments using")
+Rel(customer, mobile_app, "Views account balances, and makes payments using")
+
+Rel(web_app, spa, "Delivers to the customer's web browser")
+
+Rel(spa, backend_api, "Makes API calls to", "JSON/HTTPS")
+Rel(mobile_app, backend_api, "Makes API calls to", "JSON/HTTPS")
+Rel_Back(database, backend_api, "Reads from and writes to", "JDBC")
+
+Rel_Back(customer, mail_system, "Sends e-mails to")
+Rel_Back(mail_system, backend_api, "Sends e-mails using", "SMTP")
+Rel_Neighbor(backend_api, mainframe, "Makes API calls to", "XML/HTTPS")
+@enduml
