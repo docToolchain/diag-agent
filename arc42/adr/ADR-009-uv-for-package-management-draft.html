@@ -372,6 +372,12 @@
 <p><strong>Status</strong>: Accepted</p>
 </div>
 <div class="paragraph">
+<p><strong>Current Distribution Status</strong>:
+NOTE: diag-agent is currently distributed as <strong>source code only</strong> via Git repository.
+PyPI publication is planned for future releases but not yet implemented.
+Until then, installation requires cloning the repository.</p>
+</div>
+<div class="paragraph">
 <p><strong>Context</strong>:
 Python 3.12 introduced <code>uv</code> as the new, faster package manager (PEP 723).
 The project currently uses <code>pip</code> for installation, but <code>uv</code> offers significant
@@ -431,7 +437,7 @@ from "install + run" to just "run"</p>
 </ul>
 </div>
 <div class="paragraph">
-<p><strong>Usage Examples</strong>:</p>
+<p><strong>Usage Examples</strong> (current - source distribution):</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -441,7 +447,40 @@ from "install + run" to just "run"</p>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">Use Case</th>
-<th class="tableblock halign-left valign-top">Recommended Command</th>
+<th class="tableblock halign-left valign-top">Current Command (v0.1.0)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CI/CD Pipeline</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>git clone &amp;&amp; cd diag-agent &amp;&amp; uv pip install . &amp;&amp; diag-agent create-batch &#8230;&#8203;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Development install</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>git clone &amp;&amp; cd diag-agent &amp;&amp; uv pip install -e ".[dev]"</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Production install</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>git clone &amp;&amp; cd diag-agent &amp;&amp; uv pip install .</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Docker deployment</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>git clone &amp;&amp; cd diag-agent &amp;&amp; docker build -t diag-agent .</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Future Usage Examples</strong> (when published to PyPI):</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Use Case</th>
+<th class="tableblock halign-left valign-top">Planned Command (future)</th>
 </tr>
 </thead>
 <tbody>

@@ -418,7 +418,7 @@
 </div>
 </div>
 <div class="paragraph">
-<p><strong>Alternative (with uv installation):</strong></p>
+<p><strong>Current (v0.1.0 - source distribution):</strong></p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -427,8 +427,23 @@
     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     DIAG_AGENT_HEADLESS: true
   run: |
-    uv pip install diag-agent
+    git clone https://github.com/docToolchain/diag-agent.git
+    cd diag-agent
+    uv pip install .
     diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Future (when published to PyPI):</strong></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="prettyprint highlight"><code data-lang="yaml">- name: Generate Architecture Diagrams
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    DIAG_AGENT_HEADLESS: true
+  run: |
+    uvx diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams</code></pre>
 </div>
 </div>
 </div>
