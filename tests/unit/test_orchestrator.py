@@ -189,12 +189,13 @@ class TestOrchestrator:
             # Act
             result = orchestrator.execute(
                 description=description,
-                diagram_type=diagram_type
+                diagram_type=diagram_type,
+                output_formats="png"  # Single format to avoid multiple render calls
             )
 
         # Assert
-        # Verify KrokiClient.render_diagram() was called for validation
-        mock_kroki_client.render_diagram.assert_called_once()
+        # Verify KrokiClient.render_diagram() was called (validation + file writing)
+        assert mock_kroki_client.render_diagram.call_count == 2  # 1 validation + 1 file write
         call_args = mock_kroki_client.render_diagram.call_args
         rendered_source = call_args[1]["diagram_source"]
         assert rendered_source == "@startuml\nAlice -> Bob: Hello\n@enduml"
@@ -234,12 +235,14 @@ class TestOrchestrator:
             "@startuml\nAlice -> Bob: Fixed\n@enduml"   # Iteration 2: valid
         ]
 
-        # Mock KrokiClient - first raises error, then succeeds
+        # Mock KrokiClient - first raises error, then succeeds (+ file writing)
         mock_kroki_client = Mock()
         error_message = "Kroki rendering failed for diagram type 'plantuml': HTTP 400 - Syntax error at line 2"
+        png_bytes = b"\x89PNG\r\n\x1a\n"
         mock_kroki_client.render_diagram.side_effect = [
-            KrokiRenderError(error_message),  # Iteration 1: error
-            b"\x89PNG\r\n\x1a\n"               # Iteration 2: success
+            KrokiRenderError(error_message),  # Iteration 1: validation error
+            png_bytes,                        # Iteration 2: validation success
+            png_bytes                         # File writing: png
         ]
 
         description = "Test diagram"
@@ -252,7 +255,8 @@ class TestOrchestrator:
             # Act
             result = orchestrator.execute(
                 description=description,
-                diagram_type=diagram_type
+                diagram_type=diagram_type,
+                output_formats="png"  # Single format to avoid multiple file writes
             )
 
         # Assert
@@ -267,8 +271,8 @@ class TestOrchestrator:
         assert "Syntax error" in refinement_prompt or error_message in refinement_prompt, \
             f"Refinement prompt should contain Kroki error details: {refinement_prompt}"
 
-        # Verify 2 Kroki validation calls
-        assert mock_kroki_client.render_diagram.call_count == 2
+        # Verify Kroki calls: 2 validation + 1 file write
+        assert mock_kroki_client.render_diagram.call_count == 3
 
         # Verify result shows 2 iterations and success
         assert result["iterations_used"] == 2

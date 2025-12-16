@@ -157,6 +157,34 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Pattern: tmpdir fixture + Mocks für LLMClient + KrokiClient
 - [x] Alle 3 Tests schlagen fehl (erwartete Fehler: Files nicht erstellt) ✅
 
+## Green (Cycle 4: File Output)
+
+### Phase Entrance Criteria:
+- [x] RED-Phase abgeschlossen - 3 Tests schlagen fehl
+- [x] Tests schlagen aus dem richtigen Grund fehl (Files nicht erstellt)
+- [x] Implementierungs-Strategie klar (Directory creation + Format-Loop + Extension-Mapping)
+
+### Tasks
+- [x] **Orchestrator (Zyklus 4):** File Output implementieren
+- [x] Imports hinzufügen: os, Path (pathlib)
+- [x] Directory creation: os.makedirs(output_dir, exist_ok=True)
+- [x] output_formats parsen: split(",") + strip()
+- [x] Loop über Formate: source → write_text(), andere → render + write_bytes()
+- [x] Helper-Methode: _get_source_extension() mit Extension-Map
+- [x] primary_output_path tracking (erstes Format)
+- [x] Alte Tests fixen: output_formats="png" + side_effect erweitern
+- [x] Alle Tests ausführen und grün machen
+
+### Completed
+- [x] Imports: os, Path hinzugefügt ✅
+- [x] File-Writing-Logic nach Iteration-Loop implementiert ✅
+- [x] Directory creation mit exist_ok=True ✅
+- [x] Format-Loop: source (write_text) + Kroki-Formate (write_bytes) ✅
+- [x] Extension-Mapping: plantuml → .puml, mermaid → .mmd, default → .{type} ✅
+- [x] primary_output_path = erstes Format ✅
+- [x] 2 alte Tests gefixt (output_formats + side_effect) ✅
+- [x] Alle 8 Tests GRÜN! ✅ (95% Coverage für Orchestrator)
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
