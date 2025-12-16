@@ -67,3 +67,6 @@ def create(description: str, diagram_type: str, output: str, output_format: str)
     # Display result
     click.echo(f"✓ Diagram generated: {result['output_path']}")
     click.echo(f"  Source: {len(result['diagram_source'])} characters")
+    click.echo(f"  Iterations: {result['iterations_used']}")
+    click.echo(f"  Time: {result['elapsed_seconds']:.1f}s")
+    click.echo(f"  Stopped: {result['stopped_reason']}")
