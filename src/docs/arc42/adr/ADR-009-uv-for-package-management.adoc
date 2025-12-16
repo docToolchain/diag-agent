@@ -42,9 +42,10 @@ The primary goal is to improve the "Ease of Installation" quality requirement
 [cols="1,2",options="header"]
 |===
 |Use Case |Current Command (v0.1.0)
-|CI/CD Pipeline |`git clone && cd diag-agent && uv pip install . && diag-agent create-batch ...`
+|CI/CD Pipeline |`git clone && cd diag-agent && uv pip install . && uv run diag-agent create-batch ...`
 |Development install |`git clone && cd diag-agent && uv pip install -e ".[dev]"`
 |Production install |`git clone && cd diag-agent && uv pip install .`
+|Quick local command |`cd diag-agent && uv run diag-agent create "diagram"` (no venv activation)
 |Docker deployment |`git clone && cd diag-agent && docker build -t diag-agent .`
 |===
 

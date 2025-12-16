@@ -97,7 +97,7 @@ Related Quality Goals: xref:#quality-goals[2 (Ease of Installation)]
 |Fresh Ubuntu system, Python 3.10 installed, internet available
 
 |**Stimulus** (v0.1.0)
-|Developer runs: `git clone && cd diag-agent && uv pip install . && diag-agent create "test"`
+|Developer runs: `git clone && cd diag-agent && uv pip install . && uv run diag-agent create "test"`
 
 |**Stimulus** (future PyPI)
 |Developer runs: `uvx diag-agent create "test"` (no installation needed)

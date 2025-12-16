@@ -26,8 +26,8 @@ uv pip install .
 # Configure API key
 export ANTHROPIC_API_KEY=your_key_here
 
-# Generate a diagram
-diag-agent create "C4 context diagram for API gateway"
+# Generate a diagram (using uv run - no venv activation needed)
+uv run diag-agent create "C4 context diagram for API gateway"
 ```
 
 ### MCP Server (for Claude Desktop)
@@ -91,14 +91,14 @@ See [User Guide - Docker Deployment](src/docs/user-guide.md#docker-deployment) f
 
 ```bash
 # Generate diagrams
-diag-agent create "diagram description" [--type TYPE] [--output DIR] [--format FORMATS]
+uv run diag-agent create "diagram description" [--type TYPE] [--output DIR] [--format FORMATS]
 
 # Browse examples
-diag-agent examples list [--type TYPE]
-diag-agent examples show TYPE/NAME
+uv run diag-agent examples list [--type TYPE]
+uv run diag-agent examples show TYPE/NAME
 
 # Manage local Kroki server
-diag-agent kroki start|stop|status|logs
+uv run diag-agent kroki start|stop|status|logs
 ```
 
 See [User Guide - CLI Commands](src/docs/user-guide.md#cli-commands) for detailed documentation.
@@ -185,36 +185,36 @@ See [User Guide - Configuration](src/docs/user-guide.md#configuration) for all o
 
 ```bash
 # C4 Context Diagram
-diag-agent create "C4 context diagram for e-commerce platform" --type c4plantuml
+uv run diag-agent create "C4 context diagram for e-commerce platform" --type c4plantuml
 
 # BPMN Process
-diag-agent create "Order fulfillment process" --type bpmn
+uv run diag-agent create "Order fulfillment process" --type bpmn
 
 # Mermaid Flowchart
-diag-agent create "CI/CD pipeline stages" --type mermaid
+uv run diag-agent create "CI/CD pipeline stages" --type mermaid
 
 # Database Schema
-diag-agent create "User management database schema" --type erd
+uv run diag-agent create "User management database schema" --type erd
 ```
 
 ### Use Local Kroki Server
 
 ```bash
 # Start local Kroki (requires Docker)
-diag-agent kroki start
+uv run diag-agent kroki start
 
 # Generate diagram using local server
-diag-agent create "architecture diagram"
+uv run diag-agent create "architecture diagram"
 
 # Stop Kroki when done
-diag-agent kroki stop
+uv run diag-agent kroki stop
 ```
 
 ### Custom Output
 
 ```bash
 # Custom output directory and formats
-diag-agent create "System architecture" \
+uv run diag-agent create "System architecture" \
   --type c4plantuml \
   --output ./docs/architecture \
   --format svg,pdf,source

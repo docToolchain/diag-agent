@@ -48,8 +48,9 @@ uv pip install -e ".[dev,mcp]"
 ### Verify Installation
 
 ```bash
-diag-agent --version
-diag-agent --help
+# Using uv run (no venv activation needed)
+uv run diag-agent --version
+uv run diag-agent --help
 ```
 
 ### Docker Installation
@@ -144,7 +145,7 @@ Generate a diagram from natural language description.
 #### Syntax
 
 ```bash
-diag-agent create DESCRIPTION [OPTIONS]
+uv run diag-agent create DESCRIPTION [OPTIONS]
 ```
 
 #### Options
@@ -159,19 +160,19 @@ diag-agent create DESCRIPTION [OPTIONS]
 
 ```bash
 # Basic diagram generation
-diag-agent create "User authentication flow"
+uv run diag-agent create "User authentication flow"
 
 # C4 Context Diagram
-diag-agent create "C4 context diagram for API gateway" --type c4plantuml
+uv run diag-agent create "C4 context diagram for API gateway" --type c4plantuml
 
 # BPMN Process with custom output
-diag-agent create "Order fulfillment process" \
+uv run diag-agent create "Order fulfillment process" \
   --type bpmn \
   --output ./bpmn-diagrams \
   --format svg,pdf
 
 # Mermaid flowchart
-diag-agent create "Deployment pipeline stages" --type mermaid
+uv run diag-agent create "Deployment pipeline stages" --type mermaid
 ```
 
 #### Output
@@ -196,20 +197,20 @@ Manage and view example diagrams for different diagram types.
 
 ```bash
 # List all examples
-diag-agent examples list
+uv run diag-agent examples list
 
 # Filter by diagram type
-diag-agent examples list --type c4plantuml
+uv run diag-agent examples list --type c4plantuml
 ```
 
 #### Show Example Source
 
 ```bash
 # Show example source code
-diag-agent examples show c4plantuml/context-diagram
+uv run diag-agent examples show c4plantuml/context-diagram
 
 # Show BPMN example
-diag-agent examples show bpmn/simple-process
+uv run diag-agent examples show bpmn/simple-process
 ```
 
 #### Available Examples
@@ -232,7 +233,7 @@ Manage local Kroki Docker container for diagram rendering.
 #### Start Kroki Server
 
 ```bash
-diag-agent kroki start
+uv run diag-agent kroki start
 ```
 
 Launches a Docker container with Kroki server at `http://localhost:8000`.
@@ -240,7 +241,7 @@ Launches a Docker container with Kroki server at `http://localhost:8000`.
 #### Stop Kroki Server
 
 ```bash
-diag-agent kroki stop
+uv run diag-agent kroki stop
 ```
 
 Stops and removes the Kroki container.
@@ -248,7 +249,7 @@ Stops and removes the Kroki container.
 #### Check Status
 
 ```bash
-diag-agent kroki status
+uv run diag-agent kroki status
 ```
 
 Shows container running state and health status.
@@ -257,10 +258,10 @@ Shows container running state and health status.
 
 ```bash
 # Show logs
-diag-agent kroki logs
+uv run diag-agent kroki logs
 
 # Follow logs (live streaming)
-diag-agent kroki logs --follow
+uv run diag-agent kroki logs --follow
 ```
 
 ---
@@ -436,8 +437,8 @@ docker run --rm -it \
   diag-agent bash
 
 # Inside container, run commands
-diag-agent create "diagram"
-diag-agent examples list
+uv run diag-agent create "diagram"
+uv run diag-agent examples list
 ```
 
 ---
@@ -482,7 +483,7 @@ docker-compose ps
 
 # Use local CLI with Docker Kroki
 export KROKI_URL=http://localhost:8000
-diag-agent create "architecture diagram"
+uv run diag-agent create "architecture diagram"
 
 # Stop
 docker-compose down
@@ -778,7 +779,7 @@ uv pip install .
 
 # Alternative: Use public Kroki server
 export KROKI_URL=https://kroki.io
-diag-agent create "diagram"
+uv run diag-agent create "diagram"
 ```
 
 ---
@@ -790,10 +791,10 @@ diag-agent create "diagram"
 **Solution**:
 ```bash
 # Check if local Kroki is running
-diag-agent kroki status
+uv run diag-agent kroki status
 
 # Start local Kroki
-diag-agent kroki start
+uv run diag-agent kroki start
 
 # Or use public server
 export KROKI_URL=https://kroki.io
@@ -824,10 +825,10 @@ echo "ANTHROPIC_API_KEY=your_key_here" > .env
 ```bash
 # Increase max iterations
 export MAX_ITERATIONS=20
-diag-agent create "complex diagram"
+uv run diag-agent create "complex diagram"
 
 # Or simplify the description
-diag-agent create "simple user login flow"
+uv run diag-agent create "simple user login flow"
 ```
 
 ---
@@ -851,7 +852,7 @@ For detailed troubleshooting, enable debug logging:
 
 ```bash
 export LOG_LEVEL=DEBUG
-diag-agent create "diagram"
+uv run diag-agent create "diagram"
 ```
 
 ---

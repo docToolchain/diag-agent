@@ -100,7 +100,7 @@ Rel(diag_agent, docs, "Generates diagrams")
     git clone https://github.com/docToolchain/diag-agent.git
     cd diag-agent
     uv pip install .
-    diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams
+    uv run diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams
 ----
 
 **Future (when published to PyPI):**
