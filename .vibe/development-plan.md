@@ -133,6 +133,30 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Return Strategy: Primary path (erstes Format in Liste) ✓
 - [x] Source Extension Map: .puml (plantuml), .mmd (mermaid), default .{type} ✓
 
+## Red (Cycle 4: File Output)
+
+### Phase Entrance Criteria:
+- [x] EXPLORE abgeschlossen - File Output Strategie definiert
+- [x] Test-Typ entschieden: Unit-Tests mit tmpdir (echte Files, Mocks für Clients)
+- [x] Test-Szenarien identifiziert: Single format, Multiple formats, Source extensions
+
+### Tasks
+- [x] **Orchestrator (Zyklus 4):** Tests für File Output schreiben
+- [x] Test 1: `test_orchestrator_writes_single_format_file` (PNG only)
+- [x] Test validiert: Directory creation, PNG file writing, correct bytes, output_path
+- [x] Test 2: `test_orchestrator_writes_multiple_format_files` (png,svg,source)
+- [x] Test validiert: 3 files written, KrokiClient calls for PNG+SVG, .puml extension
+- [x] Test 3: `test_orchestrator_uses_correct_source_extension` (Mermaid → .mmd)
+- [x] Tests ausführen und Fehlschlag verifizieren (RED)
+
+### Completed
+- [x] 3 Tests in tests/unit/test_orchestrator.py hinzugefügt ✅
+- [x] Test 1: Single format (PNG) - Directory + File creation
+- [x] Test 2: Multiple formats - 3 Files (png, svg, source.puml)
+- [x] Test 3: Extension mapping - Mermaid (.mmd)
+- [x] Pattern: tmpdir fixture + Mocks für LLMClient + KrokiClient
+- [x] Alle 3 Tests schlagen fehl (erwartete Fehler: Files nicht erstellt) ✅
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)

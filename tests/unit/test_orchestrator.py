@@ -274,3 +274,174 @@ class TestOrchestrator:
         assert result["iterations_used"] == 2
         assert result["stopped_reason"] == "success"
         assert result["diagram_source"] == "@startuml\nAlice -> Bob: Fixed\n@enduml"
+
+    def test_orchestrator_writes_single_format_file(self, tmp_path):
+        """Test orchestrator writes diagram file for single output format.
+
+        Validates that:
+        - Output directory is created if it doesn't exist
+        - PNG file is written to output_dir/diagram.png
+        - File contains rendered bytes from KrokiClient
+        - Result output_path points to written file
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.kroki_local_url = "http://localhost:8000"
+
+        # Mock LLMClient
+        mock_llm_client = Mock()
+        mock_llm_client.generate.return_value = "@startuml\\nAlice -> Bob\\n@enduml"
+
+        # Mock KrokiClient - returns PNG bytes
+        mock_kroki_client = Mock()
+        png_bytes = b"\\x89PNG\\r\\n\\x1a\\n\\x00\\x00\\x00\\rIHDR"
+        mock_kroki_client.render_diagram.return_value = png_bytes
+
+        output_dir = tmp_path / "diagrams"
+        
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client):
+            orchestrator = Orchestrator(mock_settings)
+            
+            # Act
+            result = orchestrator.execute(
+                description="Test diagram",
+                diagram_type="plantuml",
+                output_dir=str(output_dir),
+                output_formats="png"
+            )
+
+        # Assert
+        # Verify directory was created
+        assert output_dir.exists(), f"Output directory not created: {output_dir}"
+        
+        # Verify PNG file was written
+        png_file = output_dir / "diagram.png"
+        assert png_file.exists(), f"PNG file not created: {png_file}"
+        
+        # Verify file content
+        written_bytes = png_file.read_bytes()
+        assert written_bytes == png_bytes, "PNG file content doesn't match rendered bytes"
+        
+        # Verify result points to written file
+        assert result["output_path"] == str(png_file)
+
+    def test_orchestrator_writes_multiple_format_files(self, tmp_path):
+        """Test orchestrator writes multiple files for comma-separated formats.
+
+        Validates that:
+        - output_formats="png,svg,source" creates 3 files
+        - PNG and SVG rendered via KrokiClient
+        - Source file contains diagram_source text with correct extension
+        - PlantUML source uses .puml extension
+        - Result output_path points to first format (png)
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.kroki_local_url = "http://localhost:8000"
+
+        # Mock LLMClient
+        diagram_source = "@startuml\\nAlice -> Bob: Test\\n@enduml"
+        mock_llm_client = Mock()
+        mock_llm_client.generate.return_value = diagram_source
+
+        # Mock KrokiClient - returns different bytes for different formats
+        mock_kroki_client = Mock()
+        png_bytes = b"\\x89PNG\\r\\n\\x1a\\n"
+        svg_bytes = b"<svg>test</svg>"
+        
+        def render_side_effect(diagram_source, diagram_type, output_format):
+            if output_format == "png":
+                return png_bytes
+            elif output_format == "svg":
+                return svg_bytes
+        
+        mock_kroki_client.render_diagram.side_effect = render_side_effect
+
+        output_dir = tmp_path / "diagrams"
+        
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client):
+            orchestrator = Orchestrator(mock_settings)
+            
+            # Act
+            result = orchestrator.execute(
+                description="Test diagram",
+                diagram_type="plantuml",
+                output_dir=str(output_dir),
+                output_formats="png,svg,source"
+            )
+
+        # Assert
+        # Verify all 3 files were written
+        png_file = output_dir / "diagram.png"
+        svg_file = output_dir / "diagram.svg"
+        source_file = output_dir / "diagram.puml"  # PlantUML extension
+        
+        assert png_file.exists(), f"PNG file not created: {png_file}"
+        assert svg_file.exists(), f"SVG file not created: {svg_file}"
+        assert source_file.exists(), f"Source file not created: {source_file}"
+        
+        # Verify file contents
+        assert png_file.read_bytes() == png_bytes
+        assert svg_file.read_bytes() == svg_bytes
+        assert source_file.read_text() == diagram_source
+        
+        # Verify result points to first format (PNG)
+        assert result["output_path"] == str(png_file)
+
+    def test_orchestrator_uses_correct_source_extension(self, tmp_path):
+        """Test orchestrator uses correct file extension for source format.
+
+        Validates that:
+        - PlantUML (plantuml, c4plantuml) → .puml
+        - Mermaid → .mmd
+        - Other types → .{diagram_type}
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.kroki_local_url = "http://localhost:8000"
+
+        # Mock LLMClient
+        diagram_source = "graph TD\\n  A --> B"
+        mock_llm_client = Mock()
+        mock_llm_client.generate.return_value = diagram_source
+
+        # Mock KrokiClient
+        mock_kroki_client = Mock()
+        mock_kroki_client.render_diagram.return_value = b"\\x89PNG"
+
+        output_dir = tmp_path / "diagrams"
+        
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client):
+            orchestrator = Orchestrator(mock_settings)
+            
+            # Act
+            result = orchestrator.execute(
+                description="Test diagram",
+                diagram_type="mermaid",
+                output_dir=str(output_dir),
+                output_formats="source"
+            )
+
+        # Assert
+        # Verify Mermaid uses .mmd extension
+        source_file = output_dir / "diagram.mmd"
+        assert source_file.exists(), f"Mermaid source file not created: {source_file}"
+        assert source_file.read_text() == diagram_source
