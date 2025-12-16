@@ -31,6 +31,7 @@ class Settings:
     # Agent Configuration
     max_iterations: int
     max_time_seconds: int
+    validate_design: bool
     
     # Logging
     log_level: str
@@ -58,6 +59,7 @@ class Settings:
         # Agent Configuration
         self.max_iterations = self._get_int_env("DIAG_AGENT_MAX_ITERATIONS", 5)
         self.max_time_seconds = self._get_int_env("DIAG_AGENT_MAX_TIME_SECONDS", 60)
+        self.validate_design = self._get_bool_env("DIAG_AGENT_VALIDATE_DESIGN", False)
         
         # Logging
         self.log_level = os.getenv("DIAG_AGENT_LOG_LEVEL", "INFO")
@@ -97,3 +99,21 @@ class Settings:
         except ValueError:
             # Invalid integer value, fall back to default
             return default
+
+    @staticmethod
+    def _get_bool_env(key: str, default: bool) -> bool:
+        """Get boolean value from environment variable with fallback to default.
+        
+        Args:
+            key: Environment variable name
+            default: Default value if ENV var not set or invalid
+            
+        Returns:
+            Boolean value from ENV or default
+        """
+        value = os.getenv(key)
+        if value is None:
+            return default
+        
+        # Parse common boolean representations
+        return value.lower() in ('true', '1', 'yes', 'on')

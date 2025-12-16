@@ -60,6 +60,7 @@ class Orchestrator:
         stopped_reason = "success"
         diagram_source = ""  # Will be set by LLM
         validation_error = None  # Track validation errors for refinement
+        design_feedback = None  # Track design feedback for refinement
         
         # Get limits from settings
         max_iterations = self.settings.max_iterations
@@ -77,8 +78,11 @@ class Orchestrator:
             
             # Build prompt for diagram generation
             if validation_error:
-                # Refinement prompt with error details
+                # Refinement prompt with syntax error details
                 prompt = f"Fix the following {diagram_type} diagram. Previous attempt had this error: {validation_error}\n\nOriginal request: {description}\n\nPrevious source:\n{diagram_source}"
+            elif design_feedback:
+                # Refinement prompt with design feedback
+                prompt = f"Improve the following {diagram_type} diagram based on this design feedback: {design_feedback}\n\nOriginal request: {description}\n\nPrevious source:\n{diagram_source}"
             else:
                 # Initial prompt
                 prompt = f"Generate a {diagram_type} diagram: {description}"
@@ -88,14 +92,33 @@ class Orchestrator:
             
             # Validate syntax with Kroki
             try:
-                self.kroki_client.render_diagram(
+                png_bytes = self.kroki_client.render_diagram(
                     diagram_source=diagram_source,
                     diagram_type=diagram_type,
                     output_format="png"
                 )
                 # Validation successful - diagram is syntactically valid
                 validation_error = None
-                break  # Success!
+                
+                # Design validation (if enabled)
+                if self.settings.validate_design:
+                    # Analyze design with vision-capable LLM
+                    design_criteria_prompt = "Analyze this diagram for layout quality, readability, and spacing. If the design is good, respond with 'approved'. Otherwise, provide specific improvement suggestions."
+                    feedback = self.llm_client.vision_analyze(png_bytes, design_criteria_prompt)
+                    
+                    # Check if design is approved
+                    if "approved" in feedback.lower():
+                        # Design approved - done!
+                        design_feedback = None
+                        break
+                    else:
+                        # Design needs improvement - save feedback for refinement
+                        design_feedback = feedback
+                        # Continue to next iteration
+                else:
+                    # Design validation disabled - done after syntax check
+                    break
+                    
             except KrokiRenderError as e:
                 # Validation failed - save error for refinement prompt
                 validation_error = str(e)

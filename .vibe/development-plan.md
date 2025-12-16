@@ -648,6 +648,45 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Tests ausgeführt - 2 schlagen fehl, 1 passed ✅
 - [x] Fehler sind korrekt: Design-Feedback-Integration fehlt ✅
 
+## Green (Orchestrator Cycle 5: Design Feedback Integration)
+
+### Phase Entrance Criteria:
+- [x] RED Phase abgeschlossen - 2 Tests schlagen fehl
+- [x] Tests schlagen aus dem richtigen Grund fehl
+- [x] Test 3 passed (backwards compatible)
+
+### Tasks
+- [ ] **Settings:** validate_design boolean hinzufügen
+- [ ] validate_design: bool attribute
+- [ ] ENV loading: DIAG_AGENT_VALIDATE_DESIGN (default: false)
+- [ ] **Orchestrator:** Design-Feedback-Loop implementieren
+- [ ] design_feedback variable tracking (analog zu validation_error)
+- [ ] PNG bytes speichern nach render_diagram()
+- [ ] Design-Check nach Syntax-OK (wenn validate_design=true)
+- [ ] vision_analyze() mit criteria prompt aufrufen
+- [ ] Approval detection: "approved" in feedback.lower()
+- [ ] Refinement-Prompt mit design_feedback
+- [ ] Break wenn approved, sonst continue iteration
+- [ ] Alte Tests anpassen (validate_design in mocks setzen)
+- [ ] Alle Tests ausführen und grün machen
+
+### Completed
+- [x] Settings.validate_design implementiert ✅
+  - validate_design: bool attribute hinzugefügt
+  - _get_bool_env() helper method implementiert
+  - ENV loading: DIAG_AGENT_VALIDATE_DESIGN (default: false)
+- [x] Orchestrator Design-Feedback-Loop implementiert ✅
+  - design_feedback variable tracking
+  - PNG bytes capture von render_diagram()
+  - Design-Check nach Syntax-OK (wenn validate_design=true)
+  - vision_analyze() mit criteria prompt
+  - Approval detection: "approved" in feedback.lower()
+  - Refinement-Prompt mit design_feedback
+  - Break wenn approved, sonst continue
+- [x] Alte Tests angepasst (validate_design=False in 8 tests) ✅
+- [x] Alle 11 Tests GRÜN! ✅ (100% pass rate)
+- [x] Orchestrator Coverage: 95% (hoch von 80%) ✅
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)

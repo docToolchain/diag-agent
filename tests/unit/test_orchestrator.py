@@ -25,6 +25,7 @@ class TestOrchestrator:
         mock_settings.max_iterations = 2
         mock_settings.max_time_seconds = 60
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
         mock_llm_client = Mock()
@@ -69,6 +70,7 @@ class TestOrchestrator:
         mock_settings.max_iterations = 100  # High number
         mock_settings.max_time_seconds = 1  # Very short timeout
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
         mock_llm_client = Mock()
@@ -115,6 +117,7 @@ class TestOrchestrator:
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
         mock_llm_client = Mock()
@@ -170,6 +173,7 @@ class TestOrchestrator:
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient - generates valid PlantUML
         mock_llm_client = Mock()
@@ -227,6 +231,7 @@ class TestOrchestrator:
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient - first generates invalid, then valid source
         mock_llm_client = Mock()
@@ -296,6 +301,7 @@ class TestOrchestrator:
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
         mock_llm_client = Mock()
@@ -353,6 +359,7 @@ class TestOrchestrator:
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
         diagram_source = "@startuml\\nAlice -> Bob: Test\\n@enduml"
@@ -420,6 +427,7 @@ class TestOrchestrator:
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
         diagram_source = "graph TD\\n  A --> B"
