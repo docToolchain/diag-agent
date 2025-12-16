@@ -1,7 +1,0 @@
-flowchart TD
-    Start([Start]) --> Process[Process Data]
-    Process --> Decision{Valid?}
-    Decision -->|Yes| Save[Save to Database]
-    Decision -->|No| Error[Show Error]
-    Save --> End([End])
-    Error --> End
