@@ -61,8 +61,16 @@ def create(description: str, diagram_type: str, output: str, output_format: str)
     orchestrator = Orchestrator(settings)
     
     # Progress callback for console output
+    # Track max message length to properly clear old text
+    max_len = [0]  # Use list to allow modification in nested function
+    
     def progress_callback(message: str):
-        click.echo(f"\\r{message}", nl=False)  # Overwrite previous line
+        import sys
+        # Pad message to clear old characters
+        max_len[0] = max(max_len[0], len(message))
+        padded = message.ljust(max_len[0])
+        click.echo(f"\r{padded}", nl=False)
+        sys.stdout.flush()
     
     # Execute diagram generation with progress updates
     result = orchestrator.execute(
@@ -74,7 +82,7 @@ def create(description: str, diagram_type: str, output: str, output_format: str)
     )
     
     # Clear progress line and show final result
-    click.echo(f"\\r✓ Diagram generated: {result['output_path']}")
+    click.echo(f"\r{'✓ Diagram generated: ' + result['output_path']}")
     click.echo(f"  Source: {len(result['diagram_source'])} characters")
     click.echo(f"  Iterations: {result['iterations_used']}")
     click.echo(f"  Time: {result['elapsed_seconds']:.1f}s")
