@@ -1071,7 +1071,7 @@ Prevents infinite loops and excessive API costs.</p>
     git clone https://github.com/docToolchain/diag-agent.git
     cd diag-agent
     uv pip install .
-    diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams</code></pre>
+    uv run diag-agent create-batch --input arch-requirements.txt --output ./docs/diagrams</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2263,7 +2263,7 @@ Continue? [y/N]
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong> (v0.1.0)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Developer runs: <code>git clone &amp;&amp; cd diag-agent &amp;&amp; uv pip install . &amp;&amp; diag-agent create "test"</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Developer runs: <code>git clone &amp;&amp; cd diag-agent &amp;&amp; uv pip install . &amp;&amp; uv run diag-agent create "test"</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Stimulus</strong> (future PyPI)</p></td>

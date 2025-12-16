@@ -453,7 +453,7 @@ from "install + run" to just "run"</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">CI/CD Pipeline</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>git clone &amp;&amp; cd diag-agent &amp;&amp; uv pip install . &amp;&amp; diag-agent create-batch &#8230;&#8203;</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>git clone &amp;&amp; cd diag-agent &amp;&amp; uv pip install . &amp;&amp; uv run diag-agent create-batch &#8230;&#8203;</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Development install</p></td>
@@ -462,6 +462,10 @@ from "install + run" to just "run"</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Production install</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>git clone &amp;&amp; cd diag-agent &amp;&amp; uv pip install .</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Quick local command</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>cd diag-agent &amp;&amp; uv run diag-agent create "diagram"</code> (no venv activation)</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Docker deployment</p></td>
