@@ -14,8 +14,9 @@ RUN apt-get update && \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv for fast dependency resolution
-RUN pip install --no-cache-dir uv
+# Upgrade pip (CVE-2025-8869 fix) then install uv
+RUN pip install --no-cache-dir --upgrade pip>=25.3 && \
+    pip install --no-cache-dir uv
 
 # Copy dependency files
 COPY pyproject.toml ./
