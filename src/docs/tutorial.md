@@ -407,6 +407,125 @@ diag-agent create "diagram"
 
 ---
 
+## Tutorial 9: Docker Deployment
+
+Run diag-agent in Docker containers for portability and isolation.
+
+### Step 1: Pull or Build Image
+
+```bash
+# Option 1: Pull pre-built image (when published)
+docker pull ghcr.io/yourusername/diag-agent:latest
+
+# Option 2: Build locally
+git clone https://github.com/yourusername/diag-agent.git
+cd diag-agent
+docker build -t diag-agent .
+```
+
+### Step 2: Run CLI via Docker
+
+```bash
+# Generate a diagram
+docker run --rm \
+  -e ANTHROPIC_API_KEY=your_key_here \
+  -e KROKI_URL=https://kroki.io \
+  -v $(pwd)/diagrams:/diagrams \
+  diag-agent create "User authentication flow"
+
+# Check generated files
+ls ./diagrams/
+```
+
+### Step 3: Use Docker Compose
+
+Create `.env` file:
+```bash
+cat > .env <<EOF
+ANTHROPIC_API_KEY=your_key_here
+LLM_PROVIDER=anthropic
+LLM_MODEL=claude-sonnet-4
+EOF
+```
+
+Start Kroki server:
+```bash
+# Start only Kroki
+docker-compose up -d kroki
+
+# Check status
+docker-compose ps
+docker-compose logs kroki
+```
+
+Generate diagrams:
+```bash
+# Run CLI via Docker Compose
+docker-compose run --rm diag-agent-cli create "C4 context diagram"
+
+# With options
+docker-compose run --rm diag-agent-cli create \
+  "BPMN process" \
+  --type bpmn \
+  --output /diagrams/bpmn
+```
+
+### Step 4: Run MCP Server with Docker
+
+Start MCP server:
+```bash
+# Start MCP server + Kroki
+docker-compose --profile mcp up -d
+
+# View logs
+docker-compose logs -f diag-agent-mcp
+```
+
+Configure MCP client to connect to `http://localhost:8080`.
+
+### Step 5: Manage Services
+
+```bash
+# Stop all services
+docker-compose down
+
+# Restart specific service
+docker-compose restart diag-agent-mcp
+
+# View all logs
+docker-compose logs -f
+
+# Remove volumes (clean up)
+docker-compose down -v
+```
+
+### Use Cases for Docker
+
+**Development:**
+- Consistent environment across team
+- No Python version conflicts
+- Easy setup for new developers
+
+**CI/CD:**
+- Generate diagrams in pipelines
+- Automated documentation updates
+- Integration tests
+
+**Production:**
+- Deploy MCP server to Kubernetes
+- Scalable diagram generation
+- Isolated execution environment
+
+### Docker Best Practices
+
+1. **Use .env file** for secrets (never commit)
+2. **Mount volumes** for diagram output persistence
+3. **Use specific tags** (not `latest`) in production
+4. **Monitor logs** with `docker-compose logs -f`
+5. **Health checks** ensure services are ready
+
+---
+
 ## Next Steps
 
 ### Explore More Diagram Types

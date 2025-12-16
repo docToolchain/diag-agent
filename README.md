@@ -51,6 +51,26 @@ uv pip install diag-agent[mcp]
 Then in Claude Desktop:
 > "Create a C4 context diagram for an e-commerce platform"
 
+### Docker
+
+```bash
+# Run with Docker (no installation needed)
+docker run --rm \
+  -e ANTHROPIC_API_KEY=your_key_here \
+  -v $(pwd)/diagrams:/diagrams \
+  ghcr.io/yourusername/diag-agent:latest \
+  create "User authentication flow"
+
+# Or use Docker Compose for full stack (CLI + Kroki)
+docker-compose up -d kroki
+docker-compose run --rm diag-agent-cli create "architecture diagram"
+
+# MCP Server with Docker Compose
+docker-compose --profile mcp up -d
+```
+
+See [User Guide - Docker Deployment](src/docs/user-guide.md#docker-deployment) for details.
+
 ## Documentation
 
 - **[User Guide](src/docs/user-guide.md)** - Comprehensive reference with all CLI commands, configuration, and MCP setup
@@ -88,9 +108,9 @@ See [Tutorial - Diagram Types](src/docs/tutorial.md) for practical examples.
 
 ### Requirements
 
-- Python 3.10+
-- Docker (optional, for local Kroki server)
-- LLM API key (Anthropic, OpenAI, or other)
+- **Python 3.10+** (for native installation)
+- **Docker** (optional, for containerized deployment or local Kroki server)
+- **LLM API key** (Anthropic, OpenAI, or other)
 
 ### Install via uv (Recommended)
 
@@ -114,6 +134,24 @@ uv pip install -e ".[dev,mcp]"
 # Run directly without installing
 uvx diag-agent create "architecture diagram"
 ```
+
+### Docker Installation
+
+```bash
+# Pull image (when published)
+docker pull ghcr.io/yourusername/diag-agent:latest
+
+# Or build locally
+docker build -t diag-agent .
+
+# Run
+docker run --rm \
+  -e ANTHROPIC_API_KEY=your_key \
+  -v $(pwd)/diagrams:/diagrams \
+  diag-agent create "architecture diagram"
+```
+
+See [User Guide - Docker Deployment](src/docs/user-guide.md#docker-deployment) for full documentation.
 
 ## Configuration
 
