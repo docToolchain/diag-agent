@@ -60,3 +60,57 @@ class LLMClient:
             raise LLMGenerationError(
                 f"LLM generation failed for model '{model}': {str(e)}"
             ) from e
+
+    def vision_analyze(self, image_bytes: bytes, prompt: str) -> str:
+        """Analyze diagram image using vision-capable LLM.
+
+        Args:
+            image_bytes: PNG image bytes to analyze
+            prompt: Analysis instructions (e.g., "Evaluate layout quality")
+
+        Returns:
+            Design feedback string from LLM
+
+        Raises:
+            LLMGenerationError: If LLM API call fails
+        """
+        import base64
+
+        # Convert PNG bytes to base64 data URL
+        base64_image = base64.b64encode(image_bytes).decode('utf-8')
+        data_url = f"data:image/png;base64,{base64_image}"
+
+        # Build model string: provider/model (e.g., "anthropic/claude-3-7-sonnet-latest")
+        model = f"{self.settings.llm_provider}/{self.settings.llm_model}"
+
+        try:
+            # Call LiteLLM completion API with vision message structure
+            response = litellm.completion(
+                model=model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": prompt
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": data_url
+                                }
+                            }
+                        ]
+                    }
+                ]
+            )
+
+            # Extract design feedback from response
+            return response.choices[0].message.content
+
+        except Exception as e:
+            # Convert any LLM errors to custom exception with context
+            raise LLMGenerationError(
+                f"LLM vision analysis failed for model '{model}': {str(e)}"
+            ) from e

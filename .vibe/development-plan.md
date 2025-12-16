@@ -496,6 +496,39 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Tests ausgeführt - beide schlagen fehl ✅
 - [x] Fehler ist korrekt: AttributeError: 'LLMClient' object has no attribute 'vision_analyze' ✅
 
+## Green (Design Analyzer Cycle 1: Vision-based Feedback)
+
+### Phase Entrance Criteria:
+- [x] RED Phase abgeschlossen - 2 Tests schlagen fehl
+- [x] Tests schlagen aus dem richtigen Grund fehl (AttributeError)
+- [x] Tests validieren erwartete Funktionalität (Vision-Analyse)
+- [x] Test-Typ: Unit-Tests mit Mocks (analog zu generate())
+
+### Tasks
+- [ ] **LLMClient (Vision-Methode):** vision_analyze() implementieren
+- [ ] Import base64 module für encoding
+- [ ] vision_analyze(image_bytes: bytes, prompt: str) -> str signature
+- [ ] PNG bytes → base64 data URL conversion implementieren
+- [ ] Vision message structure bauen: [text, image_url]
+- [ ] litellm.completion() mit vision messages aufrufen
+- [ ] Design feedback aus response.choices[0].message.content extrahieren
+- [ ] try/except für LLMGenerationError (analog zu generate())
+- [ ] Alle Tests ausführen und grün machen
+
+### Completed
+- [x] vision_analyze() method implementiert ✅
+- [x] Import base64 module ✅
+- [x] PNG bytes → base64 data URL conversion ✅
+- [x] Vision message structure: [text, image_url] array ✅
+- [x] litellm.completion() mit vision messages ✅
+- [x] Design feedback extraction ✅
+- [x] Error-Handling: try/except → LLMGenerationError ✅
+- [x] Alle 3 Tests GRÜN! ✅
+  - test_generate_diagram_source_success ✅ (alter Test)
+  - test_vision_analyze_design_feedback_success ✅ (neu)
+  - test_vision_analyze_api_error ✅ (neu)
+- [x] LLMClient Coverage: 92% (24 statements, 2 missed) ✅
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
