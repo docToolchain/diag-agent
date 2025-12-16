@@ -279,6 +279,33 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Alle 3 KrokiClient-Tests GRÜN! ✅ (100% Coverage)
 - [x] Alle 8 Orchestrator-Tests GRÜN! ✅ (95% Coverage)
 
+## Refactor (KrokiClient Cycle 3: Content-Type Validation)
+
+### Phase Entrance Criteria:
+- [x] Alle Tests grün (3 KrokiClient + 8 Orchestrator)
+- [x] Implementation vollständig und funktionsfähig
+- [x] Keine Hacks oder Shortcuts
+- [x] Die Lösung adressiert das Problem
+
+### Tasks
+- [x] **KrokiClient (Zyklus 3):** Code Review durchführen
+- [x] Docstrings vollständig ✓
+- [x] Type hints geprüft ✓
+- [x] Potentielle Refactorings evaluiert:
+  - Error-Message Duplication → NEIN (unterschiedliche Kontexte, YAGNI)
+  - Content-Type Check extraction → NEIN (4 Zeilen, 1x verwendet, YAGNI)
+  - Magic String 'text/plain' → NEIN (klar, selbsterklärend)
+- [x] Keine Refactorings nötig - Code ist clean
+- [x] kroki-demo.py löschen (alle Informationen extrahiert)
+
+### Completed
+- [x] Code Review durchgeführt ✅
+- [x] Keine Refactorings nötig ✅
+- [x] Alle Tests passed ✅ (100% Coverage für KrokiClient)
+- [x] KrokiClient Zyklus 3 abgeschlossen ✅ (Content-Type Validation)
+- [x] Bug gefixt: HTTP 200 + text/plain wird jetzt erkannt ✅
+- [x] kroki-demo.py gelöscht ✅ (alle Learnings extrahiert)
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
