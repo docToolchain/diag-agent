@@ -1036,6 +1036,41 @@ diag-agent/
 - [x] Coverage: LLMClient 94%, Orchestrator 95% ✓
 - [x] Cycle 2 abgeschlossen ✓ (Prompt Optimization)
 
+## E2E Test: Design Feedback Loop Validation
+
+### Test Results (2025-12-16)
+- [x] **E2E-Test durchgeführt** mit validate_design=true
+- [x] **Autonomer Design-Feedback-Loop funktioniert!** ✅
+- [x] Test-Szenario: Komplexes Sequence-Diagramm (User Registration Flow)
+- [x] **Ergebnis:**
+  - **Iterations: 4** (Design-Refinement aktiv!)
+  - **Time: 67.2s** (max_time_seconds=60 → Limit erreicht)
+  - **Stopped: max_time** (nicht success - Loop würde weiterlaufen)
+  - **Source: 1742 characters** (großes, detailliertes Diagramm)
+  - **PNG: 870x2209 px, 101KB** (sehr gut lesbar)
+
+### Design-Optimierungen durch Vision-LLM:
+1. **Layout-Parameter:**
+   - ParticipantPadding 50
+   - BoxPadding 25
+   - SequenceMessageAlign center
+   - ResponseMessageBelowArrow true
+2. **Spacing:** ||| zwischen Nachrichten (bessere Lesbarkeit)
+3. **Phasen-Trennung:** == Registration Phase ==, == Email Verification Phase ==
+4. **Lifecycle:** activate/deactivate für Teilnehmer
+5. **Multi-line messages:** Klarere Beschreibungen mit \n
+
+### Key Insights:
+- ✅ Design-Feedback-Loop ist vollständig funktional
+- ✅ Vision-LLM macht sinnvolle Layout-Verbesserungen
+- ✅ Iteration-Loop stoppt korrekt bei max_time
+- ⚠️ Time-Limit kann erreicht werden bevor "approved"
+- ⚠️ Bei komplexen Diagrammen: Syntax-Fehler nach Design-Refinement möglich
+
+### CLI Enhancement:
+- [x] CLI zeigt jetzt: iterations_used, elapsed_seconds, stopped_reason
+- [x] Bessere Transparenz über autonomen Prozess
+
 ## Open Backlog Items
 
 ### Documentation (Later)
