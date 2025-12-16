@@ -449,3 +449,171 @@ class TestOrchestrator:
         source_file = output_dir / "diagram.mmd"
         assert source_file.exists(), f"Mermaid source file not created: {source_file}"
         assert source_file.read_text() == diagram_source
+
+    def test_orchestrator_design_approved_first_iteration(self, tmp_path):
+        """Test orchestrator design feedback - approved on first iteration.
+
+        Validates that:
+        - Design validation runs when validate_design=true
+        - vision_analyze() called with PNG bytes and criteria prompt
+        - When feedback contains "approved", iteration stops
+        - Result shows 1 iteration, stopped_reason="success"
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.kroki_url = "http://localhost:8000"
+        mock_settings.validate_design = True  # Enable design validation
+
+        # Mock LLMClient
+        diagram_source = "@startuml\nAlice -> Bob: Hello\n@enduml"
+        mock_llm_client = Mock()
+        mock_llm_client.generate.return_value = diagram_source
+        mock_llm_client.vision_analyze.return_value = "The design looks good and is approved."
+
+        # Mock KrokiClient - returns PNG bytes for vision analysis
+        png_bytes = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR'
+        mock_kroki_client = Mock()
+        mock_kroki_client.render_diagram.return_value = png_bytes
+
+        output_dir = tmp_path / "diagrams"
+
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client):
+            orchestrator = Orchestrator(mock_settings)
+
+            # Act
+            result = orchestrator.execute(
+                description="User authentication flow",
+                diagram_type="plantuml",
+                output_dir=str(output_dir),
+                output_formats="png"
+            )
+
+        # Assert
+        assert result["iterations_used"] == 1, "Should complete in 1 iteration when design approved"
+        assert result["stopped_reason"] == "success", "Should stop with success reason"
+        
+        # Verify vision_analyze was called with PNG bytes
+        mock_llm_client.vision_analyze.assert_called_once()
+        call_args = mock_llm_client.vision_analyze.call_args
+        assert call_args[0][0] == png_bytes, "Should pass PNG bytes to vision_analyze"
+        assert "layout" in call_args[0][1].lower() or "design" in call_args[0][1].lower(), \
+            "Should include design criteria in prompt"
+
+    def test_orchestrator_design_refinement_then_approved(self, tmp_path):
+        """Test orchestrator design feedback - refinement then approval.
+
+        Validates that:
+        - First iteration: design feedback suggests improvements
+        - Refinement prompt includes design feedback
+        - Second iteration: design approved
+        - Result shows 2 iterations
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.kroki_url = "http://localhost:8000"
+        mock_settings.validate_design = True
+
+        # Mock LLMClient - different responses per iteration
+        diagram_source_v1 = "@startuml\nAlice -> Bob: Hello\n@enduml"
+        diagram_source_v2 = "@startuml\ntop to bottom direction\nAlice -> Bob: Hello\n@enduml"
+        
+        mock_llm_client = Mock()
+        mock_llm_client.generate.side_effect = [diagram_source_v1, diagram_source_v2]
+        
+        # vision_analyze: iteration 1 suggests improvement, iteration 2 approves
+        mock_llm_client.vision_analyze.side_effect = [
+            "Layout is cramped. Suggest using vertical layout for better readability.",
+            "The design looks good and is approved."
+        ]
+
+        # Mock KrokiClient
+        png_bytes = b'\x89PNG\r\n\x1a\n'
+        mock_kroki_client = Mock()
+        mock_kroki_client.render_diagram.return_value = png_bytes
+
+        output_dir = tmp_path / "diagrams"
+
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client):
+            orchestrator = Orchestrator(mock_settings)
+
+            # Act
+            result = orchestrator.execute(
+                description="User authentication flow",
+                diagram_type="plantuml",
+                output_dir=str(output_dir),
+                output_formats="png"
+            )
+
+        # Assert
+        assert result["iterations_used"] == 2, "Should take 2 iterations (improvement + approval)"
+        assert result["stopped_reason"] == "success"
+        
+        # Verify vision_analyze called twice
+        assert mock_llm_client.vision_analyze.call_count == 2
+        
+        # Verify second generate() call includes design feedback in refinement prompt
+        second_generate_call = mock_llm_client.generate.call_args_list[1]
+        refinement_prompt = second_generate_call[0][0]
+        assert "cramped" in refinement_prompt.lower() or "vertical" in refinement_prompt.lower(), \
+            "Refinement prompt should include design feedback from iteration 1"
+
+    def test_orchestrator_design_check_disabled(self, tmp_path):
+        """Test orchestrator with design validation disabled (backwards compatible).
+
+        Validates that:
+        - When validate_design=false, vision_analyze is NOT called
+        - Only syntax validation runs (existing behavior)
+        - Backwards compatible with existing workflows
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.kroki_url = "http://localhost:8000"
+        mock_settings.validate_design = False  # Design validation disabled
+
+        # Mock LLMClient
+        diagram_source = "@startuml\nAlice -> Bob: Hello\n@enduml"
+        mock_llm_client = Mock()
+        mock_llm_client.generate.return_value = diagram_source
+
+        # Mock KrokiClient
+        png_bytes = b'\x89PNG\r\n\x1a\n'
+        mock_kroki_client = Mock()
+        mock_kroki_client.render_diagram.return_value = png_bytes
+
+        output_dir = tmp_path / "diagrams"
+
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client):
+            orchestrator = Orchestrator(mock_settings)
+
+            # Act
+            result = orchestrator.execute(
+                description="User authentication flow",
+                diagram_type="plantuml",
+                output_dir=str(output_dir),
+                output_formats="png"
+            )
+
+        # Assert
+        assert result["iterations_used"] == 1, "Should complete in 1 iteration (syntax valid)"
+        assert result["stopped_reason"] == "success"
+        
+        # Verify vision_analyze was NOT called
+        mock_llm_client.vision_analyze.assert_not_called()

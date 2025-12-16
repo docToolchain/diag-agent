@@ -619,6 +619,35 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
   - Assert: vision_analyze() NOT called, nur Syntax-Validation
   - Assert: Backwards-compatible (existing behavior preserved)
 
+## Red (Orchestrator Cycle 5: Design Feedback Integration)
+
+### Phase Entrance Criteria:
+- [x] EXPLORE abgeschlossen - Requirements klar
+- [x] MVP-Scope definiert
+- [x] Test-Strategie klar: 3 Unit-Tests
+
+### Tasks
+- [ ] **Settings:** validate_design attribute hinzufügen (wird in Tests gemockt)
+- [ ] **Orchestrator (Cycle 5):** Tests für Design-Feedback-Loop schreiben
+- [ ] Test 1: test_orchestrator_design_approved_first_iteration
+- [ ] Test 2: test_orchestrator_design_refinement_then_approved
+- [ ] Test 3: test_orchestrator_design_check_disabled
+- [ ] Tests ausführen und Fehlschlag verifizieren (RED)
+
+### Completed
+- [x] 3 Tests in test_orchestrator.py hinzugefügt ✅
+- [x] Test 1: test_orchestrator_design_approved_first_iteration ✅
+  - Validates: vision_analyze() called, design approved, 1 iteration
+  - Fehler: vision_analyze() called 0 times (Design-Check nicht implementiert)
+- [x] Test 2: test_orchestrator_design_refinement_then_approved ✅
+  - Validates: 2 iterations, design feedback in refinement prompt
+  - Fehler: 1 iteration statt 2 (Design-Refinement-Loop fehlt)
+- [x] Test 3: test_orchestrator_design_check_disabled ✅
+  - Validates: vision_analyze() NOT called when validate_design=false
+  - Status: PASSED (backwards compatible - correct!)
+- [x] Tests ausgeführt - 2 schlagen fehl, 1 passed ✅
+- [x] Fehler sind korrekt: Design-Feedback-Integration fehlt ✅
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
