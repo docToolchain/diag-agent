@@ -1,0 +1,35 @@
+@startuml
+skinparam activityArrowFontSize 14
+skinparam activityDiamondPadding 40
+skinparam activityPadding 30
+
+start
+
+:Process Data;
+
+<style>
+activity {
+  Margin 20 20 20 20
+}
+diamond {
+  Margin 30 30 30 30
+  Padding 20
+}
+</style>
+
+-[hidden]->
+-[hidden]->
+
+if (Valid?) then (  yes  )
+  -[hidden]->
+  :Save to Database;
+else (  no  )
+  -[hidden]->
+  :Show Error;
+endif
+
+-[hidden]->
+-[hidden]->
+
+stop
+@enduml

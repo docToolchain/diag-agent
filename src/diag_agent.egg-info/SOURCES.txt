@@ -18,6 +18,7 @@ src/diag_agent/cli/__init__.py
 src/diag_agent/cli/commands.py
 src/diag_agent/config/__init__.py
 src/diag_agent/config/settings.py
+src/diag_agent/examples/__init__.py
 src/diag_agent/kroki/__init__.py
 src/diag_agent/kroki/client.py
 src/diag_agent/kroki/manager.py
