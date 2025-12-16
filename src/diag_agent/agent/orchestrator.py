@@ -9,6 +9,7 @@ from pathlib import Path
 
 from diag_agent.llm.client import LLMClient
 from diag_agent.kroki.client import KrokiClient, KrokiRenderError
+from diag_agent.kroki.manager import KrokiManager, KrokiManagerError
 
 
 class Orchestrator:
@@ -30,8 +31,67 @@ class Orchestrator:
         self.settings = settings
         # Initialize LLM client for diagram generation
         self.llm_client = LLMClient(settings)
-        # Initialize Kroki client for syntax validation
-        self.kroki_client = KrokiClient(settings.kroki_url)
+        
+        # Initialize Kroki client with auto-mode support
+        kroki_url = self._determine_kroki_url(settings)
+        self.kroki_client = KrokiClient(kroki_url)
+    
+    def _determine_kroki_url(self, settings: Any) -> str:
+        """Determine which Kroki URL to use based on mode and availability.
+        
+        Auto-mode logic:
+        - Try to use local Kroki (Docker) if available
+        - Start container if needed
+        - Fallback to remote (kroki.io) if local unavailable
+        
+        Local-mode: Use local Kroki only (no fallback)
+        Remote-mode: Use remote Kroki only
+        
+        Args:
+            settings: Application settings
+            
+        Returns:
+            Kroki URL to use (local or remote)
+        """
+        mode = settings.kroki_mode
+        
+        # Remote mode: Use kroki.io directly
+        if mode == "remote":
+            return settings.kroki_remote_url
+        
+        # Auto-mode or Local-mode: Try to use local Kroki
+        if mode in ("auto", "local"):
+            try:
+                manager = KrokiManager()
+                
+                # Check if container is running
+                if not manager.is_running():
+                    # Try to start container
+                    manager.start()
+                
+                # Verify container is healthy
+                if manager.health_check():
+                    return settings.kroki_local_url
+                
+                # Health check failed
+                if mode == "auto":
+                    # Auto-mode: Fallback to remote
+                    return settings.kroki_remote_url
+                else:
+                    # Local-mode: Use local even if unhealthy (explicit choice)
+                    return settings.kroki_local_url
+                    
+            except KrokiManagerError:
+                # Docker not available or start failed
+                if mode == "auto":
+                    # Auto-mode: Graceful fallback to remote
+                    return settings.kroki_remote_url
+                else:
+                    # Local-mode: Let error propagate (explicit local required)
+                    raise
+        
+        # Default fallback (shouldn't reach here)
+        return settings.kroki_local_url
     
     def execute(
         self,

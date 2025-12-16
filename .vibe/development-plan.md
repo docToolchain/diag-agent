@@ -1266,6 +1266,134 @@ diag-agent/
 - [x] Coverage: 95% gesamt, KrokiManager 84% ✅
 - [x] Kroki Manager Cycle 1 abgeschlossen ✅ (Docker-based deployment)
 
+## Explore (Orchestrator Cycle 6: Auto-Mode Integration)
+
+### Phase Entrance Criteria:
+- [x] Kroki Manager Cycle 1 complete (Docker deployment)
+- [x] User approved auto-mode integration
+- [x] ADR-003 requires local-first with fallback
+
+### Tasks
+- [x] **Auto-Mode (Orchestrator Cycle 6):** Requirements analysieren
+- [x] Aktuellen Settings.kroki_url Code verstehen
+- [x] Aktuellen Orchestrator KrokiClient-Usage verstehen
+- [x] Auto-Mode Logic definieren: Try local → Fallback remote
+- [x] Design Decision: Where to implement auto-logic (Settings vs Orchestrator)
+- [x] MVP-Scope definieren
+- [x] Test-Strategie: Unit tests with mocks
+
+### Completed
+- [x] Settings.kroki_url Property analysiert ✓
+  - Aktuell: `mode=="remote"` → remote_url, sonst → local_url
+  - Problem: "auto" wird nicht implementiert (fällt auf local zurück)
+  - Property ist einfach: Keine Side-Effects, nur URL-Selection
+- [x] Orchestrator.__init__ analysiert ✓
+  - Zeile 33: `self.kroki_client = KrokiClient(settings.kroki_url)`
+  - Nutzt direkt kroki_url Property
+  - Keine KrokiManager-Integration
+  - Kein Auto-Mode mit Fallback-Logic
+- [x] Design Decision ✓
+  - **Settings.kroki_url bleibt einfach**: Nur URL-Selection, keine Complex Logic
+  - **Orchestrator macht Auto-Logic**: KrokiManager Integration + Fallback
+  - Begründung: Orchestrator hat bereits Lifecycle-Management (LLMClient, KrokiClient)
+- [x] MVP-Scope definiert ✓
+  - **Cycle 6 Focus**: Orchestrator Auto-Mode Integration
+  - Orchestrator.__init__ Enhancement:
+    - Bei `kroki_mode == "auto"`:
+      1. KrokiManager instantiieren
+      2. `is_running()` prüfen → wenn False: `start()`
+      3. `health_check()` → wenn OK: `KrokiClient(localhost:8000)`
+      4. Wenn Fehler (Docker nicht da, start failed, health fail): Fallback zu remote
+    - Bei `kroki_mode == "local"`: KrokiManager nutzen, KEIN Fallback (explizit local)
+    - Bei `kroki_mode == "remote"`: Wie bisher, nur remote
+  - Graceful Degradation: Auto-Mode toleriert Fehler, local-Mode nicht
+  - **Deferred**: CLI commands (kroki start/stop), Settings validation
+- [x] Test-Strategie definiert ✓
+  - **Test 1**: Auto-mode success (Docker läuft, health OK → localhost:8000)
+  - **Test 2**: Auto-mode fallback (Docker nicht da → kroki.io)
+  - **Test 3**: Auto-mode fallback (Docker da, health fail → kroki.io)
+  - **Test 4**: Local-mode success (explizit local → localhost:8000)
+  - **Test 5**: Remote-mode (unchanged behavior)
+  - Mock pattern: KrokiManager methods (is_running, start, health_check)
+
+## Red (Orchestrator Cycle 6: Auto-Mode Integration)
+
+### Phase Entrance Criteria:
+- [x] EXPLORE abgeschlossen - Auto-mode design klar
+- [x] MVP-Scope definiert: Orchestrator KrokiManager integration
+- [x] Test-Strategie validiert mit User: Unit-Tests mit Mocks
+
+### Tasks
+- [x] **Orchestrator (Cycle 6):** Tests für Auto-Mode schreiben
+- [x] Test 1: test_orchestrator_auto_mode_uses_local_when_available
+- [x] Test 2: test_orchestrator_auto_mode_starts_container_when_not_running
+- [x] Test 3: test_orchestrator_auto_mode_fallback_when_docker_not_available
+- [x] Test 4: test_orchestrator_auto_mode_fallback_when_health_check_fails
+- [x] Test 5: test_orchestrator_local_mode_no_fallback
+- [x] Tests ausführen und Fehlschlag verifizieren (RED)
+
+### Completed
+- [x] 5 Tests in tests/unit/test_orchestrator.py hinzugefügt ✅
+- [x] Test-Pattern: Mocks für Settings + KrokiManager + KrokiClient ✅
+- [x] Tests schlagen fehl (erwarteter Fehler: AttributeError 'KrokiManager') ✅
+- [x] Fehler ist korrekt: KrokiManager noch nicht in Orchestrator importiert ✅
+- [x] RED-Phase abgeschlossen ✅
+
+## Green (Orchestrator Cycle 6: Auto-Mode Integration)
+
+### Phase Entrance Criteria:
+- [x] RED-Phase abgeschlossen - 5 Tests schlagen fehl
+- [x] Tests schlagen aus dem richtigen Grund fehl (AttributeError)
+- [x] Implementation klar: Auto-Mode logic in Orchestrator.__init__
+
+### Tasks
+- [x] **Orchestrator (Cycle 6):** Auto-Mode implementieren
+- [x] Import KrokiManager + KrokiManagerError
+- [x] __init__ erweitern: Auto-Mode decision logic
+- [x] Auto-Mode: is_running → start if needed → health_check → use local or fallback
+- [x] Local-Mode: Use KrokiManager, no fallback
+- [x] Remote-Mode: Unchanged (use kroki.io directly)
+- [x] Alle Tests ausführen und grün machen
+
+### Completed
+- [x] KrokiManager + KrokiManagerError importiert ✅
+- [x] _determine_kroki_url() method implementiert ✅
+  - Auto-mode: Try local → Fallback remote
+  - Local-mode: Use local (no fallback)
+  - Remote-mode: Use remote directly
+- [x] __init__ erweitert: kroki_url = _determine_kroki_url(settings) ✅
+- [x] Alle 16 Orchestrator tests GRÜN! ✅ (11 alte + 5 neue)
+- [x] Alle 44 tests GRÜN! ✅ (39 unit + 5 integration)
+- [x] Coverage: 94% ✅ (Orchestrator: 93%)
+
+## Refactor (Orchestrator Cycle 6: Auto-Mode Integration)
+
+### Phase Entrance Criteria:
+- [x] Alle Tests grün (44 tests)
+- [x] Implementation vollständig und funktionsfähig
+- [x] Auto-Mode implementiert (try local → fallback remote)
+
+### Tasks
+- [x] **Orchestrator (Cycle 6):** Code Review durchführen
+- [x] Docstrings vollständig prüfen
+- [x] Type hints geprüft
+- [x] Potentielle Refactorings evaluiert:
+  - Extract method für auto/local logic → NEIN (YAGNI, nur 1x verwendet)
+  - Duplicate "return remote_url" → NEIN (unterschiedliche Kontexte, Kommentare wichtig)
+  - Simplify nested if-else → NEIN (Explizitheit ist Feature für Klarheit)
+- [x] YAGNI-Prinzip angewandt
+- [x] Tests nach Refactoring ausgeführt
+
+### Completed
+- [x] Code Review durchgeführt ✅
+- [x] Docstrings vollständig ✓ (Args, Returns, Logic erklärt)
+- [x] Type hints angemessen ✓ (settings: Any -> str)
+- [x] Keine Refactorings nötig - Code ist clean ✅
+- [x] Alle 44 Tests GRÜN! ✅
+- [x] Coverage: 94% (Orchestrator: 97% ↑ von 93%) ✅
+- [x] Orchestrator Cycle 6 abgeschlossen ✅ (Auto-Mode Integration)
+- [x] ADR-003 vollständig implementiert ✅ (Local-First mit graceful fallback)
+
 ## Open Backlog Items
 
 ### Documentation (Later)

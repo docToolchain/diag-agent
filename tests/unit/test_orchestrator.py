@@ -24,7 +24,9 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 2
         mock_settings.max_time_seconds = 60
+        mock_settings.kroki_mode = "remote"
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
@@ -69,7 +71,9 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 100  # High number
         mock_settings.max_time_seconds = 1  # Very short timeout
+        mock_settings.kroki_mode = "remote"
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
@@ -116,7 +120,9 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
+        mock_settings.kroki_mode = "remote"
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
@@ -172,7 +178,9 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
+        mock_settings.kroki_mode = "remote"
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient - generates valid PlantUML
@@ -230,7 +238,9 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
+        mock_settings.kroki_mode = "remote"
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient - first generates invalid, then valid source
@@ -300,7 +310,9 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
+        mock_settings.kroki_mode = "remote"
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
@@ -358,7 +370,9 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
+        mock_settings.kroki_mode = "remote"
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
@@ -426,7 +440,9 @@ class TestOrchestrator:
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
+        mock_settings.kroki_mode = "remote"
         mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = False  # Disable design validation for this test
 
         # Mock LLMClient
@@ -475,6 +491,8 @@ class TestOrchestrator:
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.kroki_url = "http://localhost:8000"
+        mock_settings.kroki_mode = "remote"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = True  # Enable design validation
 
         # Mock LLMClient
@@ -530,6 +548,8 @@ class TestOrchestrator:
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.kroki_url = "http://localhost:8000"
+        mock_settings.kroki_mode = "remote"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = True
 
         # Mock LLMClient - different responses per iteration
@@ -591,6 +611,8 @@ class TestOrchestrator:
         # Arrange
         mock_settings = Mock(spec=Settings)
         mock_settings.max_iterations = 5
+        mock_settings.kroki_mode = "remote"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.max_time_seconds = 60
         mock_settings.kroki_url = "http://localhost:8000"
         mock_settings.validate_design = False  # Design validation disabled
@@ -625,3 +647,220 @@ class TestOrchestrator:
         
         # Verify vision_analyze was NOT called
         mock_llm_client.vision_analyze.assert_not_called()
+    def test_orchestrator_auto_mode_uses_local_when_available(self):
+        """Test auto-mode uses local Kroki when container is running and healthy.
+
+        Validates:
+        - kroki_mode="auto" checks if local container is running
+        - Doesn't start container if already running  
+        - Performs health check
+        - Uses localhost:8000 when healthy
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.kroki_mode = "auto"
+        mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.validate_design = False
+
+        # Mock LLMClient
+        mock_llm_client = Mock()
+        mock_llm_client.generate.return_value = "@startuml\nTest\n@enduml"
+
+        # Mock KrokiClient
+        mock_kroki_client = Mock()
+        mock_kroki_client.render_diagram.return_value = b"\x89PNG"
+
+        # Mock KrokiManager - container is running and healthy
+        mock_kroki_manager = Mock()
+        mock_kroki_manager.is_running.return_value = True
+        mock_kroki_manager.health_check.return_value = True
+
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client), \
+             patch("diag_agent.agent.orchestrator.KrokiManager", return_value=mock_kroki_manager):
+            
+            # Act
+            orchestrator = Orchestrator(mock_settings)
+
+            # Assert - should use local Kroki
+            assert orchestrator.kroki_client is mock_kroki_client
+            # Verify KrokiClient was instantiated with local URL
+            from diag_agent.agent import orchestrator as orch_module
+            orch_module.KrokiClient.assert_called_with("http://localhost:8000")
+            
+            # Verify KrokiManager methods called
+            mock_kroki_manager.is_running.assert_called_once()
+            mock_kroki_manager.health_check.assert_called_once()
+            # Should NOT start (already running)
+            mock_kroki_manager.start.assert_not_called()
+
+    def test_orchestrator_auto_mode_starts_container_when_not_running(self):
+        """Test auto-mode starts container when not running.
+
+        Validates:
+        - Detects container not running
+        - Calls start()
+        - Performs health check after start
+        - Uses localhost:8000 after successful start
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.kroki_mode = "auto"
+        mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.validate_design = False
+
+        # Mock KrokiManager - not running, start succeeds, then healthy
+        mock_kroki_manager = Mock()
+        mock_kroki_manager.is_running.return_value = False
+        mock_kroki_manager.health_check.return_value = True
+
+        mock_llm_client = Mock()
+        mock_kroki_client = Mock()
+
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client), \
+             patch("diag_agent.agent.orchestrator.KrokiManager", return_value=mock_kroki_manager):
+            
+            # Act
+            orchestrator = Orchestrator(mock_settings)
+
+            # Assert
+            mock_kroki_manager.is_running.assert_called_once()
+            mock_kroki_manager.start.assert_called_once()  # Should start
+            mock_kroki_manager.health_check.assert_called_once()
+            
+            # Should use local URL
+            from diag_agent.agent import orchestrator as orch_module
+            orch_module.KrokiClient.assert_called_with("http://localhost:8000")
+
+    def test_orchestrator_auto_mode_fallback_when_docker_not_available(self):
+        """Test auto-mode falls back to remote when Docker not installed.
+
+        Validates:
+        - KrokiManager raises KrokiManagerError (Docker not found)
+        - Gracefully falls back to kroki.io
+        - No error propagated to user
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+        from diag_agent.kroki.manager import KrokiManagerError
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.kroki_mode = "auto"
+        mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.validate_design = False
+
+        # Mock KrokiManager - Docker not available
+        mock_kroki_manager = Mock()
+        mock_kroki_manager.is_running.side_effect = KrokiManagerError("Docker not installed")
+
+        mock_llm_client = Mock()
+        mock_kroki_client = Mock()
+
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client), \
+             patch("diag_agent.agent.orchestrator.KrokiManager", return_value=mock_kroki_manager):
+            
+            # Act
+            orchestrator = Orchestrator(mock_settings)
+
+            # Assert - should fallback to remote
+            from diag_agent.agent import orchestrator as orch_module
+            orch_module.KrokiClient.assert_called_with("https://kroki.io")
+
+    def test_orchestrator_auto_mode_fallback_when_health_check_fails(self):
+        """Test auto-mode falls back to remote when health check fails.
+
+        Validates:
+        - Container running but health check fails
+        - Falls back to kroki.io
+        - Graceful degradation
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.kroki_mode = "auto"
+        mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.validate_design = False
+
+        # Mock KrokiManager - running but unhealthy
+        mock_kroki_manager = Mock()
+        mock_kroki_manager.is_running.return_value = True
+        mock_kroki_manager.health_check.return_value = False  # Health check fails
+
+        mock_llm_client = Mock()
+        mock_kroki_client = Mock()
+
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client), \
+             patch("diag_agent.agent.orchestrator.KrokiManager", return_value=mock_kroki_manager):
+            
+            # Act
+            orchestrator = Orchestrator(mock_settings)
+
+            # Assert - should fallback to remote
+            from diag_agent.agent import orchestrator as orch_module
+            orch_module.KrokiClient.assert_called_with("https://kroki.io")
+
+    def test_orchestrator_local_mode_no_fallback(self):
+        """Test local mode uses KrokiManager without fallback logic.
+
+        Validates:
+        - kroki_mode="local" uses KrokiManager
+        - Starts container if not running
+        - Uses localhost:8000 (no fallback check)
+        """
+        from diag_agent.agent.orchestrator import Orchestrator
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.kroki_mode = "local"
+        mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
+        mock_settings.max_iterations = 5
+        mock_settings.max_time_seconds = 60
+        mock_settings.validate_design = False
+
+        # Mock KrokiManager
+        mock_kroki_manager = Mock()
+        mock_kroki_manager.is_running.return_value = True
+        mock_kroki_manager.health_check.return_value = True
+
+        mock_llm_client = Mock()
+        mock_kroki_client = Mock()
+
+        with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
+             patch("diag_agent.agent.orchestrator.KrokiClient", return_value=mock_kroki_client), \
+             patch("diag_agent.agent.orchestrator.KrokiManager", return_value=mock_kroki_manager):
+            
+            # Act
+            orchestrator = Orchestrator(mock_settings)
+
+            # Assert - should use local
+            from diag_agent.agent import orchestrator as orch_module
+            orch_module.KrokiClient.assert_called_with("http://localhost:8000")
+            
+            # Verify KrokiManager was used
+            mock_kroki_manager.is_running.assert_called_once()

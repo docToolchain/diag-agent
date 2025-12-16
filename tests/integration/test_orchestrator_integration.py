@@ -35,6 +35,9 @@ class TestOrchestratorIntegration:
         # Arrange - Mock settings
         mock_settings = Mock(spec=Settings)
         mock_settings.kroki_url = "https://kroki.io"
+        mock_settings.kroki_mode = "remote"
+        mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.validate_design = False
@@ -87,6 +90,9 @@ class TestOrchestratorIntegration:
         # Arrange
         mock_settings = Mock(spec=Settings)
         mock_settings.kroki_url = "https://kroki.io"
+        mock_settings.kroki_mode = "remote"
+        mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.validate_design = False
@@ -145,6 +151,9 @@ class TestOrchestratorIntegration:
         # Arrange
         mock_settings = Mock(spec=Settings)
         mock_settings.kroki_url = "https://kroki.io"
+        mock_settings.kroki_mode = "remote"
+        mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.max_iterations = 3  # Low limit
         mock_settings.max_time_seconds = 60
         mock_settings.validate_design = False
@@ -195,6 +204,9 @@ class TestOrchestratorIntegration:
         # Arrange
         mock_settings = Mock(spec=Settings)
         mock_settings.kroki_url = "https://kroki.io"
+        mock_settings.kroki_mode = "remote"
+        mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.max_iterations = 10  # High iteration limit
         mock_settings.max_time_seconds = 1  # Very low time limit (1 second)
         mock_settings.validate_design = False
@@ -245,6 +257,9 @@ class TestOrchestratorIntegration:
         # Arrange
         mock_settings = Mock(spec=Settings)
         mock_settings.kroki_url = "https://kroki.io"
+        mock_settings.kroki_mode = "remote"
+        mock_settings.kroki_local_url = "http://localhost:8000"
+        mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.max_iterations = 5
         mock_settings.max_time_seconds = 60
         mock_settings.validate_design = True  # Enable design feedback
