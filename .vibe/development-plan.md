@@ -372,6 +372,31 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Alle 6 Settings-Tests GRÜN! ✅ (100% Coverage)
 - [x] Alle 8 Orchestrator-Tests GRÜN! ✅ (95% Coverage)
 
+## Refactor (Settings Cycle 1: Kroki Mode Support)
+
+### Phase Entrance Criteria:
+- [x] Alle Tests grün (6 Settings + 8 Orchestrator)
+- [x] Implementation vollständig und funktionsfähig
+- [x] Bug fixed: kroki_mode wird jetzt respektiert
+
+### Tasks
+- [x] **Settings (Zyklus 1):** Code Review durchführen
+- [x] Docstrings vollständig ✓
+- [x] Type hints geprüft ✓
+- [x] Potentielle Refactorings evaluiert:
+  - kroki_url Logic extraction → NEIN (4 Zeilen, YAGNI)
+  - Mode validation → NEIN (graceful fallback reicht)
+  - Docstring improvements → Optional (bereits klar)
+- [x] Keine Refactorings nötig - Code ist clean
+
+### Completed
+- [x] Code Review durchgeführt ✅
+- [x] Keine Refactorings nötig ✅
+- [x] Alle Tests passed ✅ (Settings 100%, Orchestrator 95%)
+- [x] E2E-Test erfolgreich OHNE Workaround ✅ (mode=remote funktioniert korrekt)
+- [x] Settings Zyklus 1 abgeschlossen ✅ (Kroki Mode Support)
+- [x] Bug gefixt: DIAG_AGENT_KROKI_MODE=remote funktioniert jetzt ✅
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
