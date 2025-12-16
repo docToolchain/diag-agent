@@ -1122,6 +1122,150 @@ diag-agent/
   - Time Limit: max_time_seconds enforcement
   - Design Feedback: validate_design=true → Vision → Refinement → Approved
 
+## Explore (Kroki Manager Cycle 1: Docker-based Local Deployment)
+
+### Phase Entrance Criteria:
+- [x] Integration tests complete (32/32 passing, 97% coverage)
+- [x] MVP Core production-ready
+- [x] ADR-003 requirements understood (Local-First)
+- [x] User approved Kroki Manager implementation
+
+### Tasks
+- [x] **Kroki Manager (Cycle 1):** Docker-based deployment requirements analysieren
+- [x] Kroki documentation research: Docker vs Fat-JAR trade-offs
+- [x] Docker deployment pattern: yuzutech/kroki image, port mapping, lifecycle
+- [x] Fat-JAR challenges: No diagram libraries included, complex manual setup
+- [x] Settings integration: kroki_mode (local/remote/auto) implementation
+- [x] Health check strategy: HTTP endpoint testing vs docker ps
+- [x] MVP-Scope definition: Docker-based manager with start/stop/health
+- [x] Test-Strategie: Unit tests with subprocess mocks
+
+### Completed
+- [x] Kroki documentation researched ✓
+  - **Fat-JAR**: Download from GitHub releases, requires Java 11+
+  - **Critical Issue**: Fat-JAR does NOT include diagram libraries (GraphViz, PlantUML, etc.)
+  - Manual library installation required → Complex user experience
+  - Configuration: `java -DKROKI_PORT=8000 -jar kroki-server.jar`
+  - Sources: [Manual Install](https://docs.kroki.io/kroki/setup/manual-install/)
+- [x] Docker deployment analyzed ✓
+  - **Image**: `yuzutech/kroki` (gateway server, all libraries included)
+  - **Run**: `docker run -d --name kroki -p8000:8000 yuzutech/kroki`
+  - **Stop**: `docker stop kroki && docker rm kroki`
+  - **Status**: `docker ps --filter name=kroki`
+  - **Simpler than Fat-JAR**: No manual library installation needed
+  - Sources: [Docker Setup](https://docs.kroki.io/kroki/setup/use-docker-or-podman/)
+- [x] MVP-Scope defined ✓
+  - **Cycle 1 Focus**: Docker-based Kroki Manager
+  - Component: `src/diag_agent/kroki/manager.py`
+  - Main methods:
+    - `start()`: Launch Docker container (docker run)
+    - `stop()`: Stop and remove container (docker stop + rm)
+    - `is_running()`: Check if container exists (docker ps)
+    - `health_check()`: HTTP GET to http://localhost:8000 (simple connectivity test)
+  - Settings integration: Use existing kroki_mode (local/remote/auto)
+  - Auto-mode logic: Try local (docker), fallback to remote on failure
+  - **Deferred**: Fat-JAR support, advanced health checks, container auto-restart, Mermaid/BPMN containers
+- [x] Design decisions ✓
+  - **Docker over Fat-JAR for MVP**: Simpler, all diagram libraries included
+  - **ADR-003 compliance**: Local-First with Docker (user controls local deployment)
+  - **Subprocess management**: Use `subprocess.run()` for docker commands
+  - **Error handling**: Custom `KrokiManagerError` exception
+  - **Graceful degradation**: If Docker not available, fallback to remote (kroki.io)
+- [x] Test-Strategie defined ✓
+  - **Test 1**: start() success (mock subprocess, assert docker run called)
+  - **Test 2**: stop() success (mock subprocess, assert docker stop + rm)
+  - **Test 3**: is_running() returns True/False (mock docker ps output)
+  - **Test 4**: health_check() success (mock httpx request)
+  - **Test 5**: Docker not available → graceful fallback
+  - Mock pattern: unittest.mock.patch for subprocess and httpx
+
+## Red (Kroki Manager Cycle 1: Docker-based Local Deployment)
+
+### Phase Entrance Criteria:
+- [x] EXPLORE abgeschlossen - Docker-based design klar
+- [x] MVP-Scope definiert: start/stop/is_running/health_check
+- [x] Test-Strategie validiert mit User: Unit-Tests mit Mocks
+
+### Tasks
+- [x] **Kroki Manager (Cycle 1):** Tests schreiben
+- [x] Test-Datei erstellen: tests/unit/test_kroki_manager.py
+- [x] Test 1: test_start_kroki_docker_container_success
+- [x] Test 2: test_stop_kroki_docker_container_success
+- [x] Test 3: test_is_running_returns_true_when_container_exists
+- [x] Test 4: test_is_running_returns_false_when_container_not_found
+- [x] Test 5: test_health_check_success
+- [x] Test 6: test_health_check_fails_when_kroki_not_responding
+- [x] Test 7: test_start_docker_not_available_raises_error
+- [x] Tests ausführen und Fehlschlag verifizieren (RED)
+
+### Completed
+- [x] 7 Tests in tests/unit/test_kroki_manager.py geschrieben ✅
+- [x] Test-Pattern: unittest.mock für subprocess + httpx ✅
+- [x] Alle 7 Tests schlagen fehl (erwarteter Fehler: ImportError) ✅
+- [x] Fehler ist korrekt: KrokiManager Klasse existiert noch nicht ✅
+- [x] RED-Phase abgeschlossen ✅
+
+## Green (Kroki Manager Cycle 1: Docker-based Local Deployment)
+
+### Phase Entrance Criteria:
+- [x] RED-Phase abgeschlossen - 7 Tests schlagen fehl
+- [x] Tests schlagen aus dem richtigen Grund fehl (ImportError)
+- [x] Implementation klar: Docker subprocess commands + HTTP health check
+
+### Tasks
+- [x] **Kroki Manager (Cycle 1):** KrokiManager implementieren
+- [x] KrokiManagerError exception class erstellen
+- [x] KrokiManager class mit __init__
+- [x] start() method: docker run -d --name kroki -p8000:8000 yuzutech/kroki
+- [x] stop() method: docker stop + docker rm
+- [x] is_running() method: docker ps filter
+- [x] health_check() method: HTTP GET localhost:8000
+- [x] Error-Handling: FileNotFoundError → KrokiManagerError
+- [x] Alle Tests ausführen und grün machen
+
+### Completed
+- [x] KrokiManager implementiert in src/diag_agent/kroki/manager.py ✅
+- [x] KrokiManagerError exception (analog zu KrokiRenderError) ✅
+- [x] start(): subprocess.run mit docker run -d ✅
+- [x] stop(): docker stop + docker rm (graceful, check=False) ✅
+- [x] is_running(): docker ps --filter name=kroki ✅
+- [x] health_check(): httpx.get mit 5s timeout ✅
+- [x] Error-Handling: FileNotFoundError → KrokiManagerError ✅
+- [x] Alle 7 KrokiManager tests GRÜN! ✅
+- [x] Alle 39 tests GRÜN! ✅ (keine Regressions)
+- [x] Coverage: 95% gesamt, KrokiManager 84% ✅
+
+## Refactor (Kroki Manager Cycle 1: Docker-based Local Deployment)
+
+### Phase Entrance Criteria:
+- [x] Alle Tests grün (39 tests)
+- [x] Implementation vollständig und funktionsfähig
+- [x] Keine Hacks oder Shortcuts
+- [x] Die Lösung adressiert das Problem
+
+### Tasks
+- [x] **Kroki Manager (Cycle 1):** Code Review durchführen
+- [x] Docstrings vollständig prüfen
+- [x] Type hints geprüft
+- [x] Potentielle Refactorings evaluiert:
+  - subprocess.run calls → NEIN (YAGNI: unterschiedliche Parameter, nur 3x)
+  - Error-Handling extraction → NEIN (kontextspezifische Messages)
+  - Unused variable cleanup → JA (result in start() entfernt)
+  - Docstring accuracy → JA (stop() Raises korrigiert)
+- [x] YAGNI-Prinzip angewandt
+- [x] Tests nach Refactoring ausgeführt
+
+### Completed
+- [x] Code Review durchgeführt ✅
+- [x] Docstrings vollständig ✓
+- [x] Type hints angemessen ✓
+- [x] Refactorings durchgeführt ✅:
+  - Unused `result` variable in start() entfernt
+  - Docstring von stop() korrigiert (Raises accuracy)
+- [x] Alle 39 Tests GRÜN! ✅
+- [x] Coverage: 95% gesamt, KrokiManager 84% ✅
+- [x] Kroki Manager Cycle 1 abgeschlossen ✅ (Docker-based deployment)
+
 ## Open Backlog Items
 
 ### Documentation (Later)
