@@ -37,44 +37,245 @@ An LLM Agent for creating software architecture diagrams with autonomous syntax 
 
 - 🤖 **Autonomous diagram generation** with syntax validation and design feedback loop
 - 🎨 **Multi-format support** via Kroki integration (PlantUML, C4, BPMN, Mermaid, etc.)
-- 🚀 **Flexible deployment**: CLI tool, MCP server (local/remote), or Docker container
+- 🚀 **Flexible deployment**: CLI tool, MCP server, or Python library
 - 🔒 **Privacy-first**: Local-first approach with optional remote rendering
-- 🔌 **LLM-agnostic**: Works with any LLM via LiteLLM abstraction
-- ⚡ **Context-efficient**: Minimal token consumption through help system and URL references
-
-## Installation
-
-```bash
-pip install diag-agent
-```
+- 🔌 **LLM-agnostic**: Works with any LLM via LiteLLM (Anthropic, OpenAI, etc.)
+- ⚡ **Context-efficient**: Minimal token consumption through optimized prompts
 
 ## Quick Start
 
+### CLI Usage
+
 ```bash
+# Clone the repository
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
+
+# Install locally
+uv pip install .
+
 # Configure API key
 export ANTHROPIC_API_KEY=your_key_here
 
-# Generate a diagram
-diag-agent create "C4 context diagram for API gateway"
+# Generate a diagram (using uv run - no venv activation needed)
+uv run diag-agent create "C4 context diagram for API gateway"
 ```
 
-## Project Structure
+### MCP Server (for Claude Desktop)
 
-See [Architecture Documentation](src/docs/arc42/arc42.adoc) for detailed information.
+```bash
+# Clone and install with MCP support
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
+uv pip install ".[mcp]"
+
+# Add to Claude Desktop config (~/.config/Claude/claude_desktop_config.json)
+{
+  "mcpServers": {
+    "diag-agent": {
+      "command": "python",
+      "args": ["-m", "diag_agent.mcp.server"],
+      "env": {
+        "ANTHROPIC_API_KEY": "your_key_here",
+        "KROKI_URL": "http://localhost:8000"
+      }
+    }
+  }
+}
+```
+
+Then in Claude Desktop:
+> "Create a C4 context diagram for an e-commerce platform"
+
+### Docker
+
+```bash
+# Clone repository and build Docker image
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
+docker build -t diag-agent .
+
+# Run with Docker
+docker run --rm \
+  -e ANTHROPIC_API_KEY=your_key_here \
+  -v $(pwd)/diagrams:/diagrams \
+  diag-agent \
+  create "User authentication flow"
+
+# Or use Docker Compose for full stack (CLI + Kroki)
+docker-compose up -d kroki
+docker-compose run --rm diag-agent-cli create "architecture diagram"
+
+# MCP Server with Docker Compose
+docker-compose --profile mcp up -d
+```
+
+See [User Guide - Docker Deployment](src/docs/user-guide.md#docker-deployment) for details.
+
+## Documentation
+
+- **[User Guide](src/docs/user-guide.md)** - Comprehensive reference with all CLI commands, configuration, and MCP setup
+- **[Tutorial](src/docs/tutorial.md)** - Hands-on examples for different diagram types and use cases
+- **[Architecture](src/docs/arc42/arc42.adoc)** - Technical architecture documentation (arc42)
+
+## CLI Commands
+
+```bash
+# Generate diagrams
+uv run diag-agent create "diagram description" [--type TYPE] [--output DIR] [--format FORMATS]
+
+# Browse examples
+uv run diag-agent examples list [--type TYPE]
+uv run diag-agent examples show TYPE/NAME
+
+# Manage local Kroki server
+uv run diag-agent kroki start|stop|status|logs
+```
+
+See [User Guide - CLI Commands](src/docs/user-guide.md#cli-commands) for detailed documentation.
+
+## Supported Diagram Types
+
+- **C4 Architecture**: `c4plantuml` - Context, Container, Component diagrams
+- **UML**: `plantuml` - Sequence, Class, Component, Deployment, etc.
+- **BPMN**: `bpmn` - Business processes and workflows
+- **Mermaid**: `mermaid` - Flowcharts, Sequence, Gantt, etc.
+- **Database**: `erd` - Entity Relationship Diagrams
+- **And 20+ more** via [Kroki](https://kroki.io/#support)
+
+See [Tutorial - Diagram Types](src/docs/tutorial.md) for practical examples.
+
+## Installation
+
+### Requirements
+
+- **Python 3.10+** (for native installation)
+- **Docker** (optional, for containerized deployment or local Kroki server)
+- **LLM API key** (Anthropic, OpenAI, or other)
+- **uv package manager** - [Install uv](https://docs.astral.sh/uv/)
+
+### Local Installation (Recommended)
+
+```bash
+# Clone repository
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
+
+# Install locally
+uv pip install .
+
+# Or install with MCP server support
+uv pip install ".[mcp]"
+
+# Or install for development (editable mode)
+uv pip install -e ".[dev,mcp]"
+```
+
+### Docker Installation
+
+```bash
+# Clone repository
+git clone https://github.com/docToolchain/diag-agent.git
+cd diag-agent
+
+# Build image locally
+docker build -t diag-agent .
+
+# Run
+docker run --rm \
+  -e ANTHROPIC_API_KEY=your_key \
+  -v $(pwd)/diagrams:/diagrams \
+  diag-agent create "architecture diagram"
+```
+
+See [User Guide - Docker Deployment](src/docs/user-guide.md#docker-deployment) for full documentation.
+
+## Configuration
+
+Configure via environment variables or `.env` file:
+
+```bash
+# LLM Configuration
+export LLM_PROVIDER=anthropic        # anthropic, openai, azure, etc.
+export LLM_MODEL=claude-sonnet-4     # Model name
+export ANTHROPIC_API_KEY=your_key    # API key
+
+# Kroki Configuration
+export KROKI_URL=http://localhost:8000  # Local or remote Kroki server
+
+# Agent Configuration
+export MAX_ITERATIONS=10             # Max LLM iterations
+export ENABLE_DESIGN_FEEDBACK=true   # Enable design feedback loop
+```
+
+See [User Guide - Configuration](src/docs/user-guide.md#configuration) for all options.
+
+## Examples
+
+### Generate Different Diagram Types
+
+```bash
+# C4 Context Diagram
+uv run diag-agent create "C4 context diagram for e-commerce platform" --type c4plantuml
+
+# BPMN Process
+uv run diag-agent create "Order fulfillment process" --type bpmn
+
+# Mermaid Flowchart
+uv run diag-agent create "CI/CD pipeline stages" --type mermaid
+
+# Database Schema
+uv run diag-agent create "User management database schema" --type erd
+```
+
+### Use Local Kroki Server
+
+```bash
+# Start local Kroki (requires Docker)
+uv run diag-agent kroki start
+
+# Generate diagram using local server
+uv run diag-agent create "architecture diagram"
+
+# Stop Kroki when done
+uv run diag-agent kroki stop
+```
+
+### Custom Output
+
+```bash
+# Custom output directory and formats
+uv run diag-agent create "System architecture" \
+  --type c4plantuml \
+  --output ./docs/architecture \
+  --format svg,pdf,source
+```
+
+See [Tutorial](src/docs/tutorial.md) for step-by-step examples.
 
 ## Development
 
 ```bash
-# Install dependencies
-pip install -e ".[dev]"
+# Install development dependencies
+uv pip install -e ".[dev,mcp]"
 
 # Run tests
 pytest
 
+# Run tests with coverage
+pytest --cov=diag_agent --cov-report=html
+
 # Format code
 black src tests
 ruff check src tests
+
+# Type checking
+mypy src
 ```
+
+## Contributing
+
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 

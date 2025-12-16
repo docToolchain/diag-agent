@@ -127,7 +127,11 @@ class TestOrchestrator:
 
         # Mock LLMClient
         mock_llm_client = Mock()
-        mock_llm_client.generate.return_value = "@startuml\nAlice -> Bob: Auth Request\n@enduml"
+        # Two calls: subtype detection + diagram generation
+        mock_llm_client.generate.side_effect = [
+            "sequence",  # Subtype detection
+            "@startuml\nAlice -> Bob: Auth Request\n@enduml"  # Diagram generation
+        ]
 
         # Mock KrokiClient - validation succeeds
         mock_kroki_client = Mock()
@@ -148,12 +152,12 @@ class TestOrchestrator:
             )
 
         # Assert
-        # Verify LLMClient.generate() was called
-        mock_llm_client.generate.assert_called_once()
+        # Verify LLMClient.generate() was called twice (subtype + diagram)
+        assert mock_llm_client.generate.call_count == 2
         
-        # Verify prompt contains description and diagram type
-        call_args = mock_llm_client.generate.call_args
-        prompt = call_args[0][0]  # First positional argument
+        # Verify second call (diagram generation) contains description and diagram type
+        diagram_gen_call = mock_llm_client.generate.call_args_list[1]
+        prompt = diagram_gen_call[0][0]  # First positional argument
         assert description in prompt, f"Description not in prompt: {prompt}"
         assert diagram_type in prompt, f"Diagram type not in prompt: {prompt}"
         
@@ -243,9 +247,10 @@ class TestOrchestrator:
         mock_settings.kroki_remote_url = "https://kroki.io"
         mock_settings.validate_design = False  # Disable design validation for this test
 
-        # Mock LLMClient - first generates invalid, then valid source
+        # Mock LLMClient - subtype detection + two diagram attempts
         mock_llm_client = Mock()
         mock_llm_client.generate.side_effect = [
+            "plantuml",  # Subtype detection
             "@startuml\nInvalid syntax here\n@enduml",  # Iteration 1: invalid
             "@startuml\nAlice -> Bob: Fixed\n@enduml"   # Iteration 2: valid
         ]
@@ -275,12 +280,12 @@ class TestOrchestrator:
             )
 
         # Assert
-        # Verify 2 LLM calls (initial + retry)
-        assert mock_llm_client.generate.call_count == 2
+        # Verify 3 LLM calls (subtype + initial + retry)
+        assert mock_llm_client.generate.call_count == 3
         
-        # Verify 2nd LLM call contains error message in prompt
-        second_call_args = mock_llm_client.generate.call_args_list[1]
-        refinement_prompt = second_call_args[0][0]
+        # Verify 3rd LLM call (refinement) contains error message in prompt
+        refinement_call_args = mock_llm_client.generate.call_args_list[2]
+        refinement_prompt = refinement_call_args[0][0]
         assert "error" in refinement_prompt.lower() or "fix" in refinement_prompt.lower(), \
             f"Refinement prompt should mention error/fix: {refinement_prompt}"
         assert "Syntax error" in refinement_prompt or error_message in refinement_prompt, \
@@ -557,7 +562,11 @@ class TestOrchestrator:
         diagram_source_v2 = "@startuml\ntop to bottom direction\nAlice -> Bob: Hello\n@enduml"
         
         mock_llm_client = Mock()
-        mock_llm_client.generate.side_effect = [diagram_source_v1, diagram_source_v2]
+        mock_llm_client.generate.side_effect = [
+            "plantuml",  # Subtype detection
+            diagram_source_v1, 
+            diagram_source_v2
+        ]
         
         # vision_analyze: iteration 1 suggests improvement, iteration 2 approves
         mock_llm_client.vision_analyze.side_effect = [
@@ -591,9 +600,9 @@ class TestOrchestrator:
         # Verify vision_analyze called twice
         assert mock_llm_client.vision_analyze.call_count == 2
         
-        # Verify second generate() call includes design feedback in refinement prompt
-        second_generate_call = mock_llm_client.generate.call_args_list[1]
-        refinement_prompt = second_generate_call[0][0]
+        # Verify third generate() call (refinement) includes design feedback
+        refinement_generate_call = mock_llm_client.generate.call_args_list[2]
+        refinement_prompt = refinement_generate_call[0][0]
         assert "cramped" in refinement_prompt.lower() or "vertical" in refinement_prompt.lower(), \
             "Refinement prompt should include design feedback from iteration 1"
 

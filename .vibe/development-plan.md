@@ -4,40 +4,57 @@
 *Workflow: [tdd](https://mrsimpson.github.io/responsible-vibe-mcp/workflows/tdd)*
 
 ## Goal
-MCP Server Implementation: FastMCP-basierter Server für diag-agent, der die Diagramm-Generierung als MCP-Tool für andere LLM-Anwendungen verfügbar macht
+Transparente CLI-Ausgabe mit Progress-Updates und LLM-Feedback-Logging während der Diagramm-Generierung
+
+**Problem**: 
+Der Generierungsprozess ist intransparent - Nutzer sehen nur das Endergebnis, nicht was währenddessen passiert.
+
+**Ziel**:
+1. **Progress-Updates**: Während der Generierung soll sichtbar sein, was gerade passiert (Iteration X/Y, Validierung, Design-Feedback, etc.)
+2. **LLM-Feedback-Log**: Log-Ausgabe, in der das LLM erklärt, was nicht gut war und was es verbessern möchte (validation_error, design_feedback)
 
 ## Explore
+
 ### Tasks
 *All exploration completed*
 
 ### Completed
 - [x] Created development plan file
-- [x] FastMCP researched und verstanden (Python-Framework für MCP-Server)
-- [x] pyproject.toml analysiert - FastMCP bereits als optionale Dependency vorhanden
-- [x] Orchestrator.execute() analysiert - Hauptfunktionalität identifiziert
-- [x] Settings-Architektur verstanden (ENV-basierte Konfiguration)
-- [x] MCP-Anforderungen definiert: Ein Tool "create_diagram" exponieren
-- [x] Test-Strategie definiert: Unit Tests für MCP Tool mit Orchestrator-Mock
+- [x] Code-Analyse: CLI create() Funktion (src/diag_agent/cli/commands.py)
+- [x] Code-Analyse: Orchestrator.execute() Methode (src/diag_agent/agent/orchestrator.py)
+- [x] User-Feedback erhalten: Wenig Konsole (LLM-Kontext!), ausführliches Log im output-dir
+- [x] Anforderungen definiert (siehe Key Decisions)
+- [x] Bestehende Logging-Infrastruktur analysieren (keine vorhanden)
+- [x] Design-Entscheidung dokumentiert (Zwei-Ebenen-Strategie)
+
+### Completed
+- [x] Created development plan file
 
 ## Red
 
 ### Phase Entrance Criteria:
-- [x] MCP-Protokoll und FastMCP Library sind verstanden
-- [x] Scope und Requirements für den MCP Server sind klar definiert
-- [x] Bestehende diag-agent Architektur ist analysiert
-- [x] Integration-Points zwischen MCP Server und Orchestrator sind identifiziert
-- [x] Test-Strategie ist definiert
+- [x] Progress-Update-Anforderungen sind klar definiert (welche Meldungen, wann?)
+- [x] LLM-Feedback-Format ist definiert
+- [x] Design-Entscheidung für Output-Mechanismus ist getroffen (Callback/Logger/Print)
+- [x] Bestehende Code-Struktur ist verstanden
+- [x] Test-Strategie ist klar
 
 ### Tasks
 *All tests written and validated*
 
 ### Completed
-- [x] Test 1: `test_mcp_server_initialization` geschrieben
-- [x] Test 2: `test_create_diagram_tool_success` geschrieben
-- [x] Test 3: `test_create_diagram_with_custom_parameters` geschrieben
-- [x] Test 4: `test_create_diagram_returns_correct_structure` geschrieben
-- [x] Test 5: `test_create_diagram_error_handling` geschrieben
-- [x] Alle Tests ausgeführt - alle 5 Tests schlagen erwartungsgemäß fehl (ImportError: mcp/create_diagram nicht gefunden)
+- [x] Test 1: Orchestrator erstellt generation.log in output_dir
+- [x] Test 2: Orchestrator loggt Iteration-Start (Iteration X/Y - START)
+- [x] Test 3: Orchestrator loggt LLM-Prompts (initial)
+- [x] Test 4: Orchestrator loggt Validation Errors
+- [x] Test 5: Orchestrator loggt Design Feedback
+- [x] Test 6: Orchestrator loggt Refinement Prompts
+- [x] Test 7: CLI zeigt minimale Progress-Updates auf Konsole
+- [x] Alle Tests ausgeführt - alle 7 Tests schlagen erwartungsgemäß fehl
+- [ ] *To be added when this phase becomes active*
+
+### Completed
+*None yet*
 
 ## Green
 
@@ -50,15 +67,19 @@ MCP Server Implementation: FastMCP-basierter Server für diag-agent, der die Dia
 *All implementation completed*
 
 ### Completed
-- [x] FastMCP installiert (`pip install fastmcp`)
-- [x] MCP Server implementiert in `src/diag_agent/mcp/server.py`
-- [x] FastMCP Server initialisiert mit Namen "diag-agent"
-- [x] `create_diagram` Funktion implementiert (wrappet Orchestrator.execute())
-- [x] create_diagram Tool bei MCP Server registriert via `mcp.tool()`
-- [x] Test für list_tools() Fix (verwendet private API korrekt)
-- [x] Alle 5 MCP Tests sind grün ✅
-- [x] Alle 56 Unit Tests sind grün ✅
-- [x] Coverage: 86% (MCP Server: 92%)
+- [x] Orchestrator: Logger-Setup mit FileHandler für generation.log
+- [x] Orchestrator: Log Iteration Start (Iteration X/Y - START)
+- [x] Orchestrator: Log LLM Prompt (initial, syntax fix, design refinement)
+- [x] Orchestrator: Log Validation Success/Error
+- [x] Orchestrator: Log Design Feedback
+- [x] Orchestrator: progress_callback Parameter für CLI-Progress
+- [x] CLI: Progress-Callback implementiert mit click.echo()
+- [x] CLI: Zeigt "See generation.log for details" am Ende
+- [x] Alle Tests ausgeführt - alle 68 Tests grün ✅
+- [x] Coverage: 87% (Orchestrator: 98%)
+
+### Completed
+*None yet*
 
 ## Refactor
 
@@ -72,88 +93,146 @@ MCP Server Implementation: FastMCP-basierter Server für diag-agent, der die Dia
 
 ### Completed
 - [x] Code Review durchgeführt
-- [x] Keine Code-Duplikation gefunden (nur eine Funktion)
-- [x] Namen sind klar und selbsterklärend
-- [x] YAGNI-Prinzip wird eingehalten
-- [x] Dependency Injection geprüft → nicht sinnvoll für simplen Wrapper
-- [x] Error Handling geprüft → FastMCP handled automatisch
-- [x] Keine offensichtlichen Verbesserungen notwendig
+- [x] Logger-Setup in _setup_file_logger() extrahiert
+- [x] Logger-Cleanup in _cleanup_logger() extrahiert
+- [x] Naming ist klar und selbsterklärend
+- [x] Keine Duplikation gefunden
+- [x] Alle Tests nach Refactoring grün (68/68) ✅
+- [x] Coverage: 87% (Orchestrator: 98%)
+
+### Completed
+*None yet*
+
+## Summary
+
+**Feature Complete! ✅**
+
+Transparente CLI-Ausgabe mit Progress-Updates und LLM-Feedback-Logging wurde erfolgreich implementiert.
+
+**Ergebnis**:
+- ✅ 68/68 Tests grün
+- ✅ Coverage: 87% (Orchestrator: 98%)
+- ✅ Minimale Konsolen-Ausgabe (schont LLM-Kontext)
+- ✅ Ausführliches Log in generation.log
+
+**Konsolen-Ausgabe** (minimal):
+```
+Generating diagram... [Iteration 1/10]
+✓ Diagram generated: diagrams/diagram.png
+  Source: 324 characters
+  Iterations: 2
+  Time: 4.5s
+  Stopped: success
+  See generation.log for details
+```
+
+**Log-Datei** (ausführlich): `{output_dir}/generation.log`
+- Timestamps für jede Iteration
+- Komplette LLM-Prompts (initial, syntax fix, design refinement)
+- Validation errors mit Details
+- Design feedback komplett
+- Iteration outcomes
 
 ## Key Decisions
 
 ### EXPLORE Phase
-1. **FastMCP als Framework**: Version 2.0 gewählt - production-ready, Pythonic, gut dokumentiert
-2. **Ein Tool "create_diagram"**: Exponiert Orchestrator.execute() direkt als MCP Tool
-3. **Keine zusätzlichen Resources/Prompts**: YAGNI - nur das Tool wird gebraucht
-4. **Test-Strategie**: Unit Tests mit Orchestrator-Mocking für schnelle, isolierte Tests
 
-### GREEN Phase
-1. **Funktion vor Decorator**: `create_diagram` als normale Funktion definiert, dann mit `mcp.tool()` registriert - ermöglicht direktes Testen
-2. **Settings in Tool laden**: Jeder Request lädt frische Settings (kein Caching) - verhindert stale configuration
-3. **Direkte Orchestrator-Integration**: Kein zusätzlicher Layer zwischen Tool und Orchestrator - KISS-Prinzip
-4. **Error Propagation**: Exceptions werden nicht gefangen - FastMCP handled automatisch
+**1. Zwei-Ebenen-Ausgabe-Strategie**
 
-### REFACTOR Phase
-1. **Code Review**: Keine Refactorings nötig - Code ist bereits optimal
-2. **Begründung Dependency Injection**: Für simplen Wrapper unnötig - würde Tests komplizierter machen ohne Mehrwert
-3. **Begründung kein Error Handling**: FastMCP handled Exceptions automatisch und gibt sie korrekt an Client weiter
+**Problem**: Konsolen-Ausgabe landet im Kontext des aufrufenden LLMs → muss minimal sein!
+
+**Lösung**:
+- **Konsole (stdout)**: Kompakt, nur Progress-Indicator
+  - "Iteration 1/10..." (während Iteration läuft)
+  - "✓ Diagram generated" (am Ende wie bisher)
+  - Keine detaillierten Fehler/Feedback auf Konsole!
+  
+- **Log-Datei** (`{output_dir}/generation.log`): Ausführlich
+  - Alle Iterationen mit Timestamps
+  - Komplette LLM-Prompts (initial, refinement)
+  - Validation errors (kompletter Kroki-Fehler)
+  - Design feedback (komplettes LLM-Feedback)
+  - Iteration outcomes (success/error/improvement)
+
+**2. Anforderungen**
+
+**Konsolen-Ausgabe** (minimalistisch):
+```
+Generating diagram... [Iteration 1/10]
+Generating diagram... [Iteration 2/10]
+✓ Diagram generated: diagrams/diagram.png
+  See generation.log for details
+```
+
+**Log-Datei** (ausführlich):
+```
+2025-12-16 20:54:36 - Iteration 1/10 - START
+2025-12-16 20:54:36 - LLM Prompt (initial):
+  Generate a plantuml diagram: User authentication flow
+2025-12-16 20:54:38 - LLM Response: 216 characters
+2025-12-16 20:54:38 - Kroki Validation: SUCCESS
+2025-12-16 20:54:38 - Iteration 1/10 - COMPLETE (syntax valid)
+
+2025-12-16 20:54:38 - Iteration 2/10 - START
+2025-12-16 20:54:38 - Design Analysis: ANALYZING
+2025-12-16 20:54:40 - Design Feedback:
+  Layout is too cramped. Increase vertical spacing between
+  components. Add more descriptive labels.
+2025-12-16 20:54:40 - LLM Prompt (design refinement):
+  Improve the following plantuml diagram based on this design 
+  feedback: Layout is too cramped...
+2025-12-16 20:54:42 - LLM Response: 324 characters
+2025-12-16 20:54:42 - Kroki Validation: SUCCESS
+2025-12-16 20:54:42 - Iteration 2/10 - COMPLETE (design improvement)
+```
+
+**3. Technische Lösung**
+
+- **Python logging Module**: Standard, strukturiert, mit FileHandler für Log-Datei
+- **Konsole**: Direktes `click.echo()` für minimalen Progress
+- **Log-Level**: INFO für normale Ausgabe, DEBUG für sehr detaillierte Infos
+- **Log-Format**: Timestamp + Level + Message
 
 ## Notes
 
-### FastMCP Framework (Researched)
-**Was ist FastMCP?**
-- Python-Framework für Model Context Protocol (MCP) Server
-- "The fast, Pythonic way to build MCP servers"
-- Version 2.0 ist production-ready mit Enterprise-Features
+### Aktueller Code-Stand
 
-**Installation**: `pip install fastmcp` (bereits in pyproject.toml als optional-dependency)
+**CLI (src/diag_agent/cli/commands.py)**:
+- `create()` Funktion (Lines 26-75) zeigt nur Endergebnis:
+  ```python
+  result = orchestrator.execute(...)
+  click.echo(f"✓ Diagram generated: {result['output_path']}")
+  click.echo(f"  Iterations: {result['iterations_used']}")
+  # etc.
+  ```
+- Keine Progress-Updates während der Ausführung
 
-**Basic Pattern**:
-```python
-from fastmcp import FastMCP
+**Orchestrator (src/diag_agent/agent/orchestrator.py)**:
+- `execute()` Methode (Lines 95-227) hat While-Loop für Iterationen
+- Interne Variablen: `validation_error`, `design_feedback`
+- Drei Prompt-Typen:
+  1. Initial: "Generate a {diagram_type} diagram: {description}"
+  2. Syntax-Fix: "Fix the following... error: {validation_error}"
+  3. Design-Improvement: "Improve... feedback: {design_feedback}"
+- Keine Ausgaben während der Iteration
 
-mcp = FastMCP("Server Name")
+### Mögliche Lösungen
 
-@mcp.tool
-def my_tool(param: str) -> str:
-    """Tool description"""
-    return "result"
-```
+1. **Python logging Module** (Standard-Lösung):
+   - Pro: Standard-Library, konfigurierbar, verschiedene Levels
+   - Contra: Muss konfiguriert werden
+   
+2. **Callback-System**:
+   - Pro: Flexibel, testbar, Separation of Concerns
+   - Contra: Etwas komplexer
 
-**MCP Capabilities**:
-1. **Tools** - Ausführbare Funktionen (wie POST endpoints)
-2. **Resources** - Daten-Quellen für Kontext (wie GET endpoints)
-3. **Prompts** - Wiederverwendbare LLM-Templates
+3. **Direktes click.echo()** (Einfachste Lösung):
+   - Pro: Einfach, funktioniert sofort
+   - Contra: Schwerer testbar, tight coupling
 
-### Orchestrator Integration (Analyzed)
-**Hauptfunktion**: `Orchestrator.execute()`
-- **Input**: description (str), diagram_type (str), output_dir (str), output_formats (str)
-- **Output**: Dict mit diagram_source, output_path, iterations_used, elapsed_seconds, stopped_reason
-- **Logic**: Iterative LLM-Generation + Kroki-Validierung + optionale Design-Analyse
-
-### Requirements Definition
-**MCP Tool**: `create_diagram`
-- Exponiert Orchestrator.execute() als MCP-Tool
-- Parameter: description, diagram_type, output_dir, output_formats
-- Return: JSON mit Diagramm-Quelle und Metadaten
-
-**Implementierung**:
-- Server-Datei: `src/diag_agent/mcp/server.py`
-- Tool-Funktion mit @mcp.tool Decorator
-- Settings-Integration für Konfiguration
-- Orchestrator-Instanz erstellen und execute() aufrufen
-
-### Test-Strategie
-**Unit Tests** (tests/unit/test_mcp_server.py):
-1. Test MCP Server Initialisierung
-2. Test create_diagram Tool mit gemocktem Orchestrator
-3. Test Parameter-Validierung
-4. Test Error-Handling (z.B. ungültiger diagram_type)
-5. Test Settings-Integration
-
-**Mocking**:
-- Mock Orchestrator.execute() für predictable Outputs
-- Mock Settings für Test-Konfiguration
+4. **Event-System** (Observer Pattern):
+   - Pro: Sehr flexibel, erweiterbar
+   - Contra: Overkill für diesen Use-Case
 
 ---
 *This plan is maintained by the LLM. Tool responses provide guidance on which section to focus on and what tasks to work on.*

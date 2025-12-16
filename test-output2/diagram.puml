@@ -1,0 +1,41 @@
+@startuml
+title Simple Sequence Diagram: User -> System -> Database
+
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 40
+skinparam BoxPadding 20
+
+skinparam participant {
+    BackgroundColor #E8F4F8
+    BorderColor #2C5F7C
+    BorderThickness 2
+    Padding 20
+}
+
+skinparam sequence {
+    ArrowThickness 2
+    ArrowColor #2C5F7C
+    LifeLineBorderColor #555555
+    LifeLineBorderThickness 2
+}
+
+actor User
+participant System
+database Database
+
+User -> System: Request
+activate System
+System -> Database: Query
+activate Database
+Database --> System: Result
+deactivate Database
+System --> User: Response
+deactivate System
+
+legend bottom right
+  <b>Arrow Styles:</b>
+  → : Synchronous call
+  ⇢ : Return response
+endlegend
+
+@enduml

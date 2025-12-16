@@ -1,0 +1,15 @@
+flowchart TD
+    Start([Start])
+    Process[Process]
+    Decision{Decision}
+    End([End])
+    
+    Start --> Process
+    Process --> Decision
+    Decision -->|Yes| End
+    Decision -->|No| End
+    
+    linkStyle 0 stroke-width:2px
+    linkStyle 1 stroke-width:2px
+    linkStyle 2 stroke-width:2px
+    linkStyle 3 stroke-width:2px

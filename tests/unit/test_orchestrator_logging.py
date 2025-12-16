@@ -164,6 +164,7 @@ class TestOrchestratorLogging:
 
         mock_llm_client = Mock()
         mock_llm_client.generate.side_effect = [
+            "plantuml",  # Subtype detection
             "@startuml\\nInvalid\\n@enduml",  # Iteration 1: invalid
             "@startuml\\nFixed\\n@enduml"     # Iteration 2: valid
         ]
@@ -216,6 +217,7 @@ class TestOrchestratorLogging:
 
         mock_llm_client = Mock()
         mock_llm_client.generate.side_effect = [
+            "plantuml",  # Subtype detection
             "@startuml\\nV1\\n@enduml",
             "@startuml\\nV2 improved\\n@enduml"
         ]
@@ -270,6 +272,7 @@ class TestOrchestratorLogging:
 
         mock_llm_client = Mock()
         mock_llm_client.generate.side_effect = [
+            "plantuml",  # Subtype detection
             "@startuml\\nInvalid\\n@enduml",
             "@startuml\\nFixed\\n@enduml"
         ]

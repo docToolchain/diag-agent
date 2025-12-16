@@ -124,6 +124,77 @@ class Orchestrator:
             handler.close()
         logger.handlers = []
 
+    def _detect_subtype(self, description: str, diagram_type: str) -> str:
+        """Detect diagram subtype from description using LLM.
+        
+        Args:
+            description: Natural language description of diagram
+            diagram_type: Type of diagram (plantuml, c4plantuml, mermaid, etc.)
+            
+        Returns:
+            Detected subtype (e.g., "context", "container", "sequence", "simple-process")
+        """
+        # Build prompt for subtype detection
+        prompt = f"""Analyze this diagram description and identify the specific subtype.
+
+Diagram type: {diagram_type}
+Description: {description}
+
+For C4 diagrams, possible subtypes are: context, container, component
+For BPMN diagrams, possible subtypes are: simple-process, collaboration
+For PlantUML diagrams, possible subtypes are: sequence, activity, class, component
+
+Respond with ONLY the subtype name (one word, lowercase). If unsure, respond with the diagram type."""
+        
+        # Use LLM to detect subtype
+        subtype = self.llm_client.generate(prompt).strip().lower()
+        
+        # Clean up response (remove any extra text, just get the first word)
+        subtype = subtype.split()[0] if subtype else diagram_type
+        
+        return subtype
+    
+    def _load_example(self, diagram_type: str, subtype: str) -> str:
+        """Load example diagram from examples directory.
+        
+        Tries to find an exact match for the subtype, otherwise returns
+        the first available example for the diagram type.
+        
+        Args:
+            diagram_type: Type of diagram (c4plantuml, bpmn, etc.)
+            subtype: Specific subtype (context, simple-process, etc.)
+            
+        Returns:
+            Example content as string, or None if no examples available
+        """
+        from pathlib import Path
+        
+        # Get examples directory (relative to this file)
+        # orchestrator.py is in src/diag_agent/agent/
+        # examples are in src/diag_agent/examples/
+        current_file = Path(__file__)
+        examples_dir = current_file.parent.parent / "examples" / diagram_type
+        
+        # Check if examples directory exists
+        if not examples_dir.exists():
+            return None
+        
+        # Try to find exact match for subtype
+        # Example files can be named: {subtype}.ext or {subtype}-diagram.ext
+        for pattern in [f"{subtype}.*", f"{subtype}-diagram.*"]:
+            matches = list(examples_dir.glob(pattern))
+            if matches:
+                # Return first match
+                return matches[0].read_text()
+        
+        # Fallback: Return first available example
+        all_examples = [f for f in examples_dir.iterdir() if f.is_file() and not f.name.startswith("_")]
+        if all_examples:
+            return all_examples[0].read_text()
+        
+        # No examples available
+        return None
+
     def execute(
         self,
         description: str,
@@ -154,6 +225,10 @@ class Orchestrator:
         
         # Configure logger
         logger = self._setup_file_logger(log_file)
+        
+        # Detect subtype and load example (before iteration loop)
+        subtype = self._detect_subtype(description, diagram_type)
+        example_content = self._load_example(diagram_type, subtype)
         
         # Track iteration state
         iterations_used = 0
@@ -189,16 +264,25 @@ class Orchestrator:
             if validation_error:
                 # Refinement prompt with syntax error details
                 prompt = f"Fix the following {diagram_type} diagram. Previous attempt had this error: {validation_error}\\n\\nOriginal request: {description}\\n\\nPrevious source:\\n{diagram_source}"
+                # Add example if available
+                if example_content:
+                    prompt += f"\\n\\nReference example:\\n{example_content}"
                 logger.info(f"LLM Prompt (syntax fix):")
                 logger.info(f"  {prompt}")
             elif design_feedback:
                 # Refinement prompt with design feedback
                 prompt = f"Improve the following {diagram_type} diagram based on this design feedback: {design_feedback}\\n\\nOriginal request: {description}\\n\\nPrevious source:\\n{diagram_source}"
+                # Add example if available
+                if example_content:
+                    prompt += f"\\n\\nReference example:\\n{example_content}"
                 logger.info(f"LLM Prompt (design refinement):")
                 logger.info(f"  {prompt}")
             else:
                 # Initial prompt
                 prompt = f"Generate a {diagram_type} diagram: {description}"
+                # Add example if available
+                if example_content:
+                    prompt += f"\\n\\nReference example:\\n{example_content}"
                 logger.info(f"LLM Prompt (initial):")
                 logger.info(f"  {prompt}")
             
