@@ -4,11 +4,13 @@ Entry point for the command-line interface using Click framework.
 """
 
 import click
+import subprocess
 from pathlib import Path
 from typing import List, Tuple
 
 from diag_agent.config.settings import Settings
 from diag_agent.agent.orchestrator import Orchestrator
+from diag_agent.kroki.manager import KrokiManager, KrokiManagerError
 
 
 @click.group()
@@ -252,4 +254,155 @@ def show_example(example_name: str):
         raise click.Abort()
     except Exception as e:
         click.echo(f"Error loading example: {e}", err=True)
+        raise click.Abort()
+
+
+# ============================================================================
+# Kroki Management Commands
+# ============================================================================
+
+@cli.group()
+def kroki():
+    """Manage local Kroki Docker container.
+
+    Control the Kroki server for local diagram rendering. Start, stop,
+    and monitor the Docker container for privacy-focused, local-first usage.
+    """
+    pass
+
+
+@kroki.command(name="start")
+def start_kroki():
+    """Start the Kroki Docker container.
+
+    Launches a Docker container running the Kroki diagram rendering service.
+    The container runs in detached mode and is accessible at http://localhost:8000.
+
+    Examples:
+
+        diag-agent kroki start
+    """
+    try:
+        manager = KrokiManager()
+        manager.start()
+        click.echo("✓ Kroki container started successfully")
+        click.echo(f"  URL: {manager.kroki_url}")
+        click.echo(f"  Container: {manager.CONTAINER_NAME}")
+
+    except KrokiManagerError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise click.Abort()
+    except Exception as e:
+        click.echo(f"Unexpected error: {e}", err=True)
+        raise click.Abort()
+
+
+@kroki.command(name="stop")
+def stop_kroki():
+    """Stop and remove the Kroki Docker container.
+
+    Stops the running Kroki container and removes it to free resources.
+    Gracefully handles the case where the container is not running.
+
+    Examples:
+
+        diag-agent kroki stop
+    """
+    try:
+        manager = KrokiManager()
+        manager.stop()
+        click.echo("✓ Kroki container stopped successfully")
+
+    except KrokiManagerError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise click.Abort()
+    except Exception as e:
+        click.echo(f"Unexpected error: {e}", err=True)
+        raise click.Abort()
+
+
+@kroki.command(name="status")
+def status_kroki():
+    """Show the status of the Kroki Docker container.
+
+    Displays whether the container is running and if the service is healthy.
+
+    Examples:
+
+        diag-agent kroki status
+    """
+    try:
+        manager = KrokiManager()
+        is_running = manager.is_running()
+
+        if is_running:
+            # Container is running - check health
+            is_healthy = manager.health_check()
+
+            click.echo("Kroki Status:")
+            click.echo(f"  Container: Running ✓")
+            click.echo(f"  Health: {'Healthy ✓' if is_healthy else 'Unhealthy ✗'}")
+            click.echo(f"  URL: {manager.kroki_url}")
+        else:
+            # Container is not running
+            click.echo("Kroki Status:")
+            click.echo(f"  Container: Stopped")
+            click.echo(f"\nUse 'diag-agent kroki start' to start the container.")
+
+    except Exception as e:
+        click.echo(f"Error checking status: {e}", err=True)
+        raise click.Abort()
+
+
+@kroki.command(name="logs")
+@click.option(
+    "--follow",
+    "-f",
+    is_flag=True,
+    help="Follow log output (live streaming)"
+)
+def logs_kroki(follow: bool):
+    """Show logs from the Kroki Docker container.
+
+    Displays the log output from the Kroki container. Use --follow to
+    stream logs in real-time.
+
+    Examples:
+
+        diag-agent kroki logs
+
+        diag-agent kroki logs --follow
+    """
+    try:
+        manager = KrokiManager()
+
+        # Build docker logs command
+        cmd = ["docker", "logs", manager.CONTAINER_NAME]
+        if follow:
+            cmd.append("--follow")
+
+        # Execute docker logs command
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        # Display logs
+        if result.stdout:
+            click.echo(result.stdout)
+        if result.stderr:
+            click.echo(result.stderr, err=True)
+
+    except subprocess.CalledProcessError as e:
+        click.echo(f"Error: Failed to retrieve logs", err=True)
+        if e.stderr:
+            click.echo(f"Details: {e.stderr}", err=True)
+        raise click.Abort()
+    except FileNotFoundError:
+        click.echo("Error: Docker is not installed or not available in PATH", err=True)
+        raise click.Abort()
+    except Exception as e:
+        click.echo(f"Unexpected error: {e}", err=True)
         raise click.Abort()

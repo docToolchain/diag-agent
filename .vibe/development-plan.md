@@ -4,7 +4,7 @@
 *Workflow: [tdd](https://mrsimpson.github.io/responsible-vibe-mcp/workflows/tdd)*
 
 ## Goal
-CLI Examples Command: Implementierung eines `diag-agent examples` Commands zum Abrufen und Anzeigen von Beispiel-Diagrammen für verschiedene Diagramm-Typen (initial: C4-PlantUML, BPMN).
+CLI Kroki Management Commands: Implementierung von `diag-agent kroki` Commands für Docker-basiertes Kroki-Management (start, stop, status, logs)
 
 ## Explore
 ### Tasks
@@ -14,30 +14,32 @@ CLI Examples Command: Implementierung eines `diag-agent examples` Commands zum A
 - [x] Created development plan file
 - [x] TDD-Workflow gestartet
 - [x] Entrance Criteria für alle Phasen definiert
-- [x] Anforderungen analysiert und dokumentiert (User Story, funktionale/nicht-funktionale Requirements)
-- [x] CLI-Struktur analysiert (Click-Framework, commands.py Pattern)
-- [x] Beispiel-Diagramme erstellt (3x C4-PlantUML, 2x BPMN)
-- [x] Ordnerstruktur implementiert (src/diag_agent/examples/{c4plantuml,bpmn}/)
-- [x] Test-Strategie definiert (5 Unit Tests, keine Mocks für File-System)
+- [x] Anforderungen analysiert und dokumentiert (4 Commands: start/stop/status/logs)
+- [x] KrokiManager API analysiert (start, stop, is_running, health_check)
+- [x] CLI-Pattern analysiert (@cli.group() → @kroki.command())
+- [x] Test-Strategie definiert (7 Unit Tests mit KrokiManager Mocks)
+- [x] Docker logs Zugriff: `docker logs kroki [--follow]` via subprocess
 
 ## Red
 
 ### Phase Entrance Criteria:
 - [x] Anforderungen und Scope sind klar definiert
-- [x] Codebase-Struktur ist verstanden (CLI, Beispiele-Ordner)
-- [x] Beispiel-Diagramme sind verfügbar (C4-PlantUML, BPMN)
+- [x] KrokiManager API ist verstanden
+- [x] CLI-Pattern ist analysiert
 - [x] Test-Strategie ist definiert
 
 ### Tasks
 *All tests written and validated*
 
 ### Completed
-- [x] Test 1: `test_examples_list_shows_all_examples` geschrieben
-- [x] Test 2: `test_examples_list_filters_by_type` geschrieben
-- [x] Test 3: `test_examples_show_displays_source_code` geschrieben
-- [x] Test 4: `test_examples_show_handles_nonexistent` geschrieben
-- [x] Test 5: `test_examples_list_output_context_efficient` geschrieben
-- [x] Alle Tests ausgeführt - alle 5 Tests schlagen erwartungsgemäß fehl (No such command 'examples')
+- [x] Test 1: `test_kroki_start_command_starts_container` geschrieben
+- [x] Test 2: `test_kroki_stop_command_stops_container` geschrieben
+- [x] Test 3: `test_kroki_status_shows_running_and_healthy` geschrieben
+- [x] Test 4: `test_kroki_status_shows_stopped` geschrieben
+- [x] Test 5: `test_kroki_logs_displays_container_logs` geschrieben
+- [x] Test 6: `test_kroki_start_handles_docker_not_installed` geschrieben
+- [x] Test 7: `test_kroki_logs_follow_mode` geschrieben
+- [x] Alle Tests ausgeführt - alle 7 Tests schlagen erwartungsgemäß fehl (KrokiManager/subprocess not found)
 
 ## Green
 
@@ -50,16 +52,15 @@ CLI Examples Command: Implementierung eines `diag-agent examples` Commands zum A
 *All implementation completed*
 
 ### Completed
-- [x] Click Group "examples" in commands.py erstellt
-- [x] Subcommand "list" mit --type Filter implementiert
-- [x] Subcommand "show" mit example_name Argument implementiert
-- [x] Helper-Funktion `_get_examples_dir()` zum Lokalisieren des examples/ Ordners
-- [x] Helper-Funktion `_list_examples()` zum Auflisten aller Beispiele mit Filter
-- [x] Helper-Funktion `_load_example()` zum Laden eines Beispiels
-- [x] Fehlerbehandlung für nicht-existierende Beispiele (FileNotFoundError, ValueError)
-- [x] Alle 5 neuen Tests sind grün ✅
-- [x] Alle 44 Unit Tests sind grün ✅
-- [x] Coverage: 90% (CLI: 57% → 83%)
+- [x] Import KrokiManager und subprocess in commands.py
+- [x] Click Group "kroki" erstellt
+- [x] Command "start" implementiert (mit KrokiManagerError Handling)
+- [x] Command "stop" implementiert
+- [x] Command "status" implementiert (running/stopped, healthy/unhealthy)
+- [x] Command "logs" implementiert (mit --follow Option)
+- [x] Alle 7 neuen Tests sind grün ✅
+- [x] Alle 51 Unit Tests sind grün ✅
+- [x] Coverage: 86% (CLI: 77%)
 
 ## Refactor
 
@@ -73,94 +74,97 @@ CLI Examples Command: Implementierung eines `diag-agent examples` Commands zum A
 
 ### Completed
 - [x] Code Review durchgeführt
-- [x] Keine Code-Duplikation gefunden
+- [x] Keine Code-Duplikation gefunden (Error-Handling Patterns sind zu kurz für Extraktion)
 - [x] Namen sind klar und selbsterklärend
 - [x] YAGNI-Prinzip wird eingehalten
-- [x] Error Handling ist robust und explizit
+- [x] Error Handling ist robust und konsistent
 - [x] Keine offensichtlichen Verbesserungen notwendig
 
 ## Key Decisions
 
 ### EXPLORE Phase
-1. **Beispiel-Quellen**: Standard-Beispiele aus C4-PlantUML Repository und BPMN-Spec verwendet (Kroki-Doku-Zugriff fehlgeschlagen)
-2. **Ordnerstruktur**: `src/diag_agent/examples/{type}/` - erweiterbar durch einfaches Hinzufügen neuer Files
-3. **CLI-Pattern**: Click Group `examples` mit Subcommands `list` und `show` (analog zu git-Pattern)
-4. **Test-Strategie**: Keine Mocks für File-System - Tests validieren echte Beispiel-Files (Teil des Package)
-5. **Initial Scope**: C4-PlantUML (3 Beispiele) + BPMN (2 Beispiele) - weitere Typen später erweiterbar
+1. **4 Commands definiert**: start, stop, status, logs (analog zu docker CLI)
+2. **Click Group Pattern**: `@cli.group()` → `@kroki.command()` (konsistent mit examples)
+3. **subprocess für logs**: Direkter Zugriff via `docker logs` (kein Wrapper in KrokiManager nötig)
+4. **Test-Strategie**: KrokiManager mocken, subprocess mocken für logs
 
 ### GREEN Phase
-1. **Implementation**: 3 Helper-Funktionen + 2 Click Commands (list, show)
-2. **Path Resolution**: `Path(__file__).parent.parent / "examples"` für robuste Pfad-Auflösung
-3. **File Extension Mapping**: Dictionary für Typ → Extensions (c4plantuml: .puml, bpmn: .bpmn, etc.)
-4. **Error Handling**: FileNotFoundError für missing examples, ValueError für invalid format
-5. **Output Format**: Gruppiert nach Typ, context-efficient (<2000 chars)
+1. **Error Handling**: KrokiManagerError separat catchen für spezifische Messages
+2. **Status Logic**: is_running() → health_check() nur wenn running (Optimierung)
+3. **Logs Implementation**: subprocess.run mit check=True, capture_output für Output
+4. **Success Messages**: Benutzerfreundliche Messages mit Checkmarks (✓)
 
 ### REFACTOR Phase
 1. **Code Review**: Keine Duplikation, klare Namen, YAGNI-konform
-2. **Keine Refactorings nötig**: Code ist bereits gut strukturiert
-3. **Begründung**: Extensions inline (YAGNI), Error-Handling explizit (verschiedene Messages), Output-Logik klar
+2. **Keine Refactorings nötig**: Error-Handling Patterns zu kurz für Abstraktion
+3. **Begründung**: Commands sind unabhängig, inline Error-Handling ist klarer als Abstraktion
 
 ## Notes
 
 ### Anforderungen (Requirements)
-**User Story**: Als Entwickler möchte ich Beispiel-Diagramme abrufen können, um die Syntax verschiedener Diagramm-Typen zu lernen und als Vorlage zu nutzen.
+**User Story**: Als Entwickler möchte ich Kroki Docker-Container über die CLI verwalten können, um einfach zwischen lokalem und Remote-Modus zu wechseln.
 
 **Funktionale Anforderungen**:
-- `diag-agent examples list` - Zeigt alle verfügbaren Beispiele an
-- `diag-agent examples list --type c4plantuml` - Filtert nach Diagramm-Typ
-- `diag-agent examples show <name>` - Zeigt ein spezifisches Beispiel an (Source-Code)
-- Initial Support für: C4-PlantUML, BPMN
+- `diag-agent kroki start` - Startet Kroki Docker Container
+- `diag-agent kroki stop` - Stoppt und entfernt Kroki Container
+- `diag-agent kroki status` - Zeigt Status an (running/stopped, healthy/unhealthy)
+- `diag-agent kroki logs [--follow]` - Zeigt Container-Logs an
 
 **Nicht-Funktionale Anforderungen**:
-- Beispiele als Files im Package (werden mit pip installiert)
-- Einfach erweiterbar (neues File = neues Beispiel)
-- Context-effiziente CLI-Ausgabe (<500 tokens für LLM)
+- Benutzerfreundliche Fehlermeldungen (z.B. "Docker not installed")
+- Status-Output klar und informativ
+- Logs unterstützen Follow-Modus für Live-Anzeige
 
-### Beispiel-Diagramme (aus C4-PlantUML & BPMN Standards)
+### KrokiManager API (Analysiert)
+**Methoden**:
+- `start()` - Startet Container (raises KrokiManagerError)
+- `stop()` - Stoppt und entfernt Container (raises KrokiManagerError)
+- `is_running() -> bool` - Prüft ob Container läuft
+- `health_check() -> bool` - Prüft ob HTTP-Service antwortet
 
-**C4-PlantUML Beispiele**:
-1. **context-diagram.puml** - System Context Diagram
-2. **container-diagram.puml** - Container Diagram
-3. **component-diagram.puml** - Component Diagram
+**Konstanten**:
+- `CONTAINER_NAME = "kroki"`
+- `DEFAULT_PORT = 8000`
+- `DOCKER_IMAGE = "yuzutech/kroki"`
 
-**BPMN Beispiele**:
-1. **simple-process.bpmn** - Einfacher Prozess
-2. **collaboration.bpmn** - Kollaboration mit Pools
+### CLI-Pattern (Analysiert)
+**Click Structure** (siehe commands.py):
+- `@cli.group()` - Definiert Command-Gruppe (z.B. `examples`)
+- `@group_name.command()` - Definiert Subcommand (z.B. `examples list`)
+- Pattern für `kroki`: `@cli.group()` → `@kroki.command(name="start")`
 
-### Ordnerstruktur
+**Analog zu `examples` Group**:
+```python
+@cli.group()
+def kroki():
+    """Manage local Kroki Docker container."""
+    pass
+
+@kroki.command(name="start")
+def start_kroki():
+    """Start Kroki container."""
 ```
-src/diag_agent/examples/
-├── c4plantuml/
-│   ├── context-diagram.puml
-│   ├── container-diagram.puml
-│   └── component-diagram.puml
-└── bpmn/
-    ├── simple-process.bpmn
-    └── collaboration.bpmn
-```
-
-### CLI-Struktur (Analyse von commands.py)
-- Framework: Click (ADR-008)
-- Existing: `@cli.command()` für `create`
-- Neu: `@cli.group()` für `examples` mit Subcommands `list` und `show`
-- Pattern: CliRunner für Tests (siehe test_cli.py)
 
 ### Test-Strategie
 
 **Unit Tests** (tests/unit/test_cli.py):
-1. `test_examples_list_shows_all_examples` - List ohne Filter zeigt alle Beispiele
-2. `test_examples_list_filters_by_type` - List mit --type Filter
-3. `test_examples_show_displays_source_code` - Show zeigt Beispiel-Source
-4. `test_examples_show_handles_nonexistent` - Show mit ungültigem Namen
-5. `test_examples_list_output_context_efficient` - Ausgabe < 500 tokens
-
-**Test-Daten**:
-- Mock examples Files oder echte Minimal-Beispiele in fixtures
-- Verwende pathlib.Path für Plattform-Kompatibilität
+1. `test_kroki_start_command_starts_container` - Startet Container erfolgreich
+2. `test_kroki_stop_command_stops_container` - Stoppt Container erfolgreich
+3. `test_kroki_status_shows_running_and_healthy` - Status zeigt "running + healthy"
+4. `test_kroki_status_shows_stopped` - Status zeigt "stopped"
+5. `test_kroki_logs_displays_container_logs` - Logs zeigen Container-Output
+6. `test_kroki_start_handles_docker_not_installed` - Fehlerbehandlung für fehlendes Docker
+7. `test_kroki_logs_follow_mode` - Logs mit --follow Option
 
 **Mocking-Strategie**:
-- Mocke File-System-Zugriffe NICHT (echte Beispiel-Files verwenden)
-- Reason: Beispiele sind Teil des Package, Tests validieren echte Daten
+- Mock `KrokiManager` Instanz und Methoden
+- Mock `subprocess.run` für `docker logs` Command
+- Verwende Click's `CliRunner` für Command-Testing
+
+**Test-Daten**:
+- Mock Container-Status (running/stopped)
+- Mock Health-Check Responses (True/False)
+- Mock Logs-Output (String mit typischen Log-Lines)
 
 ---
 *This plan is maintained by the LLM. Tool responses provide guidance on which section to focus on and what tasks to work on.*
