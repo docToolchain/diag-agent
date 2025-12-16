@@ -466,6 +466,36 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
   - Mock: litellm.completion raises exception
   - Assert: Raises LLMGenerationError with context
 
+## Red (Design Analyzer Cycle 1: Vision-based Feedback)
+
+### Phase Entrance Criteria:
+- [x] EXPLORE abgeschlossen - Requirements klar
+- [x] LiteLLM Vision API pattern verstanden
+- [x] MVP-Scope definiert: LLMClient.vision_analyze()
+- [x] Test-Strategie klar: 2 Unit-Tests
+
+### Tasks
+- [ ] **LLMClient (Vision-Methode):** Tests für vision_analyze() schreiben
+- [ ] Test 1: test_vision_analyze_design_feedback_success
+- [ ] Test validiert: PNG bytes → base64 data URL conversion
+- [ ] Test validiert: Messages array mit text + image_url structure
+- [ ] Test validiert: Design feedback string returned
+- [ ] Test 2: test_vision_analyze_api_error
+- [ ] Test validiert: LiteLLM exception → LLMGenerationError
+- [ ] Tests ausführen und Fehlschlag verifizieren (RED)
+
+### Completed
+- [x] 2 Tests in tests/unit/test_llm_client.py hinzugefügt ✅
+- [x] Test 1: test_vision_analyze_design_feedback_success ✅
+  - Validates PNG bytes → base64 data URL conversion
+  - Validates vision message structure (text + image_url array)
+  - Validates design feedback extraction from LLM response
+- [x] Test 2: test_vision_analyze_api_error ✅
+  - Validates LiteLLM exception → LLMGenerationError
+  - Validates error context includes model name
+- [x] Tests ausgeführt - beide schlagen fehl ✅
+- [x] Fehler ist korrekt: AttributeError: 'LLMClient' object has no attribute 'vision_analyze' ✅
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
