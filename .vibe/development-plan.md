@@ -185,6 +185,35 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] 2 alte Tests gefixt (output_formats + side_effect) ✅
 - [x] Alle 8 Tests GRÜN! ✅ (95% Coverage für Orchestrator)
 
+## Refactor (Cycle 4: File Output)
+
+### Phase Entrance Criteria:
+- [x] Alle Tests grün (8 passed)
+- [x] Implementation vollständig und funktionsfähig
+- [x] Keine Hacks oder Shortcuts
+- [x] Die Lösung adressiert das Problem
+
+### Tasks
+- [x] **Orchestrator (Zyklus 4):** Code Review durchführen
+- [x] Docstrings vollständig ✓
+- [x] Type hints geprüft ✓
+- [x] Potentielle Refactorings evaluiert:
+  - File-Writing extraction → NEIN (YAGNI, nur 20 Zeilen, 1x verwendet)
+  - Prompt-Building extraction → NEIN (bereits Cycle 3 YAGNI)
+  - Extension-Map als Konstante → NEIN (gut gekapselt)
+  - os.makedirs → Path.mkdir → JA (Konsistenz mit Path-API)
+- [x] Refactoring: Path.mkdir statt os.makedirs
+- [x] Unused import entfernt: os
+- [x] Tests nach Refactoring ausführen
+
+### Completed
+- [x] Code Review durchgeführt ✅
+- [x] Refactoring: os.makedirs → Path.mkdir(parents=True, exist_ok=True) ✅
+- [x] import os entfernt (nicht mehr benötigt) ✅
+- [x] Alle Tests passed ✅ (95% Coverage für Orchestrator)
+- [x] Orchestrator Zyklus 4 abgeschlossen ✅ (File Output komplett)
+- [x] MVP Core 100% komplett! ✅
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)

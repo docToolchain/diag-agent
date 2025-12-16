@@ -5,7 +5,6 @@ Coordinates the feedback loop between LLM, Kroki validation, and design analysis
 
 from typing import Dict, Any
 import time
-import os
 from pathlib import Path
 
 from diag_agent.llm.client import LLMClient
@@ -111,7 +110,7 @@ class Orchestrator:
         
         # Write output files
         output_path_obj = Path(output_dir)
-        os.makedirs(output_path_obj, exist_ok=True)
+        output_path_obj.mkdir(parents=True, exist_ok=True)
         
         # Parse output formats (comma-separated)
         formats = [fmt.strip() for fmt in output_formats.split(",")]
