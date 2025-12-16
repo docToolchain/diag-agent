@@ -105,14 +105,14 @@ class TestOrchestratorIntegration:
 
         orchestrator = Orchestrator(mock_settings)
 
-        # Mock LLMClient: first invalid, then valid
-        # Mock KrokiClient: first error, then success (twice for validation + file output)
-        with patch.object(orchestrator.llm_client, 'generate', side_effect=[invalid_plantuml, valid_plantuml]), \
+        # Mock LLMClient: subtype detection, first invalid, then valid
+        # Mock KrokiClient: first error, then success (validation now uses SVG format)
+        with patch.object(orchestrator.llm_client, 'generate', side_effect=["sequence", invalid_plantuml, valid_plantuml]), \
              patch.object(orchestrator.kroki_client, 'render_diagram') as mock_kroki:
             # First call fails, second call succeeds (validation), third call succeeds (file output)
             mock_kroki.side_effect = [
                 KrokiRenderError("Syntax error: missing @enduml"),
-                b'\x89PNG',  # Valid PNG bytes (validation)
+                b'<svg>valid</svg>',  # Valid SVG bytes (validation)
                 b'\x89PNG'   # Valid PNG bytes (file output)
             ]
 
@@ -272,9 +272,9 @@ class TestOrchestratorIntegration:
 
         orchestrator = Orchestrator(mock_settings)
 
-        # Mock LLMClient: generate returns initial, then refined
+        # Mock LLMClient: generate returns subtype, initial, then refined (subtype detection added)
         # Mock vision_analyze: first gives feedback, then approves
-        with patch.object(orchestrator.llm_client, 'generate', side_effect=[initial_code, refined_code]), \
+        with patch.object(orchestrator.llm_client, 'generate', side_effect=["sequence", initial_code, refined_code]), \
              patch.object(orchestrator.llm_client, 'vision_analyze', side_effect=[
                  "Layout could be improved. Center-align messages for better readability.",
                  "The design looks good and is approved."
