@@ -238,6 +238,25 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Relevant: Content-Type Check, response.text für Error-Message ✓
 - [x] Implementation Plan: Check nach raise_for_status(), raise wenn text/plain ✓
 
+## Red (KrokiClient Cycle 3: Content-Type Validation)
+
+### Phase Entrance Criteria:
+- [x] EXPLORE abgeschlossen - Bug verstanden
+- [x] Test-Strategie klar: Unit-Test mit Mock (HTTP 200 + text/plain)
+
+### Tasks
+- [x] **KrokiClient (Zyklus 3):** Test für Content-Type Validation schreiben
+- [x] Test: test_render_diagram_text_plain_error
+- [x] Mock: HTTP 200 + Content-Type: text/plain + error text im body
+- [x] Assertion: KrokiRenderError raised trotz 200 status
+- [x] Assertion: Error message enthält Kroki error text
+- [x] Test ausführen und Fehlschlag verifizieren (RED)
+
+### Completed
+- [x] Test in tests/unit/test_kroki_client.py hinzugefügt ✅
+- [x] Mock: HTTP 200, Content-Type: text/plain, error text im body ✅
+- [x] Test schlägt fehl (erwarteter Fehler: DID NOT RAISE KrokiRenderError) ✅
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)

@@ -96,3 +96,48 @@ class TestKrokiClient:
             error_msg = str(exc_info.value)
             assert "500" in error_msg  # Status code
             assert diagram_type in error_msg  # Diagram type for debugging
+
+    def test_render_diagram_text_plain_error(self):
+        """Test diagram rendering detects text/plain errors (HTTP 200 with error text).
+
+        Validates that:
+        - Kroki returns HTTP 200 with Content-Type: text/plain on syntax errors
+        - KrokiRenderError is raised despite 200 status code
+        - Error message includes the Kroki error text from response body
+        - This catches syntax errors that Kroki reports via text/plain
+        """
+        from diag_agent.kroki.client import KrokiClient, KrokiRenderError
+
+        # Arrange
+        kroki_url = "http://localhost:8000"
+        diagram_source = "@startuml\nInvalid syntax here\n@enduml"
+        diagram_type = "plantuml"
+        output_format = "png"
+        
+        # Kroki error message in response body
+        kroki_error_text = "Syntax error in diagram source at line 2"
+
+        # Mock HTTP response: 200 OK but Content-Type: text/plain (error case)
+        with patch("httpx.post") as mock_post:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.headers = {"Content-Type": "text/plain; charset=utf-8"}
+            mock_response.text = kroki_error_text
+            mock_response.content = kroki_error_text.encode('utf-8')
+            # raise_for_status() would NOT raise on 200
+            mock_response.raise_for_status.return_value = None
+            mock_post.return_value = mock_response
+
+            # Act & Assert
+            client = KrokiClient(kroki_url)
+            with pytest.raises(KrokiRenderError) as exc_info:
+                client.render_diagram(
+                    diagram_source=diagram_source,
+                    diagram_type=diagram_type,
+                    output_format=output_format
+                )
+
+            # Verify error message contains Kroki error details
+            error_msg = str(exc_info.value)
+            assert kroki_error_text in error_msg  # Kroki error message
+            assert diagram_type in error_msg  # Diagram type for debugging
