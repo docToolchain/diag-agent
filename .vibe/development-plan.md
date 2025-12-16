@@ -562,6 +562,63 @@ Implementierung von diag-agent: Ein LLM-Agent zur autonomen Generierung von Soft
 - [x] Design Analyzer Cycle 1 abgeschlossen ✅ (Vision-Methode in LLMClient)
 - [x] LLMClient Coverage: 92% ✅
 
+## Explore (Orchestrator Cycle 5: Design Feedback Integration)
+
+### Phase Entrance Criteria:
+- [x] Design Analyzer Cycle 1 complete (LLMClient.vision_analyze implemented)
+- [x] Vision-based analysis funktioniert (Unit-Tests grün)
+- [x] User requested Orchestrator integration ("ja")
+
+### Tasks
+- [ ] **Orchestrator (Cycle 5):** Design Feedback Loop requirements analysieren
+- [ ] Aktuelle Orchestrator.execute() Struktur verstehen
+- [ ] Wo Design-Check einbauen (nach Syntax-Validierung)
+- [ ] Settings.validate_design boolean hinzufügen (ENV: DIAG_AGENT_VALIDATE_DESIGN)
+- [ ] Design-Refinement Prompt Pattern definieren
+- [ ] Test-Strategie: Unit-Tests mit Mocks
+- [ ] MVP-Scope definieren
+
+### Completed
+- [x] Orchestrator.execute() Struktur analysiert ✓
+  - Iteration loop: while iterations_used < max_iterations
+  - Prompt building: initial vs refinement (mit validation_error)
+  - LLM generation: llm_client.generate(prompt)
+  - Syntax validation: kroki_client.render_diagram() → PNG bytes
+  - Bei Syntax-OK: break (Zeile 98) → HIER soll Design-Check rein!
+  - Bei Syntax-Error: validation_error setzen, weiter iterieren
+- [x] Settings.validate_design analysiert ✓
+  - Aktuell nicht vorhanden in Settings
+  - .env.example line 19: DIAG_AGENT_VALIDATE_DESIGN=true
+  - Muss hinzugefügt werden: validate_design: bool
+  - Default: false (graceful degradation wenn kein Vision-Model)
+- [x] Design-Feedback-Pattern (Runtime View) ✓
+  - Nach Syntax-OK: vision_analyze(png, criteria_prompt)
+  - Feedback-Beispiele: "Layout cramped, suggest vertical" oder "Looks good"
+  - Refinement prompt mit design_feedback
+  - Approval-Detection: z.B. "approved", "looks good"
+- [x] MVP-Scope definiert ✓
+  - **Cycle 5 Focus**: Orchestrator Design-Feedback-Integration
+  - Settings.validate_design boolean (default: false)
+  - Design-Check nach Syntax-Validation (wenn validate_design=true)
+  - PNG bytes von render_diagram() speichern
+  - vision_analyze() mit criteria prompt aufrufen  
+  - design_feedback tracking (analog zu validation_error)
+  - Refinement-Prompt mit Design-Feedback
+  - Einfache Approval-Detection (String-Check: "approved" in feedback.lower())
+  - **Deferred**: DesignAnalyzer component (direkt LLMClient nutzen, YAGNI)
+- [x] Test-Strategie definiert ✓
+  - **Test 1**: Design-Check success (validate_design=true, feedback="approved")
+  - Mock: render_diagram() returns PNG bytes
+  - Mock: vision_analyze() returns "The design looks good and is approved"
+  - Assert: 1 iteration, no refinement
+  - **Test 2**: Design-Check refinement (validate_design=true, feedback → approved)
+  - Mock: vision_analyze() iteration 1 returns improvement suggestions
+  - Mock: vision_analyze() iteration 2 returns "approved"
+  - Assert: 2 iterations, design feedback in refinement prompt
+  - **Test 3**: Design-Check disabled (validate_design=false)
+  - Assert: vision_analyze() NOT called, nur Syntax-Validation
+  - Assert: Backwards-compatible (existing behavior preserved)
+
 ## Key Decisions
 
 ### Architektur-Entscheidungen (aus ADRs)
