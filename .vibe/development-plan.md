@@ -4,42 +4,40 @@
 *Workflow: [tdd](https://mrsimpson.github.io/responsible-vibe-mcp/workflows/tdd)*
 
 ## Goal
-CLI Kroki Management Commands: Implementierung von `diag-agent kroki` Commands für Docker-basiertes Kroki-Management (start, stop, status, logs)
+MCP Server Implementation: FastMCP-basierter Server für diag-agent, der die Diagramm-Generierung als MCP-Tool für andere LLM-Anwendungen verfügbar macht
 
 ## Explore
 ### Tasks
-*All exploration tasks completed*
+*All exploration completed*
 
 ### Completed
 - [x] Created development plan file
-- [x] TDD-Workflow gestartet
-- [x] Entrance Criteria für alle Phasen definiert
-- [x] Anforderungen analysiert und dokumentiert (4 Commands: start/stop/status/logs)
-- [x] KrokiManager API analysiert (start, stop, is_running, health_check)
-- [x] CLI-Pattern analysiert (@cli.group() → @kroki.command())
-- [x] Test-Strategie definiert (7 Unit Tests mit KrokiManager Mocks)
-- [x] Docker logs Zugriff: `docker logs kroki [--follow]` via subprocess
+- [x] FastMCP researched und verstanden (Python-Framework für MCP-Server)
+- [x] pyproject.toml analysiert - FastMCP bereits als optionale Dependency vorhanden
+- [x] Orchestrator.execute() analysiert - Hauptfunktionalität identifiziert
+- [x] Settings-Architektur verstanden (ENV-basierte Konfiguration)
+- [x] MCP-Anforderungen definiert: Ein Tool "create_diagram" exponieren
+- [x] Test-Strategie definiert: Unit Tests für MCP Tool mit Orchestrator-Mock
 
 ## Red
 
 ### Phase Entrance Criteria:
-- [x] Anforderungen und Scope sind klar definiert
-- [x] KrokiManager API ist verstanden
-- [x] CLI-Pattern ist analysiert
+- [x] MCP-Protokoll und FastMCP Library sind verstanden
+- [x] Scope und Requirements für den MCP Server sind klar definiert
+- [x] Bestehende diag-agent Architektur ist analysiert
+- [x] Integration-Points zwischen MCP Server und Orchestrator sind identifiziert
 - [x] Test-Strategie ist definiert
 
 ### Tasks
 *All tests written and validated*
 
 ### Completed
-- [x] Test 1: `test_kroki_start_command_starts_container` geschrieben
-- [x] Test 2: `test_kroki_stop_command_stops_container` geschrieben
-- [x] Test 3: `test_kroki_status_shows_running_and_healthy` geschrieben
-- [x] Test 4: `test_kroki_status_shows_stopped` geschrieben
-- [x] Test 5: `test_kroki_logs_displays_container_logs` geschrieben
-- [x] Test 6: `test_kroki_start_handles_docker_not_installed` geschrieben
-- [x] Test 7: `test_kroki_logs_follow_mode` geschrieben
-- [x] Alle Tests ausgeführt - alle 7 Tests schlagen erwartungsgemäß fehl (KrokiManager/subprocess not found)
+- [x] Test 1: `test_mcp_server_initialization` geschrieben
+- [x] Test 2: `test_create_diagram_tool_success` geschrieben
+- [x] Test 3: `test_create_diagram_with_custom_parameters` geschrieben
+- [x] Test 4: `test_create_diagram_returns_correct_structure` geschrieben
+- [x] Test 5: `test_create_diagram_error_handling` geschrieben
+- [x] Alle Tests ausgeführt - alle 5 Tests schlagen erwartungsgemäß fehl (ImportError: mcp/create_diagram nicht gefunden)
 
 ## Green
 
@@ -52,15 +50,15 @@ CLI Kroki Management Commands: Implementierung von `diag-agent kroki` Commands f
 *All implementation completed*
 
 ### Completed
-- [x] Import KrokiManager und subprocess in commands.py
-- [x] Click Group "kroki" erstellt
-- [x] Command "start" implementiert (mit KrokiManagerError Handling)
-- [x] Command "stop" implementiert
-- [x] Command "status" implementiert (running/stopped, healthy/unhealthy)
-- [x] Command "logs" implementiert (mit --follow Option)
-- [x] Alle 7 neuen Tests sind grün ✅
-- [x] Alle 51 Unit Tests sind grün ✅
-- [x] Coverage: 86% (CLI: 77%)
+- [x] FastMCP installiert (`pip install fastmcp`)
+- [x] MCP Server implementiert in `src/diag_agent/mcp/server.py`
+- [x] FastMCP Server initialisiert mit Namen "diag-agent"
+- [x] `create_diagram` Funktion implementiert (wrappet Orchestrator.execute())
+- [x] create_diagram Tool bei MCP Server registriert via `mcp.tool()`
+- [x] Test für list_tools() Fix (verwendet private API korrekt)
+- [x] Alle 5 MCP Tests sind grün ✅
+- [x] Alle 56 Unit Tests sind grün ✅
+- [x] Coverage: 86% (MCP Server: 92%)
 
 ## Refactor
 
@@ -74,97 +72,88 @@ CLI Kroki Management Commands: Implementierung von `diag-agent kroki` Commands f
 
 ### Completed
 - [x] Code Review durchgeführt
-- [x] Keine Code-Duplikation gefunden (Error-Handling Patterns sind zu kurz für Extraktion)
+- [x] Keine Code-Duplikation gefunden (nur eine Funktion)
 - [x] Namen sind klar und selbsterklärend
 - [x] YAGNI-Prinzip wird eingehalten
-- [x] Error Handling ist robust und konsistent
+- [x] Dependency Injection geprüft → nicht sinnvoll für simplen Wrapper
+- [x] Error Handling geprüft → FastMCP handled automatisch
 - [x] Keine offensichtlichen Verbesserungen notwendig
 
 ## Key Decisions
 
 ### EXPLORE Phase
-1. **4 Commands definiert**: start, stop, status, logs (analog zu docker CLI)
-2. **Click Group Pattern**: `@cli.group()` → `@kroki.command()` (konsistent mit examples)
-3. **subprocess für logs**: Direkter Zugriff via `docker logs` (kein Wrapper in KrokiManager nötig)
-4. **Test-Strategie**: KrokiManager mocken, subprocess mocken für logs
+1. **FastMCP als Framework**: Version 2.0 gewählt - production-ready, Pythonic, gut dokumentiert
+2. **Ein Tool "create_diagram"**: Exponiert Orchestrator.execute() direkt als MCP Tool
+3. **Keine zusätzlichen Resources/Prompts**: YAGNI - nur das Tool wird gebraucht
+4. **Test-Strategie**: Unit Tests mit Orchestrator-Mocking für schnelle, isolierte Tests
 
 ### GREEN Phase
-1. **Error Handling**: KrokiManagerError separat catchen für spezifische Messages
-2. **Status Logic**: is_running() → health_check() nur wenn running (Optimierung)
-3. **Logs Implementation**: subprocess.run mit check=True, capture_output für Output
-4. **Success Messages**: Benutzerfreundliche Messages mit Checkmarks (✓)
+1. **Funktion vor Decorator**: `create_diagram` als normale Funktion definiert, dann mit `mcp.tool()` registriert - ermöglicht direktes Testen
+2. **Settings in Tool laden**: Jeder Request lädt frische Settings (kein Caching) - verhindert stale configuration
+3. **Direkte Orchestrator-Integration**: Kein zusätzlicher Layer zwischen Tool und Orchestrator - KISS-Prinzip
+4. **Error Propagation**: Exceptions werden nicht gefangen - FastMCP handled automatisch
 
 ### REFACTOR Phase
-1. **Code Review**: Keine Duplikation, klare Namen, YAGNI-konform
-2. **Keine Refactorings nötig**: Error-Handling Patterns zu kurz für Abstraktion
-3. **Begründung**: Commands sind unabhängig, inline Error-Handling ist klarer als Abstraktion
+1. **Code Review**: Keine Refactorings nötig - Code ist bereits optimal
+2. **Begründung Dependency Injection**: Für simplen Wrapper unnötig - würde Tests komplizierter machen ohne Mehrwert
+3. **Begründung kein Error Handling**: FastMCP handled Exceptions automatisch und gibt sie korrekt an Client weiter
 
 ## Notes
 
-### Anforderungen (Requirements)
-**User Story**: Als Entwickler möchte ich Kroki Docker-Container über die CLI verwalten können, um einfach zwischen lokalem und Remote-Modus zu wechseln.
+### FastMCP Framework (Researched)
+**Was ist FastMCP?**
+- Python-Framework für Model Context Protocol (MCP) Server
+- "The fast, Pythonic way to build MCP servers"
+- Version 2.0 ist production-ready mit Enterprise-Features
 
-**Funktionale Anforderungen**:
-- `diag-agent kroki start` - Startet Kroki Docker Container
-- `diag-agent kroki stop` - Stoppt und entfernt Kroki Container
-- `diag-agent kroki status` - Zeigt Status an (running/stopped, healthy/unhealthy)
-- `diag-agent kroki logs [--follow]` - Zeigt Container-Logs an
+**Installation**: `pip install fastmcp` (bereits in pyproject.toml als optional-dependency)
 
-**Nicht-Funktionale Anforderungen**:
-- Benutzerfreundliche Fehlermeldungen (z.B. "Docker not installed")
-- Status-Output klar und informativ
-- Logs unterstützen Follow-Modus für Live-Anzeige
-
-### KrokiManager API (Analysiert)
-**Methoden**:
-- `start()` - Startet Container (raises KrokiManagerError)
-- `stop()` - Stoppt und entfernt Container (raises KrokiManagerError)
-- `is_running() -> bool` - Prüft ob Container läuft
-- `health_check() -> bool` - Prüft ob HTTP-Service antwortet
-
-**Konstanten**:
-- `CONTAINER_NAME = "kroki"`
-- `DEFAULT_PORT = 8000`
-- `DOCKER_IMAGE = "yuzutech/kroki"`
-
-### CLI-Pattern (Analysiert)
-**Click Structure** (siehe commands.py):
-- `@cli.group()` - Definiert Command-Gruppe (z.B. `examples`)
-- `@group_name.command()` - Definiert Subcommand (z.B. `examples list`)
-- Pattern für `kroki`: `@cli.group()` → `@kroki.command(name="start")`
-
-**Analog zu `examples` Group**:
+**Basic Pattern**:
 ```python
-@cli.group()
-def kroki():
-    """Manage local Kroki Docker container."""
-    pass
+from fastmcp import FastMCP
 
-@kroki.command(name="start")
-def start_kroki():
-    """Start Kroki container."""
+mcp = FastMCP("Server Name")
+
+@mcp.tool
+def my_tool(param: str) -> str:
+    """Tool description"""
+    return "result"
 ```
 
+**MCP Capabilities**:
+1. **Tools** - Ausführbare Funktionen (wie POST endpoints)
+2. **Resources** - Daten-Quellen für Kontext (wie GET endpoints)
+3. **Prompts** - Wiederverwendbare LLM-Templates
+
+### Orchestrator Integration (Analyzed)
+**Hauptfunktion**: `Orchestrator.execute()`
+- **Input**: description (str), diagram_type (str), output_dir (str), output_formats (str)
+- **Output**: Dict mit diagram_source, output_path, iterations_used, elapsed_seconds, stopped_reason
+- **Logic**: Iterative LLM-Generation + Kroki-Validierung + optionale Design-Analyse
+
+### Requirements Definition
+**MCP Tool**: `create_diagram`
+- Exponiert Orchestrator.execute() als MCP-Tool
+- Parameter: description, diagram_type, output_dir, output_formats
+- Return: JSON mit Diagramm-Quelle und Metadaten
+
+**Implementierung**:
+- Server-Datei: `src/diag_agent/mcp/server.py`
+- Tool-Funktion mit @mcp.tool Decorator
+- Settings-Integration für Konfiguration
+- Orchestrator-Instanz erstellen und execute() aufrufen
+
 ### Test-Strategie
+**Unit Tests** (tests/unit/test_mcp_server.py):
+1. Test MCP Server Initialisierung
+2. Test create_diagram Tool mit gemocktem Orchestrator
+3. Test Parameter-Validierung
+4. Test Error-Handling (z.B. ungültiger diagram_type)
+5. Test Settings-Integration
 
-**Unit Tests** (tests/unit/test_cli.py):
-1. `test_kroki_start_command_starts_container` - Startet Container erfolgreich
-2. `test_kroki_stop_command_stops_container` - Stoppt Container erfolgreich
-3. `test_kroki_status_shows_running_and_healthy` - Status zeigt "running + healthy"
-4. `test_kroki_status_shows_stopped` - Status zeigt "stopped"
-5. `test_kroki_logs_displays_container_logs` - Logs zeigen Container-Output
-6. `test_kroki_start_handles_docker_not_installed` - Fehlerbehandlung für fehlendes Docker
-7. `test_kroki_logs_follow_mode` - Logs mit --follow Option
-
-**Mocking-Strategie**:
-- Mock `KrokiManager` Instanz und Methoden
-- Mock `subprocess.run` für `docker logs` Command
-- Verwende Click's `CliRunner` für Command-Testing
-
-**Test-Daten**:
-- Mock Container-Status (running/stopped)
-- Mock Health-Check Responses (True/False)
-- Mock Logs-Output (String mit typischen Log-Lines)
+**Mocking**:
+- Mock Orchestrator.execute() für predictable Outputs
+- Mock Settings für Test-Konfiguration
 
 ---
 *This plan is maintained by the LLM. Tool responses provide guidance on which section to focus on and what tasks to work on.*
