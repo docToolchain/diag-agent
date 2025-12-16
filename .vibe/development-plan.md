@@ -1071,6 +1071,57 @@ diag-agent/
 - [x] CLI zeigt jetzt: iterations_used, elapsed_seconds, stopped_reason
 - [x] Bessere Transparenz über autonomen Prozess
 
+## Integration Tests (Test-Driven Quality Assurance)
+
+### Phase: Test Strategy Definition
+
+**Motivation:**
+- Unit-Tests: 16 tests, alle mit Mocks ✅
+- E2E-Tests: Manuell durchgeführt ✅
+- **Gap:** Keine automatisierten Integration-Tests für komplette Kette
+
+**Test-Strategie:**
+- Test-Typ: Integration Tests (mehrere Komponenten, echte Dependencies)
+- Mock-Strategie: LLMClient gemockt, Kroki ECHT (oder gemockt je nach Test)
+- Test-Datei: tests/integration/test_orchestrator_integration.py
+- Fixtures: tmpdir für File Output, Mock LLM responses
+
+**Test-Szenarien:**
+1. **Happy Path:** Settings → Orchestrator → File Output (syntax valid on first try)
+2. **Syntax Error Recovery:** LLM → Kroki Error → Refinement → Success
+3. **Design Feedback Loop:** validate_design=true → Vision → Refinement → Approved
+4. **Iteration Limit:** max_iterations=3 → Stops after 3 iterations
+5. **Time Limit:** max_time_seconds=5 → Stops after 5 seconds
+
+### Tasks
+- [ ] Create tests/integration/test_orchestrator_integration.py
+- [ ] Test 1: test_orchestrator_happy_path_integration
+- [ ] Test 2: test_orchestrator_syntax_error_recovery_integration
+- [ ] Test 3: test_orchestrator_design_feedback_integration
+- [ ] Test 4: test_orchestrator_iteration_limit_integration
+- [ ] Test 5: test_orchestrator_time_limit_integration
+- [ ] Run integration tests and verify all pass
+- [ ] Update CI/CD config (optional - later)
+
+### Completed
+- [x] Integration tests written ✅
+  - tests/integration/test_orchestrator_integration.py (5 tests)
+  - test_orchestrator_happy_path_integration (real Kroki)
+  - test_orchestrator_syntax_error_recovery_integration (mocked Kroki)
+  - test_orchestrator_iteration_limit_integration (mocked Kroki)
+  - test_orchestrator_time_limit_integration (mocked Kroki)
+  - test_orchestrator_design_feedback_integration (mocked Kroki + Vision)
+- [x] All tests pass ✅
+  - **32 tests total: 27 Unit + 5 Integration**
+  - **97% Code Coverage** (187 statements, 5 missed)
+  - Test execution: 8.5s
+- [x] Integration test coverage documented ✅
+  - Happy Path: Settings → Orchestrator → LLMClient → KrokiClient → File Output
+  - Error Recovery: Syntax Error → Refinement → Success
+  - Iteration Limit: max_iterations enforcement
+  - Time Limit: max_time_seconds enforcement
+  - Design Feedback: validate_design=true → Vision → Refinement → Approved
+
 ## Open Backlog Items
 
 ### Documentation (Later)

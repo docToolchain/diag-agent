@@ -48,11 +48,14 @@ class TestCLI:
         runner = CliRunner()
         description = "User authentication flow"
         
-        # Mock Orchestrator (doesn't exist yet - will be implemented later)
+        # Mock Orchestrator
         mock_orchestrator = Mock()
         mock_orchestrator.execute.return_value = {
             "diagram_source": "@startuml\nAlice -> Bob\n@enduml",
-            "output_path": "./diagrams/diagram.png"
+            "output_path": "./diagrams/diagram.png",
+            "iterations_used": 1,
+            "elapsed_seconds": 2.5,
+            "stopped_reason": "success"
         }
         
         # Mock Settings
