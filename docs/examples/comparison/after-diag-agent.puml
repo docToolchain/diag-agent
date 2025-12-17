@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Context>
+
+title Context-Diagramm eines Webshops
+
+Person(kunde, "Kunde", "Ein Benutzer, der Produkte online kaufen möchte")
+Person(admin, "Shop-Administrator", "Verwaltet Produkte, Bestellungen und Kunden")
+
+System(webshop, "Webshop-System", "Ermöglicht Online-Einkauf, Produktverwaltung und Bestellabwicklung")
+
+System_Ext(payment, "Zahlungssystem", "Verarbeitet Kreditkarten- und andere Zahlungen")
+System_Ext(email, "E-Mail-System", "Sendet Bestätigungs- und Benachrichtigungs-E-Mails")
+System_Ext(versand, "Versanddienstleister", "Verwaltet Versand und Lieferung")
+System_Ext(lager, "Lagerverwaltungssystem", "Verwaltet Lagerbestände und Produktverfügbarkeit")
+
+Rel(kunde, webshop, "Sucht Produkte,\nlegt in Warenkorb, bestellt", "HTTPS")
+Rel(admin, webshop, "Verwaltet Produkte,\nBestellungen, Kunden", "HTTPS")
+
+Rel(webshop, payment, "Verarbeitet\nZahlungen", "API/HTTPS")
+Rel(webshop, email, "Sendet\nE-Mails", "SMTP")
+Rel(webshop, versand, "Erstellt\nVersandaufträge", "API/HTTPS")
+Rel(webshop, lager, "Prüft Verfügbarkeit,\naktualisiert Bestände", "API/HTTPS")
+
+Rel(email, kunde, "Sendet\nBestellbestätigungen", "E-Mail")
+Rel(email, admin, "Sendet\nBenachrichtigungen", "E-Mail")
+
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+
+kunde -[hidden]right- admin
+payment -[hidden]right- email
+email -[hidden]right- versand
+versand -[hidden]right- lager
+
+@enduml
