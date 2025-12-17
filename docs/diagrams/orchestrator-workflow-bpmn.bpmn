@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_1"
+             targetNamespace="http://example.org/bpmn">
+
+  <collaboration id="Collaboration_1">
+    <participant id="Participant_CallingLLM" name="Calling LLM" processRef="Process_CallingLLM"/>
+    <participant id="Participant_DiagAgent" name="diag-agent" processRef="Process_DiagAgent"/>
+    <messageFlow id="MessageFlow_1" sourceRef="Task_SendDescription" targetRef="Task_ReceiveDescription"/>
+    <messageFlow id="MessageFlow_2" sourceRef="Task_SendQuestions" targetRef="Task_ReceiveQuestions"/>
+    <messageFlow id="MessageFlow_3" sourceRef="Task_SendRefinedDescription" targetRef="Task_ReceiveRefinedDescription"/>
+    <messageFlow id="MessageFlow_4" sourceRef="Task_SendResult" targetRef="Task_ReceiveDiagram"/>
+  </collaboration>
+
+  <process id="Process_CallingLLM" name="Calling LLM Process" isExecutable="false">
+    <startEvent id="StartEvent_1" name="Start">
+      <outgoing>Flow_1</outgoing>
+    </startEvent>
+    <task id="Task_SendDescription" name="Send diagram description">
+      <incoming>Flow_1</incoming>
+      <incoming>Flow_7</incoming>
+      <outgoing>Flow_2</outgoing>
+    </task>
+    <task id="Task_WaitResult" name="Wait for result">
+      <incoming>Flow_3</incoming>
+      <outgoing>Flow_4</outgoing>
+    </task>
+    <task id="Task_ReceiveDiagram" name="Receive generated diagram files">
+      <incoming>Flow_4</incoming>
+      <outgoing>Flow_5</outgoing>
+    </task>
+    <endEvent id="EndEvent_1" name="End">
+      <incoming>Flow_5</incoming>
+    </endEvent>
+    <exclusiveGateway id="Gateway_DescriptionValid" name="Description valid?">
+      <incoming>Flow_2</incoming>
+      <outgoing>Flow_3</outgoing>
+      <outgoing>Flow_6</outgoing>
+    </exclusiveGateway>
+    <task id="Task_ReceiveQuestions" name="Receive validation questions">
+      <incoming>Flow_6</incoming>
+      <outgoing>Flow_8</outgoing>
+    </task>
+    <task id="Task_RefineDescription" name="Refine description">
+      <incoming>Flow_8</incoming>
+      <outgoing>Flow_9</outgoing>
+    </task>
+    <task id="Task_SendRefinedDescription" name="Send refined description">
+      <incoming>Flow_9</incoming>
+      <outgoing>Flow_7</outgoing>
+    </task>
+    <sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_SendDescription"/>
+    <sequenceFlow id="Flow_2" sourceRef="Task_SendDescription" targetRef="Gateway_DescriptionValid"/>
+    <sequenceFlow id="Flow_3" name="Valid" sourceRef="Gateway_DescriptionValid" targetRef="Task_WaitResult"/>
+    <sequenceFlow id="Flow_4" sourceRef="Task_WaitResult" targetRef="Task_ReceiveDiagram"/>
+    <sequenceFlow id="Flow_5" sourceRef="Task_ReceiveDiagram" targetRef="EndEvent_1"/>
+    <sequenceFlow id="Flow_6" name="Invalid" sourceRef="Gateway_DescriptionValid" targetRef="Task_ReceiveQuestions"/>
+    <sequenceFlow id="Flow_7" sourceRef="Task_SendRefinedDescription" targetRef="Task_SendDescription"/>
+    <sequenceFlow id="Flow_8" sourceRef="Task_ReceiveQuestions" targetRef="Task_RefineDescription"/>
+    <sequenceFlow id="Flow_9" sourceRef="Task_RefineDescription" targetRef="Task_SendRefinedDescription"/>
+  </process>
+
+  <process id="Process_DiagAgent" name="diag-agent Process" isExecutable="false">
+    <startEvent id="StartEvent_2" name="Start">
+      <outgoing>Flow_10</outgoing>
+    </startEvent>
+    <task id="Task_ReceiveDescription" name="Receive description">
+      <incoming>Flow_10</incoming>
+      <outgoing>Flow_11</outgoing>
+    </task>
+    <task id="Task_ValidateDescription" name="Validate description">
+      <incoming>Flow_11</incoming>
+      <incoming>Flow_16</incoming>
+      <outgoing>Flow_12</outgoing>
+    </task>
+    <exclusiveGateway id="Gateway_Valid" name="Valid?">
+      <incoming>Flow_12</incoming>
+      <outgoing>Flow_13</outgoing>
+      <outgoing>Flow_14</outgoing>
+    </exclusiveGateway>
+    <task id="Task_SendQuestions" name="Send validation questions">
+      <incoming>Flow_14</incoming>
+      <outgoing>Flow_15</outgoing>
+    </task>
+    <task id="Task_WaitRefinedDescription" name="Wait for refined description">
+      <incoming>Flow_15</incoming>
+      <outgoing>Flow_17</outgoing>
+    </task>
+    <task id="Task_ReceiveRefinedDescription" name="Receive refined description">
+      <incoming>Flow_17</incoming>
+      <outgoing>Flow_16</outgoing>
+    </task>
+    <task id="Task_GenerateDiagramCode" name="Generate diagram code with LLM">
+      <incoming>Flow_13</incoming>
+      <incoming>Flow_26</incoming>
+      <outgoing>Flow_18</outgoing>
+    </task>
+    <task id="Task_ValidateSyntax" name="Validate syntax with Kroki">
+      <incoming>Flow_18</incoming>
+      <outgoing>Flow_19</outgoing>
+    </task>
+    <exclusiveGateway id="Gateway_SyntaxValid" name="Syntax valid?">
+      <incoming>Flow_19</incoming>
+      <outgoing>Flow_20</outgoing>
+      <outgoing>Flow_21</outgoing>
+    </exclusiveGateway>
+    <task id="Task_PrepareErrorFeedback" name="Prepare error feedback">
+      <incoming>Flow_20</incoming>
+      <outgoing>Flow_26</outgoing>
+    </task>
+    <exclusiveGateway id="Gateway_DesignValidationEnabled" name="Design validation enabled?">
+      <incoming>Flow_21</incoming>
+      <outgoing>Flow_22</outgoing>
+      <outgoing>Flow_27</outgoing>
+    </exclusiveGateway>
+    <task id="Task_AnalyzeDesign" name="Analyze design with Vision LLM">
+      <incoming>Flow_22</incoming>
+      <outgoing>Flow_23</outgoing>
+    </task>
+    <exclusiveGateway id="Gateway_DesignApproved" name="Design approved?">
+      <incoming>Flow_23</incoming>
+      <outgoing>Flow_24</outgoing>
+      <outgoing>Flow_25</outgoing>
+    </exclusiveGateway>
+    <task id="Task_PrepareDesignFeedback" name="Prepare design feedback">
+      <incoming>Flow_25</incoming>
+      <outgoing>Flow_28</outgoing>
+    </task>
+    <exclusiveGateway id="Gateway_ExitLoop" name="Exit loop">
+      <incoming>Flow_24</incoming>
+      <incoming>Flow_27</incoming>
+      <outgoing>Flow_29</outgoing>
+    </exclusiveGateway>
+    <exclusiveGateway id="Gateway_ContinueLoop" name="Continue loop">
+      <incoming>Flow_26</incoming>
+      <incoming>Flow_28</incoming>
+      <outgoing>Flow_30</outgoing>
+    </exclusiveGateway>
+    <task id="Task_WriteOutputFiles" name="Write output files (SVG, source)">
+      <incoming>Flow_29</incoming>
+      <outgoing>Flow_31</outgoing>
+    </task>
+    <task id="Task_SendResult" name="Send result to calling LLM">
+      <incoming>Flow_31</incoming>
+      <outgoing>Flow_32</outgoing>
+    </task>
+    <endEvent id="EndEvent_2" name="End">
+      <incoming>Flow_32</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_10" sourceRef="StartEvent_2" targetRef="Task_ReceiveDescription"/>
+    <sequenceFlow id="Flow_11" sourceRef="Task_ReceiveDescription" targetRef="Task_ValidateDescription"/>
+    <sequenceFlow id="Flow_12" sourceRef="Task_ValidateDescription" targetRef="Gateway_Valid"/>
+    <sequenceFlow id="Flow_13" name="Valid" sourceRef="Gateway_Valid" targetRef="Task_GenerateDiagramCode"/>
+    <sequenceFlow id="Flow_14" name="Invalid" sourceRef="Gateway_Valid" targetRef="Task_SendQuestions"/>
+    <sequenceFlow id="Flow_15" sourceRef="Task_SendQuestions" targetRef="Task_WaitRefinedDescription"/>
+    <sequenceFlow id="Flow_16" sourceRef="Task_ReceiveRefinedDescription" targetRef="Task_ValidateDescription"/>
+    <sequenceFlow id="Flow_17" sourceRef="Task_WaitRefinedDescription" targetRef="Task_ReceiveRefinedDescription"/>
+    <sequenceFlow id="Flow_18" sourceRef="Task_GenerateDiagramCode" targetRef="Task_ValidateSyntax"/>
+    <sequenceFlow id="Flow_19" sourceRef="Task_ValidateSyntax" targetRef="Gateway_SyntaxValid"/>
+    <sequenceFlow id="Flow_20" name="Invalid" sourceRef="Gateway_SyntaxValid" targetRef="Task_PrepareErrorFeedback"/>
+    <sequenceFlow id="Flow_21" name="Valid" sourceRef="Gateway_SyntaxValid" targetRef="Gateway_DesignValidationEnabled"/>
+    <sequenceFlow id="Flow_22" name="Enabled &amp; PNG supported" sourceRef="Gateway_DesignValidationEnabled" targetRef="Task_AnalyzeDesign"/>
+    <sequenceFlow id="Flow_23" sourceRef="Task_AnalyzeDesign" targetRef="Gateway_DesignApproved"/>
+    <sequenceFlow id="Flow_24" name="Yes" sourceRef="Gateway_DesignApproved" targetRef="Gateway_ExitLoop"/>
+    <sequenceFlow id="Flow_25" name="No" sourceRef="Gateway_DesignApproved" targetRef="Task_PrepareDesignFeedback"/>
+    <sequenceFlow id="Flow_26" sourceRef="Task_PrepareErrorFeedback" targetRef="Gateway_ContinueLoop"/>
+    <sequenceFlow id="Flow_27" name="Not enabled or PNG not supported" sourceRef="Gateway_DesignValidationEnabled" targetRef="Gateway_ExitLoop"/>
+    <sequenceFlow id="Flow_28" sourceRef="Task_PrepareDesignFeedback" targetRef="Gateway_ContinueLoop"/>
+    <sequenceFlow id="Flow_29" sourceRef="Gateway_ExitLoop" targetRef="Task_WriteOutputFiles"/>
+    <sequenceFlow id="Flow_30" sourceRef="Gateway_ContinueLoop" targetRef="Task_GenerateDiagramCode"/>
+    <sequenceFlow id="Flow_31" sourceRef="Task_WriteOutputFiles" targetRef="Task_SendResult"/>
+    <sequenceFlow id="Flow_32" sourceRef="Task_SendResult" targetRef="EndEvent_2"/>
+  </process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="Participant_CallingLLM_di" bpmnElement="Participant_CallingLLM">
+        <dc:Bounds x="100" y="50" width="1400" height="250"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_DiagAgent_di" bpmnElement="Participant_DiagAgent">
+        <dc:Bounds x="100" y="350" width="1800" height="500"/>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>
