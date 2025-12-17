@@ -43,7 +43,13 @@ def cli():
     default="png,svg,source",
     help="Output formats (comma-separated: png, svg, pdf, source)"
 )
-def create(description: str, diagram_type: str, output: str, output_format: str):
+@click.option(
+    "--force",
+    "-f",
+    is_flag=True,
+    help="Skip description validation"
+)
+def create(description: str, diagram_type: str, output: str, output_format: str, force: bool):
     """Create a diagram from natural language description.
     
     DESCRIPTION is a natural language description of the diagram you want to create.
@@ -78,7 +84,8 @@ def create(description: str, diagram_type: str, output: str, output_format: str)
         diagram_type=diagram_type,
         output_dir=output,
         output_formats=output_format,
-        progress_callback=progress_callback
+        progress_callback=progress_callback,
+        skip_validation=force
     )
     
     # Clear progress line and show final result

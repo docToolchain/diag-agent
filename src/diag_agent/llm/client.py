@@ -144,3 +144,75 @@ class LLMClient:
             raise LLMGenerationError(
                 f"LLM vision analysis failed for model '{model}': {str(e)}"
             ) from e
+
+    def validate_description(self, description: str, diagram_type: str) -> tuple[bool, str | None]:
+        """Validate diagram description for completeness and consistency.
+
+        Args:
+            description: Natural language description of diagram
+            diagram_type: Type of diagram (plantuml, bpmn, etc.)
+
+        Returns:
+            Tuple of (is_valid, questions):
+            - (True, None): Description is valid
+            - (False, questions_str): Description invalid, questions contains numbered issues
+
+        Note:
+            On API errors, returns (True, None) to allow workflow to continue (fail-safe).
+        """
+        # Build model string
+        model = f"{self.settings.llm_provider}/{self.settings.llm_model}"
+
+        # Validation prompt
+        validation_prompt = f"""You are a diagram description validator. Analyze the given description for a {diagram_type} diagram.
+
+Check for:
+1. Completeness: Are essential elements specified?
+2. Consistency: Are there contradictions?
+3. Clarity: Is the description unambiguous?
+
+Only flag actual problems that would prevent generating a useful diagram. Be lenient - minor imperfections are acceptable.
+
+Response format:
+- If valid: Return exactly "VALID"
+- If invalid: Return "INVALID" on first line, then numbered questions on separate lines
+
+Example invalid response:
+INVALID
+1. Which type of BPMN diagram is needed? (process/collaboration/choreography)
+2. Who performs the "approval step"? Specify role or system name.
+
+Description to validate:
+{description}"""
+
+        try:
+            # Call LLM for validation
+            response = litellm.completion(
+                model=model,
+                messages=[
+                    {"role": "user", "content": validation_prompt}
+                ]
+            )
+
+            # Parse response
+            content = response.choices[0].message.content.strip()
+            
+            if content.startswith("VALID"):
+                return (True, None)
+            elif content.startswith("INVALID"):
+                # Extract questions (everything after "INVALID\n")
+                lines = content.split("\n", 1)
+                if len(lines) > 1:
+                    questions = lines[1].strip()
+                    return (False, questions)
+                else:
+                    # Malformed response - fail-safe to valid
+                    return (True, None)
+            else:
+                # Unexpected format - fail-safe to valid
+                return (True, None)
+
+        except Exception:
+            # API error or other failure - fail-safe to valid
+            # This allows workflow to continue even if validation service is down
+            return (True, None)

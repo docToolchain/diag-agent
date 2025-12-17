@@ -6,7 +6,9 @@ Coordinates the feedback loop between LLM, Kroki validation, and design analysis
 from typing import Dict, Any
 import time
 import logging
+import sys
 from pathlib import Path
+import click
 
 from diag_agent.llm.client import LLMClient
 from diag_agent.kroki.client import KrokiClient, KrokiRenderError
@@ -215,7 +217,8 @@ Respond with ONLY the subtype name (one word, lowercase). If unsure, respond wit
         diagram_type: str = "plantuml",
         output_dir: str = "./diagrams",
         output_formats: str = "png,svg,source",
-        progress_callback: Any = None
+        progress_callback: Any = None,
+        skip_validation: bool = False
     ) -> Dict[str, Any]:
         """Execute diagram generation workflow with iteration limits.
         
@@ -225,6 +228,7 @@ Respond with ONLY the subtype name (one word, lowercase). If unsure, respond wit
             output_dir: Output directory for generated files
             output_formats: Comma-separated output formats
             progress_callback: Optional callback(message: str) for progress updates
+            skip_validation: Skip description validation (--force flag)
             
         Returns:
             Dict with diagram_source, output_path, and metadata:
@@ -243,6 +247,30 @@ Respond with ONLY the subtype name (one word, lowercase). If unsure, respond wit
         # Detect subtype and load example (before iteration loop)
         subtype = self._detect_subtype(description, diagram_type)
         example_content = self._load_example(diagram_type, subtype)
+        
+        # Validate description (unless skip_validation=True)
+        if not skip_validation:
+            logger.info("Description validation: CHECKING")
+            is_valid, questions = self.llm_client.validate_description(description, diagram_type)
+            
+            if not is_valid and questions:
+                # Description is invalid - output questions and exit
+                logger.info("Description validation: FAILED")
+                logger.info(f"Validation questions:\n{questions}")
+                
+                # Output to stderr for user visibility
+                click.echo("\n❌ Die Beschreibung enthält Unklarheiten:\n", err=True)
+                click.echo(questions, err=True)
+                click.echo("\nBitte rufe das Tool mit einer präziseren Beschreibung erneut auf.", err=True)
+                click.echo("Oder nutze --force um diese Validierung zu überspringen.\n", err=True)
+                
+                # Cleanup logger before exit
+                self._cleanup_logger(logger)
+                sys.exit(1)
+            
+            logger.info("Description validation: PASSED")
+        else:
+            logger.info("Description validation: SKIPPED (--force)")
         
         # Track iteration state
         iterations_used = 0

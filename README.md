@@ -5,11 +5,34 @@ An LLM Agent for creating software architecture diagrams with autonomous syntax 
 ## Features
 
 - 🤖 **Autonomous diagram generation** with syntax validation and design feedback loop
+- ✅ **Smart description validation** - LLM checks descriptions for completeness and clarity before generation
 - 🎨 **Multi-format support** via Kroki integration (PlantUML, C4, BPMN, Mermaid, etc.)
 - 🚀 **Flexible deployment**: CLI tool, MCP server, or Python library
 - 🔒 **Privacy-first**: Local-first approach with optional remote rendering
 - 🔌 **LLM-agnostic**: Works with any LLM via LiteLLM (Anthropic, OpenAI, etc.)
 - ⚡ **Context-efficient**: Minimal token consumption through optimized prompts
+
+## How it Works
+
+The orchestrator coordinates a feedback loop between the calling LLM and validation services:
+
+![Orchestrator Workflow](docs/diagrams/orchestrator-workflow.svg)
+
+**Key workflow steps:**
+
+1. **Description Validation**: LLM checks your description for completeness and clarity
+   - Invalid → Returns specific questions for refinement
+   - Valid → Proceeds to generation
+
+2. **Iterative Generation Loop** (max 5 iterations):
+   - LLM generates diagram code from prompt
+   - Kroki validates syntax by attempting to render
+   - Optional: Vision LLM analyzes design quality (PNG-capable diagrams only)
+   - On errors: Refines prompt with specific feedback
+
+3. **Output**: Valid diagram in requested formats (source, SVG, PNG, PDF)
+
+The workflow ensures high-quality diagrams through autonomous validation and refinement.
 
 ## Quick Start
 
@@ -91,7 +114,13 @@ See [User Guide - Docker Deployment](src/docs/user-guide.md#docker-deployment) f
 
 ```bash
 # Generate diagrams
-uv run diag-agent create "diagram description" [--type TYPE] [--output DIR] [--format FORMATS]
+uv run diag-agent create "diagram description" [OPTIONS]
+
+# Options:
+#   --type TYPE        Diagram type (default: plantuml)
+#   --output DIR       Output directory (default: ./diagrams)
+#   --format FORMATS   Comma-separated formats: png,svg,pdf,source
+#   --force, -f        Skip description validation
 
 # Browse examples
 uv run diag-agent examples list [--type TYPE]
@@ -100,6 +129,22 @@ uv run diag-agent examples show TYPE/NAME
 # Manage local Kroki server
 uv run diag-agent kroki start|stop|status|logs
 ```
+
+### Description Validation
+
+By default, diag-agent validates your description before generating diagrams. If the description is unclear or incomplete, you'll receive specific questions:
+
+```bash
+❌ Die Beschreibung enthält Unklarheiten:
+
+1. Which type of BPMN diagram is needed? (process/collaboration/choreography)
+2. Who performs the "approval step"? Specify role or system name.
+
+Bitte rufe das Tool mit einer präziseren Beschreibung erneut auf.
+Oder nutze --force um diese Validierung zu überspringen.
+```
+
+Use `--force` to skip validation when needed (e.g., for automated workflows or intentionally vague descriptions).
 
 See [User Guide - CLI Commands](src/docs/user-guide.md#cli-commands) for detailed documentation.
 

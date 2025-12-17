@@ -31,6 +31,7 @@ class TestOrchestrator:
 
         # Mock LLMClient
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "@startuml\nTest\n@enduml"
 
         # Mock KrokiClient - validation succeeds
@@ -78,6 +79,7 @@ class TestOrchestrator:
 
         # Mock LLMClient
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "@startuml\nTest\n@enduml"
 
         # Mock KrokiClient - validation succeeds
@@ -127,6 +129,7 @@ class TestOrchestrator:
 
         # Mock LLMClient
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         # Two calls: subtype detection + diagram generation
         mock_llm_client.generate.side_effect = [
             "sequence",  # Subtype detection
@@ -189,6 +192,7 @@ class TestOrchestrator:
 
         # Mock LLMClient - generates valid PlantUML
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "@startuml\nAlice -> Bob: Hello\n@enduml"
 
         # Mock KrokiClient - validation succeeds
@@ -249,6 +253,7 @@ class TestOrchestrator:
 
         # Mock LLMClient - subtype detection + two diagram attempts
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.side_effect = [
             "plantuml",  # Subtype detection
             "@startuml\nInvalid syntax here\n@enduml",  # Iteration 1: invalid
@@ -322,6 +327,7 @@ class TestOrchestrator:
 
         # Mock LLMClient
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "@startuml\\nAlice -> Bob\\n@enduml"
 
         # Mock KrokiClient - returns PNG bytes
@@ -383,6 +389,7 @@ class TestOrchestrator:
         # Mock LLMClient
         diagram_source = "@startuml\\nAlice -> Bob: Test\\n@enduml"
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = diagram_source
 
         # Mock KrokiClient - returns different bytes for different formats
@@ -453,6 +460,7 @@ class TestOrchestrator:
         # Mock LLMClient
         diagram_source = "graph TD\\n  A --> B"
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = diagram_source
 
         # Mock KrokiClient
@@ -503,6 +511,7 @@ class TestOrchestrator:
         # Mock LLMClient
         diagram_source = "@startuml\nAlice -> Bob: Hello\n@enduml"
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = diagram_source
         mock_llm_client.vision_analyze.return_value = "The design looks good and is approved."
 
@@ -562,6 +571,7 @@ class TestOrchestrator:
         diagram_source_v2 = "@startuml\ntop to bottom direction\nAlice -> Bob: Hello\n@enduml"
         
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.side_effect = [
             "plantuml",  # Subtype detection
             diagram_source_v1, 
@@ -629,6 +639,7 @@ class TestOrchestrator:
         # Mock LLMClient
         diagram_source = "@startuml\nAlice -> Bob: Hello\n@enduml"
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = diagram_source
 
         # Mock KrokiClient
@@ -679,6 +690,7 @@ class TestOrchestrator:
 
         # Mock LLMClient
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "@startuml\nTest\n@enduml"
 
         # Mock KrokiClient

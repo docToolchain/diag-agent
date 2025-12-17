@@ -29,6 +29,7 @@ class TestOrchestratorLogging:
         mock_settings.validate_design = False
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "@startuml\\nTest\\n@enduml"
 
         mock_kroki_client = Mock()
@@ -75,6 +76,7 @@ class TestOrchestratorLogging:
         mock_settings.validate_design = False
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "@startuml\\nTest\\n@enduml"
 
         mock_kroki_client = Mock()
@@ -118,6 +120,7 @@ class TestOrchestratorLogging:
         mock_settings.validate_design = False
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "@startuml\\nTest\\n@enduml"
 
         mock_kroki_client = Mock()
@@ -163,6 +166,7 @@ class TestOrchestratorLogging:
         mock_settings.validate_design = False
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.side_effect = [
             "plantuml",  # Subtype detection
             "@startuml\\nInvalid\\n@enduml",  # Iteration 1: invalid
@@ -216,6 +220,7 @@ class TestOrchestratorLogging:
         mock_settings.validate_design = True  # Enable design validation
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.side_effect = [
             "plantuml",  # Subtype detection
             "@startuml\\nV1\\n@enduml",
@@ -271,6 +276,7 @@ class TestOrchestratorLogging:
         mock_settings.validate_design = False
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.side_effect = [
             "plantuml",  # Subtype detection
             "@startuml\\nInvalid\\n@enduml",
@@ -329,6 +335,7 @@ class TestOrchestratorLogging:
         mock_settings.validate_design = False
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "@startuml\\nTest\\n@enduml"
 
         mock_kroki_client = Mock()
