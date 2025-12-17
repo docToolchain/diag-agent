@@ -25,6 +25,7 @@ class TestOrchestratorExampleDetection:
         mock_settings.kroki_remote_url = "https://kroki.io"
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "context"
 
         with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
@@ -54,6 +55,7 @@ class TestOrchestratorExampleDetection:
         mock_settings.kroki_remote_url = "https://kroki.io"
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "container"
 
         with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
@@ -80,6 +82,7 @@ class TestOrchestratorExampleDetection:
         mock_settings.kroki_remote_url = "https://kroki.io"
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "simple-process"
 
         with patch("diag_agent.agent.orchestrator.LLMClient", return_value=mock_llm_client), \
@@ -234,6 +237,7 @@ class TestOrchestratorExampleIntegration:
 
         # Mock LLM
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "@startuml\nTest\n@enduml"
 
         # Mock Kroki
@@ -285,6 +289,7 @@ class TestOrchestratorExampleIntegration:
         mock_settings.validate_design = False
 
         mock_llm_client = Mock()
+        mock_llm_client.validate_description.return_value = (True, None)  # Validation passes
         mock_llm_client.generate.return_value = "graph TD\nA-->B"
 
         mock_kroki_client = Mock()
