@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="Definitions_1"
+             targetNamespace="http://example.org/bpmn">
+
+  <!-- Collaboration with 2 pools -->
+  <collaboration id="Collaboration_1">
+    <participant id="Participant_Customer" name="Customer" processRef="Process_Customer"/>
+    <participant id="Participant_Provider" name="Service Provider" processRef="Process_Provider"/>
+    <messageFlow id="MessageFlow_1" sourceRef="Task_Request" targetRef="Task_Receive"/>
+    <messageFlow id="MessageFlow_2" sourceRef="Task_Respond" targetRef="Task_GetResponse"/>
+  </collaboration>
+
+  <!-- Customer Process -->
+  <process id="Process_Customer" name="Customer Process" isExecutable="false">
+    <startEvent id="StartEvent_1" name="Start">
+      <outgoing>Flow_1</outgoing>
+    </startEvent>
+    <task id="Task_Request" name="Send Request">
+      <incoming>Flow_1</incoming>
+      <outgoing>Flow_2</outgoing>
+    </task>
+    <task id="Task_GetResponse" name="Receive Response">
+      <incoming>Flow_2</incoming>
+      <outgoing>Flow_3</outgoing>
+    </task>
+    <endEvent id="EndEvent_1" name="End">
+      <incoming>Flow_3</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_Request"/>
+    <sequenceFlow id="Flow_2" sourceRef="Task_Request" targetRef="Task_GetResponse"/>
+    <sequenceFlow id="Flow_3" sourceRef="Task_GetResponse" targetRef="EndEvent_1"/>
+  </process>
+
+  <!-- Service Provider Process -->
+  <process id="Process_Provider" name="Provider Process" isExecutable="false">
+    <startEvent id="StartEvent_2" name="Start">
+      <outgoing>Flow_4</outgoing>
+    </startEvent>
+    <task id="Task_Receive" name="Receive Request">
+      <incoming>Flow_4</incoming>
+      <outgoing>Flow_5</outgoing>
+    </task>
+    <task id="Task_Process" name="Process Request">
+      <incoming>Flow_5</incoming>
+      <outgoing>Flow_6</outgoing>
+    </task>
+    <task id="Task_Respond" name="Send Response">
+      <incoming>Flow_6</incoming>
+      <outgoing>Flow_7</outgoing>
+    </task>
+    <endEvent id="EndEvent_2" name="End">
+      <incoming>Flow_7</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_4" sourceRef="StartEvent_2" targetRef="Task_Receive"/>
+    <sequenceFlow id="Flow_5" sourceRef="Task_Receive" targetRef="Task_Process"/>
+    <sequenceFlow id="Flow_6" sourceRef="Task_Process" targetRef="Task_Respond"/>
+    <sequenceFlow id="Flow_7" sourceRef="Task_Respond" targetRef="EndEvent_2"/>
+  </process>
+
+  <!-- Diagram Interchange (optional visual layout) -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+      <!-- Customer Pool -->
+      <bpmndi:BPMNShape id="Participant_Customer_di" bpmnElement="Participant_Customer">
+        <dc:Bounds x="100" y="50" width="600" height="150"/>
+      </bpmndi:BPMNShape>
+      <!-- Provider Pool -->
+      <bpmndi:BPMNShape id="Participant_Provider_di" bpmnElement="Participant_Provider">
+        <dc:Bounds x="100" y="250" width="600" height="200"/>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>
