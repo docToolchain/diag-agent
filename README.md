@@ -12,6 +12,71 @@ An LLM Agent for creating software architecture diagrams with autonomous syntax 
 - 🔌 **LLM-agnostic**: Works with any LLM via LiteLLM (Anthropic, OpenAI, etc.)
 - ⚡ **Context-efficient**: Minimal token consumption through optimized prompts
 
+## Why Use diag-agent?
+
+### Before: Manual Diagram Creation ❌
+
+Creating diagrams manually means wrestling with syntax, debugging errors, and iterating repeatedly:
+
+```bash
+# Attempt 1: Write BPMN XML manually
+$ vim order-process.bpmn
+# ... 200 lines of XML later ...
+
+# Attempt 2: Test with Kroki
+$ curl -X POST https://kroki.io/bpmn/svg --data-binary @order-process.bpmn
+# ❌ Error: "Syntax error at line 47: Missing closing tag"
+
+# Attempt 3: Fix the error
+$ vim order-process.bpmn
+# ... fix line 47 ...
+
+# Attempt 4: Test again
+$ curl -X POST https://kroki.io/bpmn/svg --data-binary @order-process.bpmn
+# ❌ Error: "Invalid reference: Flow_1 sourceRef not found"
+
+# Attempt 5: Debug references
+# ... 30 minutes later ...
+# ❌ Still not working...
+```
+
+**Result**: Hours spent debugging syntax instead of designing architecture.
+
+### After: With diag-agent ✅
+
+Let the LLM handle syntax while you focus on architecture:
+
+```bash
+# Single command with natural language description
+$ uv run diag-agent create \
+  "BPMN collaboration with Customer and Shop pools. \
+   Customer: submit order, receive confirmation. \
+   Shop: receive order, process payment, ship product." \
+  --type bpmn
+
+# diag-agent automatically:
+# 1. Validates your description for completeness ✓
+# 2. Generates valid BPMN XML ✓
+# 3. Validates syntax with Kroki ✓
+# 4. Refines based on errors (if any) ✓
+# 5. Checks design quality with vision LLM ✓
+
+✓ Generated in 1 iteration (3.2s)
+✓ Output: diagrams/order-process.bpmn, order-process.svg
+```
+
+**Result**: Valid, well-designed diagram in seconds—no syntax debugging required.
+
+### Key Advantages
+
+| Manual Creation | With diag-agent |
+|----------------|-----------------|
+| ❌ Hours of syntax debugging | ✅ Natural language description |
+| ❌ Trial-and-error iterations | ✅ Autonomous validation loop |
+| ❌ No design feedback | ✅ Vision-based quality checks |
+| ❌ Format-specific expertise required | ✅ Works across 20+ diagram types |
+| ❌ Manual refinement cycles | ✅ Self-healing error correction |
+
 ## How it Works
 
 The orchestrator coordinates a feedback loop between the calling LLM and validation services:
