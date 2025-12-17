@@ -79,32 +79,45 @@ $ uv run diag-agent create \
 
 ### Visual Comparison
 
+**Same prompt: "Erstelle ein PlantUML Context-Diagramm eines Webshops"**
+
 <table>
 <tr>
 <td width="50%">
 
-**Before: Manual Creation ❌**
+**LLM Direct (No Validation) ❌**
 
-Simple, unclear diagram with generic labels and no context:
+Generated without diag-agent orchestration:
 
-<img src="docs/examples/comparison/before.svg" alt="Manual diagram with poor structure" width="100%">
+<img src="docs/examples/comparison/before-llm-direct.svg" alt="LLM direct output without validation" width="100%">
 
-*Issues: Vague relationships, no protocols, minimal context*
+**Issues:**
+- Cluttered relationships (external systems → users)
+- 3 actors (includes warehouse worker, may be out of scope)
+- No layout optimization
+- Direct bidirectional flows not typical for C4
 
 </td>
 <td width="50%">
 
-**After: With diag-agent ✅**
+**With diag-agent (Validated & Refined) ✅**
 
-Professional diagram with clear relationships and detailed context:
+Same prompt, orchestrated through diag-agent:
 
-<img src="docs/examples/comparison/after.svg" alt="Professional diagram from diag-agent" width="100%">
+<img src="docs/examples/comparison/after-diag-agent.svg" alt="diag-agent validated output" width="100%">
 
-*Improvements: Detailed descriptions, protocols specified, clear system boundaries*
+**Improvements:**
+- ✓ Clean C4 Context boundaries
+- ✓ Focused scope (2 key actors)
+- ✓ Layout optimization (LAYOUT_TOP_DOWN, hidden relations)
+- ✓ Clear system-to-system relationships
+- ✓ 2 iterations with syntax validation
 
 </td>
 </tr>
 </table>
+
+*Both diagrams generated from identical prompt. Left: Direct LLM call. Right: diag-agent orchestration with validation loop.*
 
 ## How it Works
 

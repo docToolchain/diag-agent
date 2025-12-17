@@ -1,0 +1,30 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title Context-Diagramm eines Webshops
+
+Person(kunde, "Kunde", "Bestellt Produkte online")
+Person(admin, "Administrator", "Verwaltet den Webshop")
+Person(lagerMitarbeiter, "Lagermitarbeiter", "Bearbeitet Bestellungen und verwaltet Lagerbestand")
+
+System(webshop, "Webshop-System", "Ermöglicht Online-Bestellungen, Produktverwaltung und Bestellabwicklung")
+
+System_Ext(zahlungsProvider, "Zahlungs-Provider", "Verarbeitet Online-Zahlungen")
+System_Ext(versandDienstleister, "Versanddienstleister", "Liefert Pakete an Kunden")
+System_Ext(emailSystem, "E-Mail-System", "Versendet Benachrichtigungen und Auftragsbestätigungen")
+System_Ext(erp, "ERP-System", "Verwaltet Finanzen und Buchhaltung")
+
+Rel(kunde, webshop, "Sucht Produkte, legt in Warenkorb, bestellt", "HTTPS")
+Rel(admin, webshop, "Verwaltet Produkte, Preise, Kategorien", "HTTPS")
+Rel(lagerMitarbeiter, webshop, "Bearbeitet Bestellungen, aktualisiert Lagerbestand", "HTTPS")
+
+Rel(webshop, zahlungsProvider, "Verarbeitet Zahlungen", "HTTPS/API")
+Rel(webshop, versandDienstleister, "Erstellt Versandlabel, trackt Sendungen", "HTTPS/API")
+Rel(webshop, emailSystem, "Sendet Bestätigungen und Benachrichtigungen", "SMTP")
+Rel(webshop, erp, "Synchronisiert Bestelldaten und Finanztransaktionen", "HTTPS/API")
+
+Rel(zahlungsProvider, kunde, "Sendet Zahlungsbestätigung", "E-Mail")
+Rel(emailSystem, kunde, "Sendet Auftragsbestätigung", "E-Mail")
+Rel(versandDienstleister, kunde, "Liefert Paket", "Physisch")
+
+@enduml
