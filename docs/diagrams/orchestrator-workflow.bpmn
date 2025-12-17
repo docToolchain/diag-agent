@@ -1,23 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
-             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
-             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
-             id="Definitions_Orchestrator"
-             targetNamespace="http://diag-agent.org/bpmn">
-
-  <!-- Collaboration with 2 pools -->
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Orchestrator" targetNamespace="http://diag-agent.org/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.9.0">
   <collaboration id="Collaboration_Orchestrator">
-    <participant id="Participant_CallingLLM" name="Calling LLM" processRef="Process_CallingLLM"/>
-    <participant id="Participant_DiagAgent" name="diag-agent System" processRef="Process_DiagAgent"/>
-    
-    <!-- Message flows between pools -->
-    <messageFlow id="MessageFlow_Request" sourceRef="Task_SubmitRequest" targetRef="Task_ReceiveRequest"/>
-    <messageFlow id="MessageFlow_ValidationQuestions" sourceRef="Task_ReturnQuestions" targetRef="Task_ReceiveQuestions"/>
-    <messageFlow id="MessageFlow_Result" sourceRef="Task_WriteOutput" targetRef="Task_ReceiveResult"/>
+    <participant id="Participant_CallingLLM" name="Calling LLM" processRef="Process_CallingLLM" />
+    <participant id="Participant_DiagAgent" name="diag-agent System" processRef="Process_DiagAgent" />
+    <messageFlow id="MessageFlow_Request" sourceRef="Task_SubmitRequest" targetRef="Task_ReceiveRequest" />
+    <messageFlow id="MessageFlow_ValidationQuestions" sourceRef="Task_ReturnQuestions" targetRef="Task_ReceiveQuestions" />
+    <messageFlow id="MessageFlow_Result" sourceRef="Task_WriteOutput" targetRef="Task_ReceiveResult" />
   </collaboration>
-
-  <!-- Calling LLM Process -->
   <process id="Process_CallingLLM" name="Calling LLM Process" isExecutable="false">
     <laneSet id="LaneSet_CallingLLM">
       <lane id="Lane_CallingLLM" name="Calling LLM">
@@ -28,39 +17,42 @@
         <flowNodeRef>EndEvent_CallingLLM</flowNodeRef>
       </lane>
     </laneSet>
-    
     <startEvent id="StartEvent_CallingLLM" name="Start">
       <outgoing>Flow_CL1</outgoing>
     </startEvent>
-    
     <task id="Task_SubmitRequest" name="Submit diagram request">
       <incoming>Flow_CL1</incoming>
       <outgoing>Flow_CL2</outgoing>
     </task>
-    
     <task id="Task_ReceiveQuestions" name="Receive validation questions (optional)">
       <incoming>Flow_CL2</incoming>
       <outgoing>Flow_CL3</outgoing>
     </task>
-    
     <task id="Task_ReceiveResult" name="Receive generated diagram">
       <incoming>Flow_CL3</incoming>
       <outgoing>Flow_CL4</outgoing>
     </task>
-    
     <endEvent id="EndEvent_CallingLLM" name="End">
       <incoming>Flow_CL4</incoming>
     </endEvent>
-    
-    <sequenceFlow id="Flow_CL1" sourceRef="StartEvent_CallingLLM" targetRef="Task_SubmitRequest"/>
-    <sequenceFlow id="Flow_CL2" sourceRef="Task_SubmitRequest" targetRef="Task_ReceiveQuestions"/>
-    <sequenceFlow id="Flow_CL3" sourceRef="Task_ReceiveQuestions" targetRef="Task_ReceiveResult"/>
-    <sequenceFlow id="Flow_CL4" sourceRef="Task_ReceiveResult" targetRef="EndEvent_CallingLLM"/>
+    <sequenceFlow id="Flow_CL1" sourceRef="StartEvent_CallingLLM" targetRef="Task_SubmitRequest" />
+    <sequenceFlow id="Flow_CL2" sourceRef="Task_SubmitRequest" targetRef="Task_ReceiveQuestions" />
+    <sequenceFlow id="Flow_CL3" sourceRef="Task_ReceiveQuestions" targetRef="Task_ReceiveResult" />
+    <sequenceFlow id="Flow_CL4" sourceRef="Task_ReceiveResult" targetRef="EndEvent_CallingLLM" />
   </process>
-
-  <!-- diag-agent System Process with 3 lanes -->
   <process id="Process_DiagAgent" name="diag-agent System Process" isExecutable="false">
     <laneSet id="LaneSet_DiagAgent">
+      <lane id="Lane_Kroki" name="Kroki">
+        <flowNodeRef>Task_ValidateSyntax</flowNodeRef>
+        <flowNodeRef>Task_RenderPNG</flowNodeRef>
+        <flowNodeRef>Gateway_SyntaxValid</flowNodeRef>
+      </lane>
+      <lane id="Lane_LLMClient" name="LLM Client">
+        <flowNodeRef>Task_ValidateDescription</flowNodeRef>
+        <flowNodeRef>Task_GenerateCode</flowNodeRef>
+        <flowNodeRef>Task_AnalyzeDesign</flowNodeRef>
+        <flowNodeRef>Gateway_DesignApproved</flowNodeRef>
+      </lane>
       <lane id="Lane_Orchestrator" name="Orchestrator">
         <flowNodeRef>Task_ReceiveRequest</flowNodeRef>
         <flowNodeRef>Task_DetectSubtype</flowNodeRef>
@@ -68,444 +60,350 @@
         <flowNodeRef>Gateway_ValidationPassed</flowNodeRef>
         <flowNodeRef>Task_ReturnQuestions</flowNodeRef>
         <flowNodeRef>Task_BuildPrompt</flowNodeRef>
-        <flowNodeRef>Gateway_SyntaxValid</flowNodeRef>
-        <flowNodeRef>Gateway_MaxIterations</flowNodeRef>
-        <flowNodeRef>Task_SaveFeedback</flowNodeRef>
         <flowNodeRef>Task_WriteOutput</flowNodeRef>
         <flowNodeRef>EndEvent_DiagAgent</flowNodeRef>
-      </lane>
-      
-      <lane id="Lane_LLMClient" name="LLM Client">
-        <flowNodeRef>Task_ValidateDescription</flowNodeRef>
-        <flowNodeRef>Task_GenerateCode</flowNodeRef>
-        <flowNodeRef>Task_AnalyzeDesign</flowNodeRef>
-      </lane>
-      
-      <lane id="Lane_Kroki" name="Kroki">
-        <flowNodeRef>Task_ValidateSyntax</flowNodeRef>
-        <flowNodeRef>Task_RenderPNG</flowNodeRef>
-        <flowNodeRef>Gateway_DesignApproved</flowNodeRef>
+        <flowNodeRef>Gateway_MaxIterations</flowNodeRef>
+        <flowNodeRef>Task_SaveFeedback</flowNodeRef>
       </lane>
     </laneSet>
-    
-    <!-- Orchestrator Lane Tasks -->
     <task id="Task_ReceiveRequest" name="Receive diagram request">
       <outgoing>Flow_DA1</outgoing>
     </task>
-    
     <task id="Task_DetectSubtype" name="Detect subtype">
       <incoming>Flow_DA1</incoming>
       <outgoing>Flow_DA2</outgoing>
     </task>
-    
     <task id="Task_LoadExamples" name="Load example files">
       <incoming>Flow_DA2</incoming>
       <outgoing>Flow_DA3</outgoing>
     </task>
-    
+    <task id="Task_ValidateDescription" name="Validate description">
+      <incoming>Flow_DA3</incoming>
+      <outgoing>Flow_DA4</outgoing>
+    </task>
     <exclusiveGateway id="Gateway_ValidationPassed" name="Valid?">
       <incoming>Flow_DA4</incoming>
       <outgoing>Flow_DA5_No</outgoing>
       <outgoing>Flow_DA5_Yes</outgoing>
     </exclusiveGateway>
-    
     <task id="Task_ReturnQuestions" name="Return validation questions">
       <incoming>Flow_DA5_No</incoming>
     </task>
-    
     <task id="Task_BuildPrompt" name="Build generation prompt">
       <incoming>Flow_DA5_Yes</incoming>
       <incoming>Flow_DA12</incoming>
       <outgoing>Flow_DA6</outgoing>
     </task>
-    
+    <task id="Task_GenerateCode" name="Generate diagram code">
+      <incoming>Flow_DA6</incoming>
+      <outgoing>Flow_DA7</outgoing>
+    </task>
+    <task id="Task_ValidateSyntax" name="Validate syntax (SVG)">
+      <incoming>Flow_DA7</incoming>
+      <outgoing>Flow_DA8</outgoing>
+    </task>
+    <task id="Task_RenderPNG" name="Render PNG">
+      <incoming>Flow_DA9_Yes</incoming>
+      <outgoing>Flow_DA10</outgoing>
+    </task>
+    <task id="Task_AnalyzeDesign" name="Analyze design">
+      <incoming>Flow_DA10</incoming>
+      <outgoing>Flow_DA11</outgoing>
+    </task>
     <exclusiveGateway id="Gateway_SyntaxValid" name="Syntax valid?">
       <incoming>Flow_DA8</incoming>
       <outgoing>Flow_DA9_No</outgoing>
       <outgoing>Flow_DA9_Yes</outgoing>
     </exclusiveGateway>
-    
+    <task id="Task_WriteOutput" name="Write output files">
+      <incoming>Flow_DA9_Yes</incoming>
+      <incoming>Flow_DA11_Yes</incoming>
+      <outgoing>Flow_DA14</outgoing>
+    </task>
+    <endEvent id="EndEvent_DiagAgent" name="End">
+      <incoming>Flow_DA14</incoming>
+    </endEvent>
+    <exclusiveGateway id="Gateway_DesignApproved" name="Design approved?">
+      <incoming>Flow_DA11</incoming>
+      <outgoing>Flow_DA11_Yes</outgoing>
+      <outgoing>Flow_DA11_No</outgoing>
+    </exclusiveGateway>
     <exclusiveGateway id="Gateway_MaxIterations" name="Max iterations?">
       <incoming>Flow_DA9_No</incoming>
       <incoming>Flow_DA11_No</incoming>
       <outgoing>Flow_DA12</outgoing>
       <outgoing>Flow_DA13</outgoing>
     </exclusiveGateway>
-    
     <task id="Task_SaveFeedback" name="Save error/feedback">
       <incoming>Flow_DA13</incoming>
     </task>
-    
-    <task id="Task_WriteOutput" name="Write output files">
-      <incoming>Flow_DA9_Yes</incoming>
-      <incoming>Flow_DA11_Yes</incoming>
-      <outgoing>Flow_DA14</outgoing>
-    </task>
-    
-    <endEvent id="EndEvent_DiagAgent" name="End">
-      <incoming>Flow_DA14</incoming>
-    </endEvent>
-    
-    <!-- LLM Client Lane Tasks -->
-    <task id="Task_ValidateDescription" name="Validate description">
-      <incoming>Flow_DA3</incoming>
-      <outgoing>Flow_DA4</outgoing>
-    </task>
-    
-    <task id="Task_GenerateCode" name="Generate diagram code">
-      <incoming>Flow_DA6</incoming>
-      <outgoing>Flow_DA7</outgoing>
-    </task>
-    
-    <task id="Task_AnalyzeDesign" name="Analyze design">
-      <incoming>Flow_DA10</incoming>
-      <outgoing>Flow_DA11</outgoing>
-    </task>
-    
-    <!-- Kroki Lane Tasks -->
-    <task id="Task_ValidateSyntax" name="Validate syntax (SVG)">
-      <incoming>Flow_DA7</incoming>
-      <outgoing>Flow_DA8</outgoing>
-    </task>
-    
-    <task id="Task_RenderPNG" name="Render PNG">
-      <incoming>Flow_DA9_Yes</incoming>
-      <outgoing>Flow_DA10</outgoing>
-    </task>
-    
-    <exclusiveGateway id="Gateway_DesignApproved" name="Design approved?">
-      <incoming>Flow_DA11</incoming>
-      <outgoing>Flow_DA11_Yes</outgoing>
-      <outgoing>Flow_DA11_No</outgoing>
-    </exclusiveGateway>
-    
-    <!-- Sequence Flows -->
-    <sequenceFlow id="Flow_DA1" sourceRef="Task_ReceiveRequest" targetRef="Task_DetectSubtype"/>
-    <sequenceFlow id="Flow_DA2" sourceRef="Task_DetectSubtype" targetRef="Task_LoadExamples"/>
-    <sequenceFlow id="Flow_DA3" sourceRef="Task_LoadExamples" targetRef="Task_ValidateDescription"/>
-    <sequenceFlow id="Flow_DA4" sourceRef="Task_ValidateDescription" targetRef="Gateway_ValidationPassed"/>
-    <sequenceFlow id="Flow_DA5_No" name="No" sourceRef="Gateway_ValidationPassed" targetRef="Task_ReturnQuestions"/>
-    <sequenceFlow id="Flow_DA5_Yes" name="Yes" sourceRef="Gateway_ValidationPassed" targetRef="Task_BuildPrompt"/>
-    <sequenceFlow id="Flow_DA6" sourceRef="Task_BuildPrompt" targetRef="Task_GenerateCode"/>
-    <sequenceFlow id="Flow_DA7" sourceRef="Task_GenerateCode" targetRef="Task_ValidateSyntax"/>
-    <sequenceFlow id="Flow_DA8" sourceRef="Task_ValidateSyntax" targetRef="Gateway_SyntaxValid"/>
-    <sequenceFlow id="Flow_DA9_No" name="No" sourceRef="Gateway_SyntaxValid" targetRef="Gateway_MaxIterations"/>
-    <sequenceFlow id="Flow_DA9_Yes" name="Yes" sourceRef="Gateway_SyntaxValid" targetRef="Task_RenderPNG"/>
-    <sequenceFlow id="Flow_DA10" sourceRef="Task_RenderPNG" targetRef="Task_AnalyzeDesign"/>
-    <sequenceFlow id="Flow_DA11" sourceRef="Task_AnalyzeDesign" targetRef="Gateway_DesignApproved"/>
-    <sequenceFlow id="Flow_DA11_Yes" name="Yes" sourceRef="Gateway_DesignApproved" targetRef="Task_WriteOutput"/>
-    <sequenceFlow id="Flow_DA11_No" name="No" sourceRef="Gateway_DesignApproved" targetRef="Gateway_MaxIterations"/>
-    <sequenceFlow id="Flow_DA12" name="No" sourceRef="Gateway_MaxIterations" targetRef="Task_BuildPrompt"/>
-    <sequenceFlow id="Flow_DA13" name="Yes" sourceRef="Gateway_MaxIterations" targetRef="Task_SaveFeedback"/>
-    <sequenceFlow id="Flow_DA14" sourceRef="Task_WriteOutput" targetRef="EndEvent_DiagAgent"/>
+    <sequenceFlow id="Flow_DA1" sourceRef="Task_ReceiveRequest" targetRef="Task_DetectSubtype" />
+    <sequenceFlow id="Flow_DA2" sourceRef="Task_DetectSubtype" targetRef="Task_LoadExamples" />
+    <sequenceFlow id="Flow_DA3" sourceRef="Task_LoadExamples" targetRef="Task_ValidateDescription" />
+    <sequenceFlow id="Flow_DA4" sourceRef="Task_ValidateDescription" targetRef="Gateway_ValidationPassed" />
+    <sequenceFlow id="Flow_DA5_No" name="No" sourceRef="Gateway_ValidationPassed" targetRef="Task_ReturnQuestions" />
+    <sequenceFlow id="Flow_DA5_Yes" name="Yes" sourceRef="Gateway_ValidationPassed" targetRef="Task_BuildPrompt" />
+    <sequenceFlow id="Flow_DA12" name="No" sourceRef="Gateway_MaxIterations" targetRef="Task_BuildPrompt" />
+    <sequenceFlow id="Flow_DA6" sourceRef="Task_BuildPrompt" targetRef="Task_GenerateCode" />
+    <sequenceFlow id="Flow_DA7" sourceRef="Task_GenerateCode" targetRef="Task_ValidateSyntax" />
+    <sequenceFlow id="Flow_DA8" sourceRef="Task_ValidateSyntax" targetRef="Gateway_SyntaxValid" />
+    <sequenceFlow id="Flow_DA9_Yes" name="Yes" sourceRef="Gateway_SyntaxValid" targetRef="Task_RenderPNG" />
+    <sequenceFlow id="Flow_DA10" sourceRef="Task_RenderPNG" targetRef="Task_AnalyzeDesign" />
+    <sequenceFlow id="Flow_DA11" sourceRef="Task_AnalyzeDesign" targetRef="Gateway_DesignApproved" />
+    <sequenceFlow id="Flow_DA9_No" name="No" sourceRef="Gateway_SyntaxValid" targetRef="Gateway_MaxIterations" />
+    <sequenceFlow id="Flow_DA11_Yes" name="Yes" sourceRef="Gateway_DesignApproved" targetRef="Task_WriteOutput" />
+    <sequenceFlow id="Flow_DA14" sourceRef="Task_WriteOutput" targetRef="EndEvent_DiagAgent" />
+    <sequenceFlow id="Flow_DA11_No" name="No" sourceRef="Gateway_DesignApproved" targetRef="Gateway_MaxIterations" />
+    <sequenceFlow id="Flow_DA13" name="Yes" sourceRef="Gateway_MaxIterations" targetRef="Task_SaveFeedback" />
   </process>
-
-  <!-- Diagram Interchange (complete visual layout) -->
   <bpmndi:BPMNDiagram id="BPMNDiagram_Orchestrator">
     <bpmndi:BPMNPlane id="BPMNPlane_Orchestrator" bpmnElement="Collaboration_Orchestrator">
-
-      <!-- Calling LLM Pool -->
       <bpmndi:BPMNShape id="Participant_CallingLLM_di" bpmnElement="Participant_CallingLLM" isHorizontal="true">
-        <dc:Bounds x="100" y="50" width="1600" height="200"/>
+        <dc:Bounds x="150" y="50" width="2070" height="200" />
       </bpmndi:BPMNShape>
-      
       <bpmndi:BPMNShape id="Lane_CallingLLM_di" bpmnElement="Lane_CallingLLM" isHorizontal="true">
-        <dc:Bounds x="130" y="50" width="1570" height="200"/>
+        <dc:Bounds x="180" y="50" width="2040" height="200" />
       </bpmndi:BPMNShape>
-
-      <!-- Calling LLM Elements -->
       <bpmndi:BPMNShape id="StartEvent_CallingLLM_di" bpmnElement="StartEvent_CallingLLM">
-        <dc:Bounds x="180" y="130" width="36" height="36"/>
+        <dc:Bounds x="230" y="130" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="236" y="166" width="24" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-
       <bpmndi:BPMNShape id="Task_SubmitRequest_di" bpmnElement="Task_SubmitRequest">
-        <dc:Bounds x="280" y="108" width="120" height="80"/>
+        <dc:Bounds x="330" y="108" width="120" height="80" />
       </bpmndi:BPMNShape>
-
       <bpmndi:BPMNShape id="Task_ReceiveQuestions_di" bpmnElement="Task_ReceiveQuestions">
-        <dc:Bounds x="800" y="108" width="120" height="80"/>
+        <dc:Bounds x="920" y="108" width="120" height="80" />
       </bpmndi:BPMNShape>
-
       <bpmndi:BPMNShape id="Task_ReceiveResult_di" bpmnElement="Task_ReceiveResult">
-        <dc:Bounds x="1450" y="108" width="120" height="80"/>
+        <dc:Bounds x="1970" y="108" width="120" height="80" />
       </bpmndi:BPMNShape>
-
       <bpmndi:BPMNShape id="EndEvent_CallingLLM_di" bpmnElement="EndEvent_CallingLLM">
-        <dc:Bounds x="1632" y="130" width="36" height="36"/>
+        <dc:Bounds x="2152" y="130" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2160" y="166" width="20" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-
-      <!-- Calling LLM Flows -->
       <bpmndi:BPMNEdge id="Flow_CL1_di" bpmnElement="Flow_CL1">
-        <di:waypoint x="216" y="148"/>
-        <di:waypoint x="280" y="148"/>
+        <di:waypoint x="266" y="148" />
+        <di:waypoint x="330" y="148" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_CL2_di" bpmnElement="Flow_CL2">
-        <di:waypoint x="400" y="148"/>
-        <di:waypoint x="800" y="148"/>
+        <di:waypoint x="450" y="148" />
+        <di:waypoint x="920" y="148" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_CL3_di" bpmnElement="Flow_CL3">
-        <di:waypoint x="920" y="148"/>
-        <di:waypoint x="1450" y="148"/>
+        <di:waypoint x="1040" y="148" />
+        <di:waypoint x="1970" y="148" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_CL4_di" bpmnElement="Flow_CL4">
-        <di:waypoint x="1570" y="148"/>
-        <di:waypoint x="1632" y="148"/>
+        <di:waypoint x="2090" y="148" />
+        <di:waypoint x="2152" y="148" />
       </bpmndi:BPMNEdge>
-
-      <!-- diag-agent System Pool -->
       <bpmndi:BPMNShape id="Participant_DiagAgent_di" bpmnElement="Participant_DiagAgent" isHorizontal="true">
-        <dc:Bounds x="100" y="300" width="1600" height="600"/>
+        <dc:Bounds x="150" y="300" width="2070" height="600" />
       </bpmndi:BPMNShape>
-
-      <!-- Orchestrator Lane -->
-      <bpmndi:BPMNShape id="Lane_Orchestrator_di" bpmnElement="Lane_Orchestrator" isHorizontal="true">
-        <dc:Bounds x="130" y="300" width="1570" height="250"/>
-      </bpmndi:BPMNShape>
-
-      <!-- LLM Client Lane -->
-      <bpmndi:BPMNShape id="Lane_LLMClient_di" bpmnElement="Lane_LLMClient" isHorizontal="true">
-        <dc:Bounds x="130" y="550" width="1570" height="200"/>
-      </bpmndi:BPMNShape>
-
-      <!-- Kroki Lane -->
       <bpmndi:BPMNShape id="Lane_Kroki_di" bpmnElement="Lane_Kroki" isHorizontal="true">
-        <dc:Bounds x="130" y="750" width="1570" height="150"/>
+        <dc:Bounds x="180" y="750" width="2040" height="150" />
       </bpmndi:BPMNShape>
-
-      <!-- Orchestrator Lane Elements -->
+      <bpmndi:BPMNShape id="Lane_LLMClient_di" bpmnElement="Lane_LLMClient" isHorizontal="true">
+        <dc:Bounds x="180" y="580" width="2040" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Orchestrator_di" bpmnElement="Lane_Orchestrator" isHorizontal="true">
+        <dc:Bounds x="180" y="300" width="2040" height="280" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_ReceiveRequest_di" bpmnElement="Task_ReceiveRequest">
-        <dc:Bounds x="180" y="370" width="100" height="80"/>
+        <dc:Bounds x="340" y="370" width="100" height="80" />
       </bpmndi:BPMNShape>
-
       <bpmndi:BPMNShape id="Task_DetectSubtype_di" bpmnElement="Task_DetectSubtype">
-        <dc:Bounds x="320" y="370" width="100" height="80"/>
+        <dc:Bounds x="480" y="370" width="100" height="80" />
       </bpmndi:BPMNShape>
-
       <bpmndi:BPMNShape id="Task_LoadExamples_di" bpmnElement="Task_LoadExamples">
-        <dc:Bounds x="460" y="370" width="100" height="80"/>
+        <dc:Bounds x="620" y="370" width="100" height="80" />
       </bpmndi:BPMNShape>
-
-      <bpmndi:BPMNShape id="Gateway_ValidationPassed_di" bpmnElement="Gateway_ValidationPassed" isMarkerVisible="true">
-        <dc:Bounds x="705" y="385" width="50" height="50"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="710" y="361" width="35" height="14"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-
-      <bpmndi:BPMNShape id="Task_ReturnQuestions_di" bpmnElement="Task_ReturnQuestions">
-        <dc:Bounds x="810" y="370" width="100" height="80"/>
-      </bpmndi:BPMNShape>
-
-      <bpmndi:BPMNShape id="Task_BuildPrompt_di" bpmnElement="Task_BuildPrompt">
-        <dc:Bounds x="810" y="470" width="100" height="80"/>
-      </bpmndi:BPMNShape>
-
-      <bpmndi:BPMNShape id="Gateway_SyntaxValid_di" bpmnElement="Gateway_SyntaxValid" isMarkerVisible="true">
-        <dc:Bounds x="1155" y="385" width="50" height="50"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1142" y="361" width="77" height="14"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-
-      <bpmndi:BPMNShape id="Gateway_MaxIterations_di" bpmnElement="Gateway_MaxIterations" isMarkerVisible="true">
-        <dc:Bounds x="1025" y="485" width="50" height="50"/>
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1008" y="461" width="84" height="14"/>
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-
-      <bpmndi:BPMNShape id="Task_SaveFeedback_di" bpmnElement="Task_SaveFeedback">
-        <dc:Bounds x="950" y="380" width="100" height="50"/>
-      </bpmndi:BPMNShape>
-
-      <bpmndi:BPMNShape id="Task_WriteOutput_di" bpmnElement="Task_WriteOutput">
-        <dc:Bounds x="1450" y="370" width="100" height="80"/>
-      </bpmndi:BPMNShape>
-
-      <bpmndi:BPMNShape id="EndEvent_DiagAgent_di" bpmnElement="EndEvent_DiagAgent">
-        <dc:Bounds x="1632" y="392" width="36" height="36"/>
-      </bpmndi:BPMNShape>
-
-      <!-- LLM Client Lane Elements -->
       <bpmndi:BPMNShape id="Task_ValidateDescription_di" bpmnElement="Task_ValidateDescription">
-        <dc:Bounds x="600" y="610" width="100" height="80"/>
+        <dc:Bounds x="760" y="610" width="100" height="80" />
       </bpmndi:BPMNShape>
-
+      <bpmndi:BPMNShape id="Gateway_ValidationPassed_di" bpmnElement="Gateway_ValidationPassed" isMarkerVisible="true">
+        <dc:Bounds x="935" y="385" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="943" y="361" width="30" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReturnQuestions_di" bpmnElement="Task_ReturnQuestions">
+        <dc:Bounds x="1040" y="370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BuildPrompt_di" bpmnElement="Task_BuildPrompt">
+        <dc:Bounds x="1040" y="470" width="100" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_GenerateCode_di" bpmnElement="Task_GenerateCode">
-        <dc:Bounds x="950" y="610" width="100" height="80"/>
+        <dc:Bounds x="1180" y="610" width="100" height="80" />
       </bpmndi:BPMNShape>
-
-      <bpmndi:BPMNShape id="Task_AnalyzeDesign_di" bpmnElement="Task_AnalyzeDesign">
-        <dc:Bounds x="1300" y="610" width="100" height="80"/>
-      </bpmndi:BPMNShape>
-
-      <!-- Kroki Lane Elements -->
       <bpmndi:BPMNShape id="Task_ValidateSyntax_di" bpmnElement="Task_ValidateSyntax">
-        <dc:Bounds x="1090" y="790" width="100" height="60"/>
+        <dc:Bounds x="1320" y="790" width="100" height="60" />
       </bpmndi:BPMNShape>
-
       <bpmndi:BPMNShape id="Task_RenderPNG_di" bpmnElement="Task_RenderPNG">
-        <dc:Bounds x="1250" y="790" width="100" height="60"/>
+        <dc:Bounds x="1590" y="790" width="100" height="60" />
       </bpmndi:BPMNShape>
-
+      <bpmndi:BPMNShape id="Task_AnalyzeDesign_di" bpmnElement="Task_AnalyzeDesign">
+        <dc:Bounds x="1710" y="610" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_SyntaxValid_di" bpmnElement="Gateway_SyntaxValid" isMarkerVisible="true">
+        <dc:Bounds x="1475" y="795" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1467" y="855" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_WriteOutput_di" bpmnElement="Task_WriteOutput">
+        <dc:Bounds x="1970" y="370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_DiagAgent_di" bpmnElement="EndEvent_DiagAgent">
+        <dc:Bounds x="2152" y="392" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2160" y="428" width="20" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_DesignApproved_di" bpmnElement="Gateway_DesignApproved" isMarkerVisible="true">
-        <dc:Bounds x="1395" y="795" width="50" height="50"/>
+        <dc:Bounds x="1865" y="625" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1390" y="771" width="60" height="14"/>
+          <dc:Bounds x="1899" y="682" width="90" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-
-      <!-- diag-agent System Flows -->
+      <bpmndi:BPMNShape id="Gateway_MaxIterations_di" bpmnElement="Gateway_MaxIterations" isMarkerVisible="true">
+        <dc:Bounds x="1395" y="485" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1382" y="545" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SaveFeedback_di" bpmnElement="Task_SaveFeedback">
+        <dc:Bounds x="1370" y="355" width="100" height="50" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_DA1_di" bpmnElement="Flow_DA1">
-        <di:waypoint x="280" y="410"/>
-        <di:waypoint x="320" y="410"/>
+        <di:waypoint x="440" y="410" />
+        <di:waypoint x="480" y="410" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA2_di" bpmnElement="Flow_DA2">
-        <di:waypoint x="420" y="410"/>
-        <di:waypoint x="460" y="410"/>
+        <di:waypoint x="580" y="410" />
+        <di:waypoint x="620" y="410" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA3_di" bpmnElement="Flow_DA3">
-        <di:waypoint x="560" y="410"/>
-        <di:waypoint x="580" y="410"/>
-        <di:waypoint x="580" y="650"/>
-        <di:waypoint x="600" y="650"/>
+        <di:waypoint x="720" y="410" />
+        <di:waypoint x="740" y="410" />
+        <di:waypoint x="740" y="650" />
+        <di:waypoint x="760" y="650" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA4_di" bpmnElement="Flow_DA4">
-        <di:waypoint x="700" y="650"/>
-        <di:waypoint x="730" y="650"/>
-        <di:waypoint x="730" y="435"/>
+        <di:waypoint x="860" y="650" />
+        <di:waypoint x="890" y="650" />
+        <di:waypoint x="890" y="410" />
+        <di:waypoint x="935" y="410" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA5_No_di" bpmnElement="Flow_DA5_No">
-        <di:waypoint x="755" y="410"/>
-        <di:waypoint x="810" y="410"/>
+        <di:waypoint x="985" y="410" />
+        <di:waypoint x="1040" y="410" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="775" y="392" width="15" height="14"/>
+          <dc:Bounds x="1005" y="392" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA5_Yes_di" bpmnElement="Flow_DA5_Yes">
-        <di:waypoint x="730" y="435"/>
-        <di:waypoint x="730" y="510"/>
-        <di:waypoint x="810" y="510"/>
+        <di:waypoint x="960" y="435" />
+        <di:waypoint x="960" y="510" />
+        <di:waypoint x="1040" y="510" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="735" y="470" width="18" height="14"/>
+          <dc:Bounds x="965" y="470" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA6_di" bpmnElement="Flow_DA6">
-        <di:waypoint x="910" y="510"/>
-        <di:waypoint x="930" y="510"/>
-        <di:waypoint x="930" y="650"/>
-        <di:waypoint x="950" y="650"/>
+        <di:waypoint x="1140" y="530" />
+        <di:waypoint x="1160" y="530" />
+        <di:waypoint x="1160" y="650" />
+        <di:waypoint x="1180" y="650" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA7_di" bpmnElement="Flow_DA7">
-        <di:waypoint x="1050" y="650"/>
-        <di:waypoint x="1070" y="650"/>
-        <di:waypoint x="1070" y="820"/>
-        <di:waypoint x="1090" y="820"/>
+        <di:waypoint x="1280" y="650" />
+        <di:waypoint x="1300" y="650" />
+        <di:waypoint x="1300" y="820" />
+        <di:waypoint x="1320" y="820" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA8_di" bpmnElement="Flow_DA8">
-        <di:waypoint x="1140" y="790"/>
-        <di:waypoint x="1140" y="410"/>
-        <di:waypoint x="1155" y="410"/>
+        <di:waypoint x="1420" y="820" />
+        <di:waypoint x="1475" y="820" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA9_No_di" bpmnElement="Flow_DA9_No">
-        <di:waypoint x="1180" y="435"/>
-        <di:waypoint x="1180" y="510"/>
-        <di:waypoint x="1075" y="510"/>
+        <di:waypoint x="1500" y="795" />
+        <di:waypoint x="1500" y="660" />
+        <di:waypoint x="1420" y="660" />
+        <di:waypoint x="1420" y="535" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1185" y="470" width="15" height="14"/>
+          <dc:Bounds x="1472" y="773" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA9_Yes_di" bpmnElement="Flow_DA9_Yes">
-        <di:waypoint x="1205" y="410"/>
-        <di:waypoint x="1228" y="410"/>
-        <di:waypoint x="1228" y="820"/>
-        <di:waypoint x="1250" y="820"/>
+        <di:waypoint x="1525" y="820" />
+        <di:waypoint x="1590" y="820" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1232" y="612" width="18" height="14"/>
+          <dc:Bounds x="1549" y="800" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA10_di" bpmnElement="Flow_DA10">
-        <di:waypoint x="1300" y="790"/>
-        <di:waypoint x="1300" y="650"/>
+        <di:waypoint x="1640" y="790" />
+        <di:waypoint x="1640" y="650" />
+        <di:waypoint x="1710" y="650" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA11_di" bpmnElement="Flow_DA11">
-        <di:waypoint x="1350" y="790"/>
-        <di:waypoint x="1350" y="820"/>
-        <di:waypoint x="1395" y="820"/>
+        <di:waypoint x="1810" y="650" />
+        <di:waypoint x="1865" y="650" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA11_Yes_di" bpmnElement="Flow_DA11_Yes">
-        <di:waypoint x="1445" y="820"/>
-        <di:waypoint x="1500" y="820"/>
-        <di:waypoint x="1500" y="450"/>
+        <di:waypoint x="1915" y="650" />
+        <di:waypoint x="1940" y="650" />
+        <di:waypoint x="1940" y="410" />
+        <di:waypoint x="1970" y="410" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1465" y="802" width="18" height="14"/>
+          <dc:Bounds x="1951" y="643" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA11_No_di" bpmnElement="Flow_DA11_No">
-        <di:waypoint x="1420" y="845"/>
-        <di:waypoint x="1420" y="870"/>
-        <di:waypoint x="1050" y="870"/>
-        <di:waypoint x="1050" y="535"/>
+        <di:waypoint x="1890" y="625" />
+        <di:waypoint x="1890" y="510" />
+        <di:waypoint x="1445" y="510" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1227" y="852" width="15" height="14"/>
+          <dc:Bounds x="1872" y="593" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA12_di" bpmnElement="Flow_DA12">
-        <di:waypoint x="1025" y="510"/>
-        <di:waypoint x="910" y="510"/>
+        <di:waypoint x="1395" y="510" />
+        <di:waypoint x="1140" y="510" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="962" y="492" width="15" height="14"/>
+          <dc:Bounds x="1362" y="492" width="15" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA13_di" bpmnElement="Flow_DA13">
-        <di:waypoint x="1050" y="485"/>
-        <di:waypoint x="1050" y="430"/>
+        <di:waypoint x="1420" y="485" />
+        <di:waypoint x="1420" y="405" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1055" y="455" width="18" height="14"/>
+          <dc:Bounds x="1425" y="453" width="18" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="Flow_DA14_di" bpmnElement="Flow_DA14">
-        <di:waypoint x="1550" y="410"/>
-        <di:waypoint x="1632" y="410"/>
+        <di:waypoint x="2070" y="410" />
+        <di:waypoint x="2152" y="410" />
       </bpmndi:BPMNEdge>
-
-      <!-- Message Flows -->
       <bpmndi:BPMNEdge id="MessageFlow_Request_di" bpmnElement="MessageFlow_Request">
-        <di:waypoint x="340" y="188"/>
-        <di:waypoint x="230" y="370"/>
+        <di:waypoint x="390" y="190" />
+        <di:waypoint x="390" y="370" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="MessageFlow_ValidationQuestions_di" bpmnElement="MessageFlow_ValidationQuestions">
-        <di:waypoint x="860" y="370"/>
-        <di:waypoint x="860" y="188"/>
+        <di:waypoint x="1090" y="370" />
+        <di:waypoint x="1090" y="279" />
+        <di:waypoint x="980" y="279" />
+        <di:waypoint x="980" y="188" />
       </bpmndi:BPMNEdge>
-
       <bpmndi:BPMNEdge id="MessageFlow_Result_di" bpmnElement="MessageFlow_Result">
-        <di:waypoint x="1510" y="370"/>
-        <di:waypoint x="1510" y="188"/>
+        <di:waypoint x="2030" y="370" />
+        <di:waypoint x="2030" y="188" />
       </bpmndi:BPMNEdge>
-
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
-
 </definitions>
