@@ -123,7 +123,25 @@ Same prompt, orchestrated through diag-agent:
 
 The orchestrator coordinates a feedback loop between the calling LLM and validation services:
 
-![Orchestrator Workflow](docs/diagrams/orchestrator-workflow.svg)
+### Orchestrator Workflow Diagrams
+
+<details>
+<summary><b>📊 Sequence Diagram (PlantUML)</b> - Shows temporal flow and interactions</summary>
+
+![Orchestrator Workflow - Sequence Diagram](docs/diagrams/orchestrator-workflow.svg)
+
+*Sequence diagram showing the temporal flow between Calling LLM, Orchestrator, LLM Client, and Kroki components.*
+
+</details>
+
+<details>
+<summary><b>📊 BPMN Collaboration Diagram</b> - Shows process structure with pools and lanes</summary>
+
+![Orchestrator Workflow - BPMN](docs/diagrams/orchestrator-workflow-bpmn.svg)
+
+*BPMN collaboration diagram with two pools (Calling LLM and diag-agent System) and three lanes (Orchestrator, LLM Client, Kroki). Shows the complete process flow including iteration loops, validation gates, and message flows.*
+
+</details>
 
 **Key workflow steps:**
 
