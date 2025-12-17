@@ -191,7 +191,7 @@ else:
 - [x] `validate_description()` Methode in `llm/client.py` implementieren
 - [x] Prompt Design umsetzen mit VALID/INVALID Parsing
 - [x] Exception Handling für API-Fehler (fallback zu True, None)
-- [ ] Unit Tests für validate_description schreiben
+- [x] Bestehende Tests angepasst (validate_description mocken)
 
 #### CLI Integration
 - [x] `--force` / `-f` Flag zu `create` Command hinzufügen

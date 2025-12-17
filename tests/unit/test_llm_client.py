@@ -228,3 +228,143 @@ class TestLLMClient:
             error_message = str(exc_info.value)
             assert "anthropic/claude-3-7-sonnet-latest" in error_message
             assert "API rate limit exceeded" in error_message
+
+    def test_validate_description_valid(self):
+        """Test validate_description returns (True, None) for valid descriptions.
+        
+        Validates that:
+        - LLM response "VALID" is parsed correctly
+        - Method returns (True, None) tuple
+        - Correct prompt is sent to LLM
+        """
+        from diag_agent.llm.client import LLMClient
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.llm_provider = "anthropic"
+        mock_settings.llm_model = "claude-sonnet-4"
+        
+        client = LLMClient(mock_settings)
+        
+        # Mock litellm response
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = "VALID"
+        
+        with patch("diag_agent.llm.client.litellm.completion", return_value=mock_response) as mock_completion:
+            # Act
+            is_valid, questions = client.validate_description(
+                description="A sequence diagram showing authentication flow", 
+                diagram_type="plantuml"
+            )
+            
+            # Assert
+            assert is_valid == True
+            assert questions is None
+            mock_completion.assert_called_once()
+            # Verify prompt contains validation instructions
+            call_args = mock_completion.call_args
+            prompt = call_args[1]["messages"][0]["content"]
+            assert "completeness" in prompt.lower()
+            assert "consistency" in prompt.lower()
+            assert "clarity" in prompt.lower()
+
+    def test_validate_description_invalid_with_questions(self):
+        """Test validate_description returns (False, questions) for invalid descriptions.
+        
+        Validates that:
+        - LLM response "INVALID\\n<questions>" is parsed correctly
+        - Method returns (False, questions_text) tuple
+        - Questions text is extracted properly
+        """
+        from diag_agent.llm.client import LLMClient
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.llm_provider = "anthropic"
+        mock_settings.llm_model = "claude-sonnet-4"
+        
+        client = LLMClient(mock_settings)
+        
+        # Mock litellm response with questions
+        questions_text = "1. Which actors are involved?\n2. What is the main flow?"
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = f"INVALID\n{questions_text}"
+        
+        with patch("diag_agent.llm.client.litellm.completion", return_value=mock_response):
+            # Act
+            is_valid, questions = client.validate_description(
+                description="diagram", 
+                diagram_type="bpmn"
+            )
+            
+            # Assert
+            assert is_valid == False
+            assert questions == questions_text
+
+    def test_validate_description_api_error_fallback(self):
+        """Test validate_description returns (True, None) on API errors.
+        
+        Validates that:
+        - API exceptions are caught
+        - Method returns (True, None) as fail-safe
+        - Workflow continues despite validation failure
+        """
+        from diag_agent.llm.client import LLMClient
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.llm_provider = "anthropic"
+        mock_settings.llm_model = "claude-sonnet-4"
+        
+        client = LLMClient(mock_settings)
+        
+        # Mock litellm to raise exception
+        with patch("diag_agent.llm.client.litellm.completion", side_effect=Exception("API Error")):
+            # Act
+            is_valid, questions = client.validate_description(
+                description="Test", 
+                diagram_type="plantuml"
+            )
+            
+            # Assert - fail-safe to valid
+            assert is_valid == True
+            assert questions is None
+
+    def test_validate_description_malformed_response_fallback(self):
+        """Test validate_description returns (True, None) for malformed responses.
+        
+        Validates that:
+        - Unexpected response format is handled gracefully
+        - Method returns (True, None) as fail-safe
+        - No exceptions are raised
+        """
+        from diag_agent.llm.client import LLMClient
+        from diag_agent.config.settings import Settings
+
+        # Arrange
+        mock_settings = Mock(spec=Settings)
+        mock_settings.llm_provider = "anthropic"
+        mock_settings.llm_model = "claude-sonnet-4"
+        
+        client = LLMClient(mock_settings)
+        
+        # Mock litellm response with unexpected format
+        mock_response = Mock()
+        mock_response.choices = [Mock()]
+        mock_response.choices[0].message.content = "Something unexpected"
+        
+        with patch("diag_agent.llm.client.litellm.completion", return_value=mock_response):
+            # Act
+            is_valid, questions = client.validate_description(
+                description="Test", 
+                diagram_type="plantuml"
+            )
+            
+            # Assert - fail-safe to valid
+            assert is_valid == True
+            assert questions is None
