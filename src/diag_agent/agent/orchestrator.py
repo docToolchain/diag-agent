@@ -162,7 +162,7 @@ Respond with ONLY the subtype name (one word, lowercase). If unsure, respond wit
         Tries to find an exact match for the subtype, otherwise returns
         the first available example for the diagram type.
         
-        For BPMN collaboration diagrams, loads both collaboration.bpmn and default.bpmn
+        For BPMN collaboration diagrams, loads both collaboration.bpmn and simple-process.bpmn
         to provide comprehensive structural guidance.
         
         Args:
@@ -187,13 +187,13 @@ Respond with ONLY the subtype name (one word, lowercase). If unsure, respond wit
         # Special case: BPMN collaboration - load both examples
         if diagram_type == "bpmn" and subtype == "collaboration":
             collab_file = examples_dir / "collaboration.bpmn"
-            default_file = examples_dir / "default.bpmn"
+            simple_process_file = examples_dir / "simple-process.bpmn"
             
             examples = []
             if collab_file.exists():
                 examples.append(f"Example 1 - Collaboration structure:\n{collab_file.read_text()}")
-            if default_file.exists():
-                examples.append(f"\n\nExample 2 - Complex process with lanes, events, and gateways:\n{default_file.read_text()}")
+            if simple_process_file.exists():
+                examples.append(f"\n\nExample 2 - Complex process with lanes, events, and gateways:\n{simple_process_file.read_text()}")
             
             if examples:
                 return "\n".join(examples)

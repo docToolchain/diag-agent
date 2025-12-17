@@ -104,7 +104,8 @@ class TestCLI:
         assert "component-diagram" in result.output, "Missing component-diagram example"
 
         # Verify all BPMN examples are shown
-        assert "default" in result.output, "Missing default BPMN example"
+        assert "simple-process" in result.output, "Missing simple-process BPMN example"
+        assert "collaboration" in result.output, "Missing collaboration BPMN example"
 
         # Verify type information is shown
         assert "c4plantuml" in result.output.lower() or "C4" in result.output, "Missing C4-PlantUML type"

@@ -132,9 +132,18 @@ Let's model a business process using BPMN.
 
 ### Step 1: Explore BPMN Examples
 
+diag-agent provides two BPMN example templates:
+- **simple-process** - Process diagram with lanes, events, and gateways
+- **collaboration** - Multi-pool collaboration with message flows
+
 ```bash
 uv run diag-agent examples list --type bpmn
+
+# View simple process example
 uv run diag-agent examples show bpmn/simple-process
+
+# View collaboration example
+uv run diag-agent examples show bpmn/collaboration
 ```
 
 ### Step 2: Generate an Order Fulfillment Process
