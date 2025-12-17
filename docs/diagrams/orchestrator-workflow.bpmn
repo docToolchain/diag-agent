@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             id="definitions"
+             targetNamespace="http://bpmn.io/schema/bpmn">
+
+  <collaboration id="Collaboration_DiagAgent">
+    <participant id="Participant_LLM" name="LLM Pool (Client)" processRef="Process_LLM" />
+    <participant id="Participant_DiagAgent" name="diag-agent Pool (Service)" processRef="Process_DiagAgent" />
+
+    <messageFlow id="MsgFlow_InitialDesc" sourceRef="Task_SendDescription" targetRef="StartEvent_DiagAgent" name="Diagram Description" />
+    <messageFlow id="MsgFlow_ValidationQuestions" sourceRef="Task_SendValidationQuestions" targetRef="Task_ReceiveValidation" name="Validation Questions" />
+    <messageFlow id="MsgFlow_RefinedDesc" sourceRef="Task_ResendDescription" targetRef="Event_ReceiveRefined" name="Refined Description" />
+    <messageFlow id="MsgFlow_GenerationPrompt" sourceRef="Task_SendPrompt" targetRef="Task_ReceivePrompt" name="Generation Prompt" />
+    <messageFlow id="MsgFlow_DiagramCode" sourceRef="Task_SendCode" targetRef="Task_ReceiveCode" name="Diagram Code" />
+    <messageFlow id="MsgFlow_FinalFiles" sourceRef="Task_WriteOutput" targetRef="EndEvent_LLM" name="Final Diagram Files" />
+  </collaboration>
+
+  <process id="Process_LLM" isExecutable="false">
+    <startEvent id="StartEvent_LLM" name="Start">
+      <outgoing>Flow_L1</outgoing>
+    </startEvent>
+    <task id="Task_SendDescription" name="Send Diagram Description">
+      <incoming>Flow_L1</incoming>
+      <outgoing>Flow_L2</outgoing>
+    </task>
+    <task id="Task_ReceiveValidation" name="Receive Validation Questions">
+      <incoming>Flow_L2</incoming>
+      <outgoing>Flow_L3</outgoing>
+    </task>
+    <task id="Task_ResendDescription" name="Refine and Resend Description">
+      <incoming>Flow_L3</incoming>
+      <outgoing>Flow_L4</outgoing>
+    </task>
+    <task id="Task_ReceivePrompt" name="Receive Generation Request">
+      <incoming>Flow_L4</incoming>
+      <outgoing>Flow_L5</outgoing>
+    </task>
+    <task id="Task_SendCode" name="Send Generated Diagram Code">
+      <incoming>Flow_L5</incoming>
+      <outgoing>Flow_L6</outgoing>
+    </task>
+    <endEvent id="EndEvent_LLM" name="Receive Final Files">
+      <incoming>Flow_L6</incoming>
+    </endEvent>
+
+    <sequenceFlow id="Flow_L1" sourceRef="StartEvent_LLM" targetRef="Task_SendDescription" />
+    <sequenceFlow id="Flow_L2" sourceRef="Task_SendDescription" targetRef="Task_ReceiveValidation" />
+    <sequenceFlow id="Flow_L3" sourceRef="Task_ReceiveValidation" targetRef="Task_ResendDescription" />
+    <sequenceFlow id="Flow_L4" sourceRef="Task_ResendDescription" targetRef="Task_ReceivePrompt" />
+    <sequenceFlow id="Flow_L5" sourceRef="Task_ReceivePrompt" targetRef="Task_SendCode" />
+    <sequenceFlow id="Flow_L6" sourceRef="Task_SendCode" targetRef="EndEvent_LLM" />
+  </process>
+
+  <process id="Process_DiagAgent" isExecutable="false">
+    <startEvent id="StartEvent_DiagAgent" name="Receive Description">
+      <outgoing>Flow_D1</outgoing>
+    </startEvent>
+    <task id="Task_ValidateDescription" name="Validate Description">
+      <incoming>Flow_D1</incoming>
+      <incoming>Flow_D3</incoming>
+      <outgoing>Flow_D2</outgoing>
+    </task>
+    <exclusiveGateway id="Gateway_DescValid" name="Description Valid?">
+      <incoming>Flow_D2</incoming>
+      <outgoing>Flow_D_Invalid</outgoing>
+      <outgoing>Flow_D_Valid</outgoing>
+    </exclusiveGateway>
+    <task id="Task_SendValidationQuestions" name="Send Validation Questions">
+      <incoming>Flow_D_Invalid</incoming>
+      <outgoing>Flow_D4</outgoing>
+    </task>
+    <intermediateCatchEvent id="Event_ReceiveRefined" name="Wait for Refined Description">
+      <incoming>Flow_D4</incoming>
+      <outgoing>Flow_D3</outgoing>
+      <messageEventDefinition />
+    </intermediateCatchEvent>
+    
+    <subProcess id="SubProcess_IterationLoop" name="Iteration Loop (max 5)">
+      <incoming>Flow_D_Valid</incoming>
+      <outgoing>Flow_D20</outgoing>
+      
+      <startEvent id="Start_Loop">
+        <outgoing>Flow_S1</outgoing>
+      </startEvent>
+      <task id="Task_GeneratePrompt" name="Generate Prompt">
+        <incoming>Flow_S1</incoming>
+        <incoming>Flow_S14</incoming>
+        <incoming>Flow_S_NotApproved</incoming>
+        <outgoing>Flow_S2</outgoing>
+      </task>
+      <task id="Task_SendPrompt" name="Send Prompt to LLM">
+        <incoming>Flow_S2</incoming>
+        <outgoing>Flow_S3</outgoing>
+      </task>
+      <task id="Task_ReceiveCode" name="Receive Diagram Code">
+        <incoming>Flow_S3</incoming>
+        <outgoing>Flow_S4</outgoing>
+      </task>
+      <task id="Task_ValidateSyntax" name="Validate Syntax with Kroki">
+        <incoming>Flow_S4</incoming>
+        <outgoing>Flow_S5</outgoing>
+      </task>
+      <exclusiveGateway id="Gateway_SyntaxValid" name="Syntax Valid?">
+        <incoming>Flow_S5</incoming>
+        <outgoing>Flow_S_Invalid</outgoing>
+        <outgoing>Flow_S_Valid</outgoing>
+      </exclusiveGateway>
+      <task id="Task_CaptureError" name="Capture Error">
+        <incoming>Flow_S_Invalid</incoming>
+        <outgoing>Flow_S14</outgoing>
+      </task>
+      <exclusiveGateway id="Gateway_DesignEnabled" name="Design Validation Enabled?">
+        <incoming>Flow_S_Valid</incoming>
+        <outgoing>Flow_S_Disabled</outgoing>
+        <outgoing>Flow_S_Enabled</outgoing>
+      </exclusiveGateway>
+      <task id="Task_RenderPNG" name="Try Render as PNG">
+        <incoming>Flow_S_Enabled</incoming>
+        <outgoing>Flow_S8</outgoing>
+      </task>
+      <exclusiveGateway id="Gateway_PNGSupported" name="PNG Supported?">
+        <incoming>Flow_S8</incoming>
+        <outgoing>Flow_S_NotSupported</outgoing>
+        <outgoing>Flow_S_Supported</outgoing>
+      </exclusiveGateway>
+      <task id="Task_AnalyzeDesign" name="Analyze Design with Vision LLM">
+        <incoming>Flow_S_Supported</incoming>
+        <outgoing>Flow_S11</outgoing>
+      </task>
+      <exclusiveGateway id="Gateway_DesignApproved" name="Design Approved?">
+        <incoming>Flow_S11</incoming>
+        <outgoing>Flow_S_NotApproved</outgoing>
+        <outgoing>Flow_S_Approved</outgoing>
+      </exclusiveGateway>
+      <endEvent id="End_Loop_Success" name="Exit Loop (Success)">
+        <incoming>Flow_S_Disabled</incoming>
+        <incoming>Flow_S_NotSupported</incoming>
+        <incoming>Flow_S_Approved</incoming>
+      </endEvent>
+      
+      <sequenceFlow id="Flow_S1" sourceRef="Start_Loop" targetRef="Task_GeneratePrompt" />
+      <sequenceFlow id="Flow_S2" sourceRef="Task_GeneratePrompt" targetRef="Task_SendPrompt" />
+      <sequenceFlow id="Flow_S3" sourceRef="Task_SendPrompt" targetRef="Task_ReceiveCode" />
+      <sequenceFlow id="Flow_S4" sourceRef="Task_ReceiveCode" targetRef="Task_ValidateSyntax" />
+      <sequenceFlow id="Flow_S5" sourceRef="Task_ValidateSyntax" targetRef="Gateway_SyntaxValid" />
+      <sequenceFlow id="Flow_S_Invalid" sourceRef="Gateway_SyntaxValid" targetRef="Task_CaptureError" name="No" />
+      <sequenceFlow id="Flow_S_Valid" sourceRef="Gateway_SyntaxValid" targetRef="Gateway_DesignEnabled" name="Yes" />
+      <sequenceFlow id="Flow_S14" sourceRef="Task_CaptureError" targetRef="Task_GeneratePrompt" />
+      <sequenceFlow id="Flow_S_Disabled" sourceRef="Gateway_DesignEnabled" targetRef="End_Loop_Success" name="No" />
+      <sequenceFlow id="Flow_S_Enabled" sourceRef="Gateway_DesignEnabled" targetRef="Task_RenderPNG" name="Yes" />
+      <sequenceFlow id="Flow_S8" sourceRef="Task_RenderPNG" targetRef="Gateway_PNGSupported" />
+      <sequenceFlow id="Flow_S_NotSupported" sourceRef="Gateway_PNGSupported" targetRef="End_Loop_Success" name="No" />
+      <sequenceFlow id="Flow_S_Supported" sourceRef="Gateway_PNGSupported" targetRef="Task_AnalyzeDesign" name="Yes" />
+      <sequenceFlow id="Flow_S11" sourceRef="Task_AnalyzeDesign" targetRef="Gateway_DesignApproved" />
+      <sequenceFlow id="Flow_S_Approved" sourceRef="Gateway_DesignApproved" targetRef="End_Loop_Success" name="Yes" />
+      <sequenceFlow id="Flow_S_NotApproved" sourceRef="Gateway_DesignApproved" targetRef="Task_GeneratePrompt" name="No" />
+    </subProcess>
+    
+    <task id="Task_WriteOutput" name="Write Output Files">
+      <incoming>Flow_D20</incoming>
+      <outgoing>Flow_D21</outgoing>
+    </task>
+    <endEvent id="EndEvent_DiagAgent" name="Return Result">
+      <incoming>Flow_D21</incoming>
+    </endEvent>
+
+    <sequenceFlow id="Flow_D1" sourceRef="StartEvent_DiagAgent" targetRef="Task_ValidateDescription" />
+    <sequenceFlow id="Flow_D2" sourceRef="Task_ValidateDescription" targetRef="Gateway_DescValid" />
+    <sequenceFlow id="Flow_D_Invalid" sourceRef="Gateway_DescValid" targetRef="Task_SendValidationQuestions" name="No" />
+    <sequenceFlow id="Flow_D_Valid" sourceRef="Gateway_DescValid" targetRef="SubProcess_IterationLoop" name="Yes" />
+    <sequenceFlow id="Flow_D4" sourceRef="Task_SendValidationQuestions" targetRef="Event_ReceiveRefined" />
+    <sequenceFlow id="Flow_D3" sourceRef="Event_ReceiveRefined" targetRef="Task_ValidateDescription" />
+    <sequenceFlow id="Flow_D20" sourceRef="SubProcess_IterationLoop" targetRef="Task_WriteOutput" />
+    <sequenceFlow id="Flow_D21" sourceRef="Task_WriteOutput" targetRef="EndEvent_DiagAgent" />
+  </process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_DiagAgent">
+      <bpmndi:BPMNShape id="Participant_LLM_di" bpmnElement="Participant_LLM" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1400" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_DiagAgent_di" bpmnElement="Participant_DiagAgent" isHorizontal="true">
+        <dc:Bounds x="160" y="340" width="1400" height="500" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

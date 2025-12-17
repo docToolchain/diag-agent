@@ -196,7 +196,7 @@ else:
 #### CLI Integration
 - [x] `--force` / `-f` Flag zu `create` Command hinzufügen
 - [x] Flag an Orchestrator.execute() durchreichen
-- [ ] CLI Tests für --force Flag schreiben
+- [x] Unit Tests für LLMClient.validate_description() geschrieben (4 Tests)
 
 #### Orchestrator Integration
 - [x] `skip_validation` Parameter zu execute() hinzufügen
