@@ -1,0 +1,11 @@
+@startuml
+title System Context (Manual Creation)
+
+actor "User" as user
+rectangle "System" as system #lightblue
+rectangle "External\nSystem" as external #lightgray
+
+user --> system : uses
+system --> external : connects
+
+@enduml

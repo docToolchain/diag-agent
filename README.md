@@ -77,6 +77,35 @@ $ uv run diag-agent create \
 | ❌ Format-specific expertise required | ✅ Works across 20+ diagram types |
 | ❌ Manual refinement cycles | ✅ Self-healing error correction |
 
+### Visual Comparison
+
+<table>
+<tr>
+<td width="50%">
+
+**Before: Manual Creation ❌**
+
+Simple, unclear diagram with generic labels and no context:
+
+<img src="docs/examples/comparison/before.svg" alt="Manual diagram with poor structure" width="100%">
+
+*Issues: Vague relationships, no protocols, minimal context*
+
+</td>
+<td width="50%">
+
+**After: With diag-agent ✅**
+
+Professional diagram with clear relationships and detailed context:
+
+<img src="docs/examples/comparison/after.svg" alt="Professional diagram from diag-agent" width="100%">
+
+*Improvements: Detailed descriptions, protocols specified, clear system boundaries*
+
+</td>
+</tr>
+</table>
+
 ## How it Works
 
 The orchestrator coordinates a feedback loop between the calling LLM and validation services:
