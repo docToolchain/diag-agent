@@ -61,17 +61,124 @@
     <sequenceFlow id="Flow_7" sourceRef="Task_Respond" targetRef="EndEvent_2"/>
   </process>
 
-  <!-- Diagram Interchange (optional visual layout) -->
+  <!-- Diagram Interchange (complete visual layout) -->
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+
       <!-- Customer Pool -->
-      <bpmndi:BPMNShape id="Participant_Customer_di" bpmnElement="Participant_Customer">
-        <dc:Bounds x="100" y="50" width="600" height="150"/>
+      <bpmndi:BPMNShape id="Participant_Customer_di" bpmnElement="Participant_Customer" isHorizontal="true">
+        <dc:Bounds x="100" y="50" width="700" height="200"/>
       </bpmndi:BPMNShape>
+
+      <!-- Customer Process Elements -->
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="180" y="130" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="186" y="173" width="25" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Request_di" bpmnElement="Task_Request">
+        <dc:Bounds x="270" y="108" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_GetResponse_di" bpmnElement="Task_GetResponse">
+        <dc:Bounds x="430" y="108" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="590" y="130" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="598" y="173" width="20" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Customer Sequence Flows -->
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="216" y="148"/>
+        <di:waypoint x="270" y="148"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="370" y="148"/>
+        <di:waypoint x="430" y="148"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="530" y="148"/>
+        <di:waypoint x="590" y="148"/>
+      </bpmndi:BPMNEdge>
+
       <!-- Provider Pool -->
-      <bpmndi:BPMNShape id="Participant_Provider_di" bpmnElement="Participant_Provider">
-        <dc:Bounds x="100" y="250" width="600" height="200"/>
+      <bpmndi:BPMNShape id="Participant_Provider_di" bpmnElement="Participant_Provider" isHorizontal="true">
+        <dc:Bounds x="100" y="300" width="700" height="250"/>
       </bpmndi:BPMNShape>
+
+      <!-- Provider Process Elements -->
+      <bpmndi:BPMNShape id="StartEvent_2_di" bpmnElement="StartEvent_2">
+        <dc:Bounds x="180" y="407" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="186" y="450" width="25" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Receive_di" bpmnElement="Task_Receive">
+        <dc:Bounds x="270" y="385" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Process_di" bpmnElement="Task_Process">
+        <dc:Bounds x="430" y="385" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="Task_Respond_di" bpmnElement="Task_Respond">
+        <dc:Bounds x="590" y="385" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+
+      <bpmndi:BPMNShape id="EndEvent_2_di" bpmnElement="EndEvent_2">
+        <dc:Bounds x="740" y="407" width="36" height="36"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="748" y="450" width="20" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+
+      <!-- Provider Sequence Flows -->
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="216" y="425"/>
+        <di:waypoint x="270" y="425"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="370" y="425"/>
+        <di:waypoint x="430" y="425"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="530" y="425"/>
+        <di:waypoint x="590" y="425"/>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="690" y="425"/>
+        <di:waypoint x="740" y="425"/>
+      </bpmndi:BPMNEdge>
+
+      <!-- Message Flows -->
+      <bpmndi:BPMNEdge id="MessageFlow_1_di" bpmnElement="MessageFlow_1">
+        <di:waypoint x="320" y="188"/>
+        <di:waypoint x="320" y="385"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="280" y="280" width="80" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
+      <bpmndi:BPMNEdge id="MessageFlow_2_di" bpmnElement="MessageFlow_2">
+        <di:waypoint x="640" y="385"/>
+        <di:waypoint x="480" y="188"/>
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="520" y="280" width="80" height="14"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 
