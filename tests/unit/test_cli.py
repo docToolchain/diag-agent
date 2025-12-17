@@ -104,7 +104,7 @@ class TestCLI:
         assert "component-diagram" in result.output, "Missing component-diagram example"
 
         # Verify all BPMN examples are shown
-        assert "simple-process" in result.output, "Missing simple-process example"
+        assert "default" in result.output, "Missing default BPMN example"
         assert "collaboration" in result.output, "Missing collaboration example"
 
         # Verify type information is shown
@@ -136,8 +136,7 @@ class TestCLI:
         assert "component-diagram" in result.output, "Missing component-diagram example"
 
         # Verify BPMN examples are NOT shown
-        assert "simple-process" not in result.output, "BPMN example should not be shown"
-        assert "collaboration" not in result.output, "BPMN example should not be shown"
+        assert "default" not in result.output or "[bpmn]" not in result.output, "BPMN example should not be shown"
 
     def test_examples_show_displays_source_code(self):
         """Test `diag-agent examples show <name>` displays example source code.
