@@ -84,7 +84,7 @@ class TestCLI:
 
         Validates that:
         - examples list command works without errors
-        - Output contains all 5 examples (3 C4-PlantUML + 2 BPMN)
+        - Output contains all 4 examples (3 C4-PlantUML + 1 BPMN)
         - Output shows diagram type and example name
         """
         from diag_agent.cli.commands import cli
@@ -105,7 +105,6 @@ class TestCLI:
 
         # Verify all BPMN examples are shown
         assert "default" in result.output, "Missing default BPMN example"
-        assert "collaboration" in result.output, "Missing collaboration example"
 
         # Verify type information is shown
         assert "c4plantuml" in result.output.lower() or "C4" in result.output, "Missing C4-PlantUML type"
