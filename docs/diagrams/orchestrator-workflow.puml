@@ -1,0 +1,74 @@
+@startuml
+!pragma teoz true
+
+skinparam sequenceMessageAlign center
+skinparam BoxPadding 15
+skinparam ParticipantPadding 40
+skinparam SequenceBoxBorderColor #888888
+skinparam SequenceGroupBorderThickness 2
+skinparam SequenceGroupHeaderFontSize 12
+skinparam SequenceGroupHeaderFontStyle bold
+skinparam SequenceGroupBackgroundColor #F8F8F8
+
+actor "Calling LLM" as LLM
+participant "diag-agent" as Agent
+participant "Kroki" as Kroki
+
+== Description Validation Phase ==
+
+LLM -> Agent: Send diagram description
+activate Agent
+Agent -> Agent: Validate description
+
+alt #LightCoral Description invalid
+    Agent -> LLM: Return validation questions
+    activate LLM
+    LLM -> LLM: Refine description
+    LLM -> Agent: Resend refined description
+    deactivate LLM
+end
+
+== Code Generation & Validation Phase ==
+
+loop #LightBlue Iteration Loop (max 5 attempts)
+    
+    Agent -> LLM: Request diagram code generation
+    activate LLM
+    LLM -> Agent: Return diagram code
+    deactivate LLM
+    
+    Agent -> Kroki: Validate syntax
+    activate Kroki
+    Kroki -> Agent: Validation result
+    deactivate Kroki
+    
+    alt #LightCoral Syntax invalid
+        Agent -> Agent: Prepare error feedback
+    else #LightGreen Syntax valid
+        opt #LightYellow Design validation enabled
+            Agent -> Agent: Render as PNG
+            
+            alt #PaleGreen PNG supported
+                create participant "Vision LLM" as Vision
+                Agent -> Vision: Analyze design
+                activate Vision
+                Vision -> Agent: Design feedback
+                deactivate Vision
+                
+                alt Design approved
+                    Agent -> Agent: Mark as complete & exit loop
+                end
+            else #PaleTurquoise PNG not supported
+                Agent -> Agent: Skip design validation & exit loop
+            end
+        end
+    end
+end
+
+== Finalization ==
+
+Agent -> Agent: Write output files
+Agent -> LLM: Return result\n(diagram files + metadata)
+deactivate Agent
+
+@enduml

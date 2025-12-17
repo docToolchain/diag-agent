@@ -84,7 +84,7 @@ class TestCLI:
 
         Validates that:
         - examples list command works without errors
-        - Output contains all 5 examples (3 C4-PlantUML + 2 BPMN)
+        - Output contains all 4 examples (3 C4-PlantUML + 1 BPMN)
         - Output shows diagram type and example name
         """
         from diag_agent.cli.commands import cli
@@ -104,8 +104,7 @@ class TestCLI:
         assert "component-diagram" in result.output, "Missing component-diagram example"
 
         # Verify all BPMN examples are shown
-        assert "simple-process" in result.output, "Missing simple-process example"
-        assert "collaboration" in result.output, "Missing collaboration example"
+        assert "default" in result.output, "Missing default BPMN example"
 
         # Verify type information is shown
         assert "c4plantuml" in result.output.lower() or "C4" in result.output, "Missing C4-PlantUML type"
@@ -136,8 +135,7 @@ class TestCLI:
         assert "component-diagram" in result.output, "Missing component-diagram example"
 
         # Verify BPMN examples are NOT shown
-        assert "simple-process" not in result.output, "BPMN example should not be shown"
-        assert "collaboration" not in result.output, "BPMN example should not be shown"
+        assert "default" not in result.output or "[bpmn]" not in result.output, "BPMN example should not be shown"
 
     def test_examples_show_displays_source_code(self):
         """Test `diag-agent examples show <name>` displays example source code.
